@@ -1,6 +1,6 @@
 /* fetch-soup.c - proof of concept for a HTTP client for YT using
  *                libsoup
- * Copyright (C) 2008 VÃ­ctor Manuel JÃ¡quez Leal <vjaquez@igalia.com>
+ * Copyright (C) 2008 Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -33,6 +33,7 @@ http_init ()
 {
 	Http* me = g_new0 (Http, 1);
 	gchar* base = "http://gdata.youtube.com/feeds/api/videos?max-results=3&vq=muse+invincible&alt=json";
+	/* gchar* base = "http://www.youtube.com/v/7-moeVw_r_4" */
 	me->uri = soup_uri_new (base);
 
 	if (!me->uri)
