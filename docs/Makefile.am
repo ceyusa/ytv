@@ -42,12 +42,12 @@ FIXXREF_OPTIONS=
 # Used for dependencies. The docs will be rebuilt if any of these change.
 # e.g. HFILE_GLOB=$(top_srcdir)/gtk/*.h
 # e.g. CFILE_GLOB=$(top_srcdir)/gtk/*.c
-HFILE_GLOB=$(top_srcdir)/src/ytv-*.h
-CFILE_GLOB=$(top_srcdir)/src/ytv-*.c
+HFILE_GLOB=$(top_srcdir)/src/*.h
+CFILE_GLOB=$(top_srcdir)/src/*.c
 
 # Header files to ignore when scanning.
 # e.g. IGNORE_HFILES=gtkdebug.h gtkintl.h
-IGNORE_HFILES=
+IGNORE_HFILES=fetcher.h
 
 # Images to copy into HTML directory.
 # e.g. HTML_IMAGES=$(top_srcdir)/gtk/stock-icons/stock_about_24.png
@@ -73,7 +73,8 @@ INCLUDES=			\
 	-I$(top_srcdir)/src
 GTKDOC_LIBS= 			\
 	$(GOBJECT_LIBS)		\
-	$(GLIB_LIBS)
+	$(GLIB_LIBS)		\
+	../src/ytv-ytv-*.o
 
 # This includes the standard gtk-doc make rules, copied by gtkdocize.
 include $(top_srcdir)/gtk-doc.make
