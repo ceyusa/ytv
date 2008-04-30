@@ -10,6 +10,6 @@ ytv_LIBADD =			\
 	$(GOBJECT_CFLAGS)	\
 	$(GLIB_CFLAGS)
 
-ytv_SOURCES = 		\
-	ytv-entry.c 	\
+ytv_SOURCES = 			\
+	ytv-entry.c 		\
 	main.c
