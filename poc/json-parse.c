@@ -21,34 +21,47 @@
 #include <json-glib/json-glib.h>
 #include <stdlib.h>
 
+#define do_indent(i) { gint z; for (z = 0; z < i; z++) g_print (" ");  }
+
 static void
 traverse (JsonNode* node)
 {
 	g_assert (node != NULL);
+	static gint indent = -1;
 
+	indent++;
 	
 	switch (JSON_NODE_TYPE(node))
 	{
 	case JSON_NODE_OBJECT:
 	{
-		g_print (": {\n");
+		g_print ("\n");
+		do_indent (indent);
+		g_print ("{\n");
+		indent++;
 		JsonObject* object = json_node_get_object (node);
 		GList* members = json_object_get_members (object);
 		GList* tmp = NULL; JsonNode* nextnode = NULL;
 		for (tmp = members; tmp; tmp = tmp->next)
 		{
-			g_print ("%s ", (gchar*) tmp->data);
+			do_indent (indent);
+			g_print ("%s: ", (gchar*) tmp->data);
 			nextnode = json_object_get_member (object,
 							   (gchar*) tmp->data);
 			traverse (nextnode);
 		}
 		g_list_free (members);
+		indent--;
+		do_indent (indent);
 		g_print ("}\n");
 	}
 		break;
 	case JSON_NODE_ARRAY:
 	{
-		g_print (": [\n");
+		g_print ("\n");
+		do_indent (indent);
+		g_print ("[\n");
+		indent++;
 		JsonArray* arr = json_node_get_array (node);
 		gint size = json_array_get_length (arr);
 		gint i; JsonNode* nextnode;
@@ -57,16 +70,21 @@ traverse (JsonNode* node)
 			nextnode = json_array_get_element (arr, i);
 			traverse (nextnode);
 		}
+		indent--;
+		do_indent (indent);
 		g_print ("]\n");
 	}
 		break;
 	case JSON_NODE_VALUE:
 	{
-		g_print (": ");
 		GType gtype = json_node_get_value_type (node);
 		if (gtype == G_TYPE_STRING)
 		{
 			g_print ("%s\n", json_node_get_string (node));
+		}
+		else
+		{
+			g_print ("other type\n");
 		}
 	}
 		break;
@@ -77,6 +95,8 @@ traverse (JsonNode* node)
 		g_assert_not_reached ();
 	}
 
+	indent--;
+	
 	return;
 }
 
@@ -100,6 +120,7 @@ parse (gchar *filename)
 
 	root = json_parser_get_root (parser);
 
+	g_print ("root");
 	traverse (root);
 
 	return;
