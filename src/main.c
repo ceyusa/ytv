@@ -24,9 +24,6 @@
 static void
 create_entry ()
 {
-/* 	GObject* object = g_object_new (G_TYPE_OBJECT, NULL); */
-/* 	g_object_unref (object); */
-	
 	YtvEntry *entry = g_object_new (YTV_TYPE_ENTRY,
 					"id", "7-moeVw_r_4",
 					"author", "bbgames",
@@ -40,6 +37,11 @@ create_entry ()
 					"description", "Muse - Invincible (Official Video)",
 					NULL);
 
+	
+	gchar* id = NULL;
+	g_object_get (entry, "id", &id, NULL);
+	g_print ("id = %s\n", id);
+	g_free (id);
 	g_object_unref (entry);
 	return;
 }

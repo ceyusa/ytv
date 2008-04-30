@@ -57,7 +57,7 @@ struct _YtvEntryPriv
 	gint duration;
 	gfloat rating;
 	gchar* published;
-	gint views;
+	guint views;
 	gchar* category;
 	gchar* tags;
 	gchar* description;
@@ -79,7 +79,7 @@ ytv_entry_init (YtvEntry* self)
 	priv->duration    = -1;
 	priv->rating      = -1;
 	priv->published   = NULL;
-	priv->views       = -1;
+	priv->views       = 0;
 	priv->category    = NULL;
 	priv->tags        = NULL;
 	priv->description = NULL;
@@ -123,7 +123,7 @@ ytv_entry_set_property (GObject* object, guint prop_id,
 		break;
 	case PROP_RATING:
 		g_return_if_fail (priv->rating == -1);
-		gint rating = g_value_get_float (value);
+		gfloat rating = g_value_get_float (value);
 		g_return_if_fail (rating >= 1);
 		priv->rating = rating;
 		break;
@@ -138,9 +138,10 @@ ytv_entry_set_property (GObject* object, guint prop_id,
 		const gchar* published = g_value_get_string (value);
 		g_return_if_fail (published != NULL);
 		priv->published = g_strdup (published);
+                break;
 	case PROP_VIEWS:
-		g_return_if_fail (priv->views == -1);
-		gint views = g_value_get_int (value);
+		g_return_if_fail (priv->views == 0);
+		gint views = g_value_get_uint (value);
 		g_return_if_fail (views >= 0);
 		priv->views = views;
 		break;
@@ -193,7 +194,7 @@ ytv_entry_get_property (GObject* object, guint prop_id,
 		g_value_set_string (value, priv->category);
 		break;
 	case PROP_VIEWS:
-		g_value_set_int (value, priv->views);
+		g_value_set_uint (value, priv->views);
 		break;
 	case PROP_TAGS:
 		g_value_set_string (value, priv->tags);
@@ -312,9 +313,9 @@ ytv_entry_class_init (YtvEntryClass* klass)
 
 	g_object_class_install_property
 		(g_klass, PROP_VIEWS,
-		 g_param_spec_int
+		 g_param_spec_uint
 		 ("views", "viewcount",
-		  "Number of times the video has been viewed", 0, G_MAXINT, 0,
+		  "Number of times the video has been viewed", 0, G_MAXUINT, 0,
 		  G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
 	g_object_class_install_property
