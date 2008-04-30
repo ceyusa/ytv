@@ -5,12 +5,12 @@ SUBDIRS += docs
 endif
 
 DIST_SUBDIRS = 	\
-	src 	\
-	docs
+	src 	
+#	docs
 
 CLEANFILES = 	\
 	*~ 	\
 	semantic.cache*
 
-DISTCHECK_CONFIGURE_FLAGS = \
-	--enable-gtk-doc
+#DISTCHECK_CONFIGURE_FLAGS = \
+#	--enable-gtk-doc

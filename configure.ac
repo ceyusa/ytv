@@ -21,7 +21,13 @@ dnl #####################################
 PKG_CHECK_MODULES([GOBJECT], [gobject-$GLIB_MAJORMINOR >= $GLIB_REQUIRED])
 PKG_CHECK_MODULES([GLIB], [glib-$GLIB_MAJORMINOR >= $GLIB_REQUIRED])
 
+dnl #####################################
+dnl ### Optional dependencies         ###
+dnl #####################################
+dnl GTK_DOC_CHECK([1.4])
+
 AC_OUTPUT([
 Makefile
 src/Makefile
+dnl docs/Makefile
 ])
