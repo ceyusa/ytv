@@ -56,6 +56,8 @@ struct _YtvEntryClass
         GObjectClass parent_class;
 };
 
+GType ytv_entry_get_type (void);
+
 G_END_DECLS
 
 #endif /* _YTV_ENTRY_H_ */

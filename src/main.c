@@ -24,8 +24,23 @@
 static void
 create_entry ()
 {
-	YtvEntry *entry = g_object_new (YTV_TYPE_ENTRY, NULL);
+/* 	GObject* object = g_object_new (G_TYPE_OBJECT, NULL); */
+/* 	g_object_unref (object); */
 	
+	YtvEntry *entry = g_object_new (YTV_TYPE_ENTRY,
+					"id", "7-moeVw_r_4",
+					"author", "bbgames",
+					"title", "Muse - Invincible (Official Video)",
+					"duration", 274,
+					"rating", 4.94,
+					"published", "2007-03-16T17:46:04.000-07:00",
+					"views", 110401,
+					"category", "Music",
+					"tags", "absolution, and, bellamy, black, channel, dom, fantastic, four, good, holes, invincible, matt, muse, new, official, revelations, video",
+					"description", "Muse - Invincible (Official Video)",
+					NULL);
+
+	g_object_unref (entry);
 	return;
 }
 

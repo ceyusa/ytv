@@ -66,7 +66,7 @@ struct _YtvEntryPriv
 #define YTV_ENTRY_GET_PRIVATE(obj)					\
 	(G_TYPE_INSTANCE_GET_PRIVATE ((obj), YTV_TYPE_ENTRY, YtvEntryPriv))
 
-G_DEFINE_TYPE (YtvEntry, ytv_entry, YTV_TYPE_ENTRY)
+G_DEFINE_TYPE (YtvEntry, ytv_entry, G_TYPE_OBJECT)
 
 static void
 ytv_entry_init (YtvEntry* self)
