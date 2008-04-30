@@ -29,5 +29,4 @@ dnl GTK_DOC_CHECK([1.4])
 AC_OUTPUT([
 Makefile
 src/Makefile
-dnl docs/Makefile
 ])

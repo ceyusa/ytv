@@ -31,7 +31,7 @@
 #include <config.h>
 #endif
 
-#include "ytv-entry.h"
+#include <ytv-entry.h>
 
 enum _YtvEntryProperties
 {
@@ -66,12 +66,12 @@ struct _YtvEntryPriv
 #define YTV_ENTRY_GET_PRIVATE(obj)					\
 	(G_TYPE_INSTANCE_GET_PRIVATE ((obj), YTV_TYPE_ENTRY, YtvEntryPriv))
 
-G_DEFINE_TYPE (YtvEntry, ytv_entry, YYV_TYPE_ENTRY)
+G_DEFINE_TYPE (YtvEntry, ytv_entry, YTV_TYPE_ENTRY)
 
 static void
 ytv_entry_init (YtvEntry* self)
 {
-	YtvEntryPriv* priv = YTV_ENTRY_GET_PRIV (self);
+	YtvEntryPriv* priv = YTV_ENTRY_GET_PRIVATE (self);
 
 	priv->id          = NULL;
 	priv->author      = NULL;
@@ -98,20 +98,20 @@ ytv_entry_set_property (GObject* object, guint prop_id,
 	switch (prop_id)
 	{
 	case PROP_ID:
-		g_return_if_fail (priv->id == NULL);
-		gchar* id = g_value_get_string (value);
-		g_return_if_fail (id != NULL);
-		priv->id = g_strdup (id);
-		break;
+                g_return_if_fail (priv->id == NULL);
+                const gchar* id = g_value_get_string (value);
+                g_return_if_fail (id != NULL);
+                priv->id = g_strdup (id);
+                break;
 	case PROP_AUTHOR:
 		g_return_if_fail (priv->author == NULL);
-		gchar* author = g_value_get_string (value);
+		const gchar* author = g_value_get_string (value);
 		g_return_if_fail (author != NULL);
 		priv->author = g_strdup (author);
 		break;
 	case PROP_TITLE:
 		g_return_if_fail (priv->title == NULL);
-		gchar* title = g_value_get_string (value);
+		const gchar* title = g_value_get_string (value);
 		g_return_if_fail (title != NULL);
 		priv->title = g_strdup (title);
 		break;
@@ -129,13 +129,13 @@ ytv_entry_set_property (GObject* object, guint prop_id,
 		break;
 	case PROP_CATEGORY:
 		g_return_if_fail (priv->category == NULL);
-		gchar* category = g_value_get_string (value);
+		const gchar* category = g_value_get_string (value);
 		g_return_if_fail (category != NULL);
 		priv->category = g_strdup (category);
 		break;
 	case PROP_PUBLISHED:
 		g_return_if_fail (priv->published == NULL);
-		gchar* published = g_value_get_string (value);
+		const gchar* published = g_value_get_string (value);
 		g_return_if_fail (published != NULL);
 		priv->published = g_strdup (published);
 	case PROP_VIEWS:
@@ -146,13 +146,13 @@ ytv_entry_set_property (GObject* object, guint prop_id,
 		break;
 	case PROP_TAGS:
 		g_return_if_fail (priv->tags == NULL);
-		gchar* tags = g_value_get_string (value);
+		const gchar* tags = g_value_get_string (value);
 		g_return_if_fail (tags != NULL);
 		priv->tags = g_strdup (tags);
 		break;
 	case PROP_DESCRIPTION:
 		g_return_if_fail (priv->description == NULL);
-		gchar* description = g_value_get_string (value);
+		const gchar* description = g_value_get_string (value);
 		g_return_if_fail (description != NULL);
 		priv->description = g_strdup (description);
 		break;
@@ -193,7 +193,7 @@ ytv_entry_get_property (GObject* object, guint prop_id,
 		g_value_set_string (value, priv->category);
 		break;
 	case PROP_VIEWS:
-		g_value_set_int (value, priv->views)
+		g_value_set_int (value, priv->views);
 		break;
 	case PROP_TAGS:
 		g_value_set_string (value, priv->tags);

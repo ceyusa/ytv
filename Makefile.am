@@ -1,8 +1,8 @@
 SUBDIRS = src
 
-if ENABLE_GTK_DOC
-SUBDIRS += docs
-endif
+#if ENABLE_GTK_DOC
+#SUBDIRS += docs
+#endif
 
 DIST_SUBDIRS = 	\
 	src 	

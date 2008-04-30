@@ -53,7 +53,7 @@ struct _YtvEntry
 
 struct _YtvEntryClass
 {
-        GOjbectClass parent_class;
+        GObjectClass parent_class;
 };
 
 G_END_DECLS

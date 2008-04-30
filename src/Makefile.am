@@ -6,9 +6,9 @@ ytv_CFLAGS =			\
 	$(GOBJECT_CFLAGS)   	\
 	$(GLIB_CFLAGS)
 
-ytv_LIBADD =			\
-	$(GOBJECT_CFLAGS)	\
-	$(GLIB_CFLAGS)
+ytv_LDADD =			\
+	$(GOBJECT_LIBS)		\
+	$(GLIB_LIBS)
 
 ytv_SOURCES = 			\
 	ytv-entry.c 		\
