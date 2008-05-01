@@ -12,4 +12,9 @@ ytv_LDADD =			\
 
 ytv_SOURCES = 			\
 	ytv-entry.c 		\
+	ytv-entry.h 		\
+	ytv-iterator.c		\
+	ytv-iterator.h		\
+	ytv-list.c		\
+	ytv-list.h		\
 	main.c
