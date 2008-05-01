@@ -1,7 +1,7 @@
 /* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 8; coding: utf-8 -*- */
 
-#ifndef _YTV_PORT_LIST_H_
-#define _YTV_PORT_LIST_H_
+#ifndef _YTV_ENTRY_LIST_H_
+#define _YTV_ENTRY_LIST_H_
 
 /* ytv-entry-list.h - List of entries
  * Copyright (C) 2008 Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
@@ -22,42 +22,41 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <ytv-object.h>
 #include <ytv-list.h>
 
 G_BEGIN_DECLS
 
-#define YTV_TYPE_PORT_LIST ytv_port_list_get_type()
+#define YTV_TYPE_ENTRY_LIST ytv_entry_list_get_type()
 
-#define YTV_PORT_LIST(obj) \
-        (G_TYPE_CHECK_INSTANCE_CAST ((obj), YTV_TYPE_PORT_LIST, YtvPortList))
-#define YTV_PORT_LIST_CLASS(klass) \
-        (G_TYPE_CHECK_CLASS_CAST ((klass), YTV_TYPE_PORT_LIST, YtvPortListClass))
-#define YTV_IS_PORT_LIST(obj) \
-        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), YTV_TYPE_PORT_LIST))
-#define YTV_IS_PORT_LIST_CLASS(klass) \
-        (G_TYPE_CHECK_CLASS_TYPE ((klass), YTV_TYPE_PORT_LIST))
-#define YTV_PORT_LIST_GET_CLASS(obj) \
-        (G_TYPE_INSTANCE_GET_CLASS ((obj), YTV_TYPE_PORT_LIST, YtvPortListClass))
+#define YTV_ENTRY_LIST(obj) \
+        (G_TYPE_CHECK_INSTANCE_CAST ((obj), YTV_TYPE_ENTRY_LIST, YtvEntryList))
+#define YTV_ENTRY_LIST_CLASS(klass) \
+        (G_TYPE_CHECK_CLASS_CAST ((klass), YTV_TYPE_ENTRY_LIST, YtvEntryListClass))
+#define YTV_IS_ENTRY_LIST(obj) \
+        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), YTV_TYPE_ENTRY_LIST))
+#define YTV_IS_ENTRY_LIST_CLASS(klass) \
+        (G_TYPE_CHECK_CLASS_TYPE ((klass), YTV_TYPE_ENTRY_LIST))
+#define YTV_ENTRY_LIST_GET_CLASS(obj) \
+        (G_TYPE_INSTANCE_GET_CLASS ((obj), YTV_TYPE_ENTRY_LIST, YtvEntryListClass))
 
-typedef struct _YtvPortList YtvPortList;
-typedef struct _YtvPortListClass YtvPortListClass;
+typedef struct _YtvEntryList YtvEntryList;
+typedef struct _YtvEntryListClass YtvEntryListClass;
 
-struct _YtvPortList
+struct _YtvEntryList
 {
         GObject parent;
         GList* first;
         GMutex* list_lock;
 };
 
-struct _YtvPortListClass
+struct _YtvEntryListClass
 {
         GObjectClass parent_class;
 };
 
-GType ytv_port_list_get_type (void);
-YtvList* ytv_port_list_new (void);
+GType ytv_entry_list_get_type (void);
+YtvList* ytv_entry_list_new (void);
 
 G_END_DECLS
 
-#endif /* _YTV_PORT_LIST_H_ */
+#endif /* _YTV_ENTRY_LIST_H_ */

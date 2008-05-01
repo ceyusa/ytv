@@ -44,7 +44,7 @@ ytv_entry_list_get_length (YtvList* self)
 }
 
 static void
-ytv_entry_list_prepend (YtvList* self, YtvObject* item)
+ytv_entry_list_prepend (YtvList* self, GObject* item)
 {
         g_assert (YTV_IS_ENTRY_LIST (self));
         g_assert (YTV_IS_ENTRY (item));
@@ -60,7 +60,7 @@ ytv_entry_list_prepend (YtvList* self, YtvObject* item)
 }
 
 static void
-ytv_entry_list_append (YtvList* self, YtvObject* item)
+ytv_entry_list_append (YtvList* self, GObject* item)
 {
         g_assert (YTV_IS_ENTRY_LIST (self));
         g_assert (YTV_IS_ENTRY (item));
@@ -76,7 +76,7 @@ ytv_entry_list_append (YtvList* self, YtvObject* item)
 }
 
 static void
-ytv_entry_list_remove (YtvList* self, YtvObject* item)
+ytv_entry_list_remove (YtvList* self, GObject* item)
 {
         g_assert (YTV_IS_ENTRY_LIST (self));
         g_assert (YTV_IS_ENTRY (item));
@@ -203,7 +203,7 @@ ytv_entry_list_init (YtvEntryList *self)
 }
 
 YtvList*
-goo_entry_list_new (void)
+ytv_entry_list_new (void)
 {
-        return GOO_LIST (g_object_new (GOO_TYPE_ENTRY_LIST, NULL));
+        return YTV_LIST (g_object_new (YTV_TYPE_ENTRY_LIST, NULL));
 }

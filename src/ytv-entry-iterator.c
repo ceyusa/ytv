@@ -99,7 +99,7 @@ ytv_entry_iterator_nth (YtvIterator *self, guint nth)
         return;        
 }
 
-static YtvObject*
+static GObject*
 ytv_entry_iterator_get_current (YtvIterator* self)
 {
         g_assert (YTV_IS_ENTRY_ITERATOR (self));
@@ -119,7 +119,7 @@ ytv_entry_iterator_get_current (YtvIterator* self)
         if (entry)
                 g_object_ref (G_OBJECT (entry));
 
-        return YTV_OBJECT (entry);
+        return G_OBJECT (entry);
 }
 
 static YtvList*
