@@ -113,7 +113,7 @@ ytv_iterator_nth (YtvIterator *self, guint nth)
 GObject*
 ytv_iterator_get_current (YtvIterator *self)
 {
-        YtvObject *retval;
+        GObject *retval;
 
         g_assert (YTV_IS_ITERATOR (self));
         g_assert (YTV_ITERATOR_GET_IFACE (self)->get_current_func != NULL);

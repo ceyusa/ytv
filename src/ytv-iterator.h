@@ -64,7 +64,7 @@ struct _YtvIteratorIface
 	void (*prev_func) (YtvIterator *self);
 	void (*first_func) (YtvIterator *self);
 	void (*nth_func) (YtvIterator *self, guint nth);
-	YtvObject* (*get_current_func) (YtvIterator *self);
+	GObject* (*get_current_func) (YtvIterator *self);
 
 	gboolean (*is_done_func) (YtvIterator *self);
 	YtvList* (*get_list_func) (YtvIterator *self);

@@ -47,16 +47,16 @@ ytv_list_get_length (YtvList *self)
  * @item: the item to prepend
  *
  * Prepends an item to a list. You can only prepend items that inherit from the
- * YtvObject base item. That's because the ytv list infrastructure does 
+ * GObject base item. That's because the ytv list infrastructure does 
  * reference counting. It effectively means that indeed you can't use non 
- * YtvObject types in a ytv list. But there's not a single situation where 
- * you must do that. If you must store a non YtvObject in a list, you shouldn't
+ * GObject types in a ytv list. But there's not a single situation where 
+ * you must do that. If you must store a non GObject in a list, you shouldn't
  * use the ytv infrastructure for this. Consider using a doubly linked list
  * or a pointer array or any other list-type available on your development
  * platform.
  *
- * However, ytv lists can cope with any valid YtvObject. Not just the 
- * YtvObjects implemented by the ytv framework.
+ * However, ytv lists can cope with any valid GObject. Not just the 
+ * GObjects implemented by the ytv framework.
  *
  * All reference handling in ytv is reference neutral. Also the lists. This
  * means that if your plan is to reparent the item to the list, that you should
@@ -74,12 +74,12 @@ ytv_list_get_length (YtvList *self)
  *
  **/
 void
-ytv_list_prepend (YtvList *self, YtvObject* item)
+ytv_list_prepend (YtvList *self, GObject* item)
 {
         g_assert (YTV_IS_LIST (self));
         gint length = ytv_list_get_length (self);
         g_assert (item);
-        g_assert (YTV_IS_OBJECT (item));
+        g_assert (G_IS_OBJECT (item));
         g_assert (YTV_LIST_GET_IFACE (self)->prepend_func != NULL);
 
         YTV_LIST_GET_IFACE (self)->prepend_func (self, item);
@@ -95,16 +95,16 @@ ytv_list_prepend (YtvList *self, YtvObject* item)
  * @item: the item to append
  *
  * Appends an item to a list. You can only append items that inherit from the
- * YtvObject base item. That's because the ytv list infrastructure does 
+ * GObject base item. That's because the ytv list infrastructure does 
  * reference counting. It effectively means that indeed you can't use non 
- * YtvObject types in a ytv list. But there's not a single situation where 
- * you must do that. If you must store a non YtvObject in a list, you shouldn't
+ * GObject types in a ytv list. But there's not a single situation where 
+ * you must do that. If you must store a non GObject in a list, you shouldn't
  * use the ytv infrastructure for this. Consider using a doubly linked list
  * or a pointer array or any other list-type available on your development
  * platform.
  *
- * However, ytv lists can cope with any valid YtvObject. Not just the 
- * YtvObjects implemented by the ytv framework.
+ * However, ytv lists can cope with any valid GObject. Not just the 
+ * GObjects implemented by the ytv framework.
  *
  * All reference handling in ytv is reference neutral. Also the lists. This
  * means that if your plan is to reparent the item to the list, that you should
@@ -122,12 +122,12 @@ ytv_list_prepend (YtvList *self, YtvObject* item)
  *
  **/
 void 
-ytv_list_append (YtvList *self, YtvObject* item)
+ytv_list_append (YtvList *self, GObject* item)
 {
         g_assert (YTV_IS_LIST (self));
         gint length = ytv_list_get_length (self);
         g_assert (item);
-        g_assert (YTV_IS_OBJECT (item));
+        g_assert (G_IS_OBJECT (item));
         g_assert (YTV_LIST_GET_IFACE (self)->append_func != NULL);
 
         YTV_LIST_GET_IFACE (self)->append_func (self, item); 
@@ -162,7 +162,7 @@ ytv_list_append (YtvList *self, YtvObject* item)
  * {
  *      if (i % 2 == 0)
  *      {
- *           YtvObject *obj = ytv_iterator_get_current (iter);
+ *           GObject *obj = ytv_iterator_get_current (iter);
  *           ytv_list_prepend (removethese, obj);
  *           g_object_unref (G_OBJECT (obj));
  *      }
@@ -173,7 +173,7 @@ ytv_list_append (YtvList *self, YtvObject* item)
  * iter = ytv_list_create_iterator (removethese);
  * while (!ytv_iterator_is_done (iter))
  * {
- *      YtvObject *obj = ytv_iterator_get_current (iter);
+ *      GObject *obj = ytv_iterator_get_current (iter);
  *      ytv_list_remove (toremovefrom, obj);
  *      g_object_unref (G_OBJECT (obj));
  *      ytv_iterator_next (iter);
@@ -191,12 +191,12 @@ ytv_list_append (YtvList *self, YtvObject* item)
  *
  **/
 void 
-ytv_list_remove (YtvList *self, YtvObject* item)
+ytv_list_remove (YtvList *self, GObject* item)
 {
         g_assert (YTV_IS_LIST (self));
         gint nl, length = ytv_list_get_length (self);
         g_assert (item);
-        g_assert (YTV_IS_OBJECT (item));
+        g_assert (G_IS_OBJECT (item));
         g_assert (YTV_LIST_GET_IFACE (self)->remove_func != NULL);
 
         YTV_LIST_GET_IFACE (self)->remove_func (self, item);

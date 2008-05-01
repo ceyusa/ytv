@@ -42,9 +42,9 @@ struct _YtvListIface
         GTypeInterface parent;
 
         guint (*get_length_func) (YtvList *self);
-        void (*prepend_func) (YtvList *self, YtvObject* item);
-        void (*append_func) (YtvList *self, YtvObject* item);
-        void (*remove_func) (YtvList *self, YtvObject* item);
+        void (*prepend_func) (YtvList *self, GObject* item);
+        void (*append_func) (YtvList *self, GObject* item);
+        void (*remove_func) (YtvList *self, GObject* item);
         void (*foreach_func) (YtvList *self, GFunc func, gpointer user_data);
         YtvList* (*copy_func) (YtvList *self);
         YtvIterator* (*create_iterator_func) (YtvList *self);

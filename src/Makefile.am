@@ -17,4 +17,8 @@ ytv_SOURCES = 			\
 	ytv-iterator.h		\
 	ytv-list.c		\
 	ytv-list.h		\
+	ytv-entry-iterator.c	\
+	ytv-entry-iterator.h	\
+	ytv-entry-list.c	\
+	ytv-entry-list.h	\
 	main.c
