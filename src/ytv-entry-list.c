@@ -26,8 +26,8 @@
 #include <ytv-entry.h>
 #include <ytv-iterator.h>
 #include <ytv-list.h>
-#include <ytv-entry-iterator.h>
-#include <ytv-entry-list.h>
+#include <ytv-entry-iterator-priv.h>
+#include <ytv-entry-list-priv.h>
 
 static guint
 ytv_entry_list_get_length (YtvList* self)
