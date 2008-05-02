@@ -19,6 +19,22 @@
  * Boston, MA 02110-1301, USA.
  */
 
+/**
+ * SECTION: ytv-entry-list-priv
+ * @short_description: A list of video entries in a feed or search
+ * @see_also: #YtvList, #YtvEntry, #GList
+ *
+ * An entry list using a GList (a double linked list) internally
+ */
+
+/**
+ * YtvEntryList:
+ *
+ * An entry list
+ *
+ * free-function: g_object_unref
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -202,6 +218,13 @@ ytv_entry_list_init (YtvEntryList *self)
         self->first = NULL;
 }
 
+/**
+ * ytv_entry_list_new:
+ *
+ * Create a #YtvList of entries instance
+ *
+ * returns: (caller-owns): A #YtvList of entries
+ */
 YtvList*
 ytv_entry_list_new (void)
 {

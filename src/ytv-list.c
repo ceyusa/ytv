@@ -46,6 +46,8 @@
  * ytv_list_get_length:
  * @self: An #YtvList instance
  *
+ * Obtains the number of elements contained in the list
+ *
  * Return value: the length of the list
  *
  **/

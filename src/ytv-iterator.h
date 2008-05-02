@@ -37,6 +37,8 @@ G_BEGIN_DECLS
 
 typedef struct _YtvList YtvList;
 typedef struct _YtvIterator YtvIterator;
+
+/*< protected >*/
 typedef struct _YtvIteratorIface YtvIteratorIface;
 
 struct _YtvIteratorIface

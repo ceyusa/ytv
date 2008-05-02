@@ -22,7 +22,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <ytv-entry-list.h>
+#include <ytv-entry-list-priv.h>
 
 G_BEGIN_DECLS
 
