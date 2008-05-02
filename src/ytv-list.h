@@ -22,7 +22,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <ytv-iterator.h>
+#include <ytv-shared.h>
 
 G_BEGIN_DECLS
 
@@ -35,7 +35,6 @@ G_BEGIN_DECLS
 #define YTV_LIST_GET_IFACE(inst) \
         (G_TYPE_INSTANCE_GET_INTERFACE ((inst), YTV_TYPE_LIST, YtvListIface))
 
-typedef struct _YtvListIface YtvListIface;
 struct _YtvListIface
 {
         GTypeInterface parent;

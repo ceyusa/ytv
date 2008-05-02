@@ -22,7 +22,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <ytv-list.h>
+#include <ytv-shared.h>
 
 G_BEGIN_DECLS
 
@@ -38,9 +38,6 @@ G_BEGIN_DECLS
         (G_TYPE_CHECK_CLASS_TYPE ((klass), YTV_TYPE_ENTRY_LIST))
 #define YTV_ENTRY_LIST_GET_CLASS(obj) \
         (G_TYPE_INSTANCE_GET_CLASS ((obj), YTV_TYPE_ENTRY_LIST, YtvEntryListClass))
-
-typedef struct _YtvEntryList YtvEntryList;
-typedef struct _YtvEntryListClass YtvEntryListClass;
 
 struct _YtvEntryList
 {

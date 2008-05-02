@@ -22,6 +22,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <ytv-shared.h>
 #include <ytv-entry.h>
 #include <ytv-list.h>
 
@@ -35,12 +36,6 @@ G_BEGIN_DECLS
         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), YTV_TYPE_FEED))
 #define YTV_FEED_GET_IFACE(inst)                \
         (G_TYPE_INSTANCE_GET_INTERFACE ((inst), YTV_TYPE_LIST, YtvListIface))
-
-void (*YtvFeedGetCallback) (YtvFeed* feed, gboolean canceled, YtvList* entries,
-                            GError *err, gpointer_data);
-
-typedef struct _YtvFeed YtvFeed;
-typedef struct _YtvFeedIface YtvFeedIface;
 
 struct _YtvFeedIface
 {

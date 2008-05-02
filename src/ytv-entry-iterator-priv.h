@@ -22,7 +22,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <ytv-entry-list-priv.h>
+#include <ytv-shared.h>
 
 G_BEGIN_DECLS
 
@@ -39,9 +39,6 @@ G_BEGIN_DECLS
 #define YTV_ENTRY_ITERATOR_GET_CLASS(obj) \
         (G_TYPE_INSTANCE_GET_CLASS ((obj), YTV_TYPE_ENTRY_ITERATOR, YtvEntryIteratorClass))
 
-typedef struct _YtvEntryIterator YtvEntryIterator;
-typedef struct _YtvEntryIteratorClass YtvEntryIteratorClass;
-
 struct _YtvEntryIterator
 {
         GObject parent;
@@ -56,6 +53,7 @@ struct _YtvEntryIteratorClass
 };
 
 GType ytv_entry_iterator_get_type (void);
+
 YtvIterator* ytv_entry_iterator_new (YtvEntryList* list);
 void ytv_entry_iterator_set_list (YtvEntryIterator* self, YtvEntryList* list);
 

@@ -11,6 +11,7 @@ ytv_LDADD =			\
 	$(GLIB_LIBS)
 
 ytv_SOURCES = 			\
+	ytv-shared.h		\
 	ytv-entry.c 		\
 	ytv-entry.h 		\
 	ytv-iterator.c		\

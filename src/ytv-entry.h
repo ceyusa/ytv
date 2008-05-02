@@ -23,6 +23,7 @@
  */
 
 #include <glib-object.h>
+#include <ytv-shared.h>
 
 G_BEGIN_DECLS
 
@@ -37,9 +38,6 @@ G_BEGIN_DECLS
         (G_TYPE_CHECK_CLASS_TYPE ((klass), YTV_TYPE_ENTRY))
 #define YTV_ENTRY_GET_CLASS(obj)                \
         (G_TYPE_INSTANCE_GET_CLASS ((obj), YTV_TYPE_ENTRY, YtvEntryClass))
-
-typedef struct _YtvEntry YtvEntry;
-typedef struct _YtvEntryClass YtvEntryClass;
 
 /**
  * YtvEntry:
