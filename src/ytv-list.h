@@ -36,7 +36,6 @@ G_BEGIN_DECLS
         (G_TYPE_INSTANCE_GET_INTERFACE ((inst), YTV_TYPE_LIST, YtvListIface))
 
 typedef struct _YtvListIface YtvListIface;
-
 struct _YtvListIface
 {
         GTypeInterface parent;
