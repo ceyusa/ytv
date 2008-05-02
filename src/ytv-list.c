@@ -19,6 +19,15 @@
  * Boston, MA 02110-1301, USA.
  */
 
+/**
+ * YtvList:
+ *
+ * A list of things
+ *
+ * free-function: g_object_unref
+ * type-parameter: G
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
