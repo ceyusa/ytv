@@ -19,6 +19,26 @@
  * Boston, MA 02110-1301, USA.
  */
 
+/**
+ * SECTION: ytv-iterator
+ * @title: YtvIterator
+ * @short_description: An iterator type for a list
+ * @see_also: #YtvList
+ *
+ * An iterator for a #YtvList is used for iterating over a list.
+ * The iterator is an instance that keeps the position state information.
+ * The #YtvList instance will not by itself keep a position state.
+ * Only iterators can keep a position state for a list.
+ */
+
+/**
+ * YtvIterator:
+ *
+ * A position indicator for a #YtvList
+ *
+ * free-function: g_object_unref
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif

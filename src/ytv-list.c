@@ -20,12 +20,20 @@
  */
 
 /**
+ * SECTION: ytv-list
+ * @title: YtvList
+ * @short_description: A list type
+ * @see_also: #YtvIterator
+ *
+ * The #YtvList is an iterable list type
+ */
+
+/**
  * YtvList:
  *
- * A list of things
+ * An iterable list type
  *
  * free-function: g_object_unref
- * type-parameter: G
  */
 
 #ifdef HAVE_CONFIG_H

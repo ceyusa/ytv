@@ -36,24 +36,7 @@ G_BEGIN_DECLS
 	(G_TYPE_INSTANCE_GET_INTERFACE ((inst), YTV_TYPE_ITERATOR, YtvIteratorIface))
 
 typedef struct _YtvList YtvList;
-
-/**
- * YtvList:
- *
- * An iterable list type
- */
-
 typedef struct _YtvIterator YtvIterator;
-
-/**
- * YtvIterator:
- *
- * An iterator for a #YtvList is used for iterating over a list. The iterator
- * is an instance that keeps the position state information. The #YtvList instance
- * will not by itself keep a position state. Only iterators can keep a position
- * state for a list.
- */
-
 typedef struct _YtvIteratorIface YtvIteratorIface;
 
 struct _YtvIteratorIface
