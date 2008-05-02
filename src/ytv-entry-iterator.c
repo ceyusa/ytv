@@ -23,9 +23,10 @@
 #include <config.h>
 #endif
 
-#include <ytv-entry.h>
-#include <ytv-iterator.h>
 #include <ytv-entry-iterator-priv.h>
+#include <ytv-iterator.h>
+#include <ytv-entry.h>
+#include <ytv-entry-list-priv.h>
 
 static void
 ytv_entry_iterator_next (YtvIterator *self)

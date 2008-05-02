@@ -40,6 +40,7 @@
 #include <config.h>
 #endif
 
+#include <ytv-iterator.h>
 #include <ytv-list.h>
 
 /**

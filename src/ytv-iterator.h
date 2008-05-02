@@ -23,6 +23,7 @@
  */
 
 #include <glib-object.h>
+#include <ytv-shared.h>
 
 G_BEGIN_DECLS
 
@@ -34,12 +35,6 @@ G_BEGIN_DECLS
 	(G_TYPE_CHECK_INSTANCE_TYPE ((obj), YTV_TYPE_ITERATOR))
 #define YTV_ITERATOR_GET_IFACE(inst) \
 	(G_TYPE_INSTANCE_GET_INTERFACE ((inst), YTV_TYPE_ITERATOR, YtvIteratorIface))
-
-typedef struct _YtvList YtvList;
-typedef struct _YtvIterator YtvIterator;
-
-/*< protected >*/
-typedef struct _YtvIteratorIface YtvIteratorIface;
 
 struct _YtvIteratorIface
 {
