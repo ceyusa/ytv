@@ -44,7 +44,7 @@ typedef struct _YtvEntry YtvEntry;
 typedef struct _YtvEntryClass YtvEntryClass;
 
 /**
- * YtvGetFeedCallback:
+ * YtvGetEntriesCallback:
  * @feed: a #YtvFeed that caused the callback
  * @cancelled: if the operation got cancelled
  * @entries: (null-ok): a #YtvList of fetched #YtvEntry or NULL

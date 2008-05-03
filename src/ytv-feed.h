@@ -46,7 +46,8 @@ struct _YtvFeedIface
         void (*set_fetch_strategy) (YtvFeed* self, YtvFeedFetchStrategy* st);
         YtvFeedParseStrategy* (*get_parse_strategy) (YtvFeed *self);
         void (*set_parse_strategy) (YtvFeed* self, YtvFeedParseStrategy* st);
-        void (*get_entries_async) (YtvFeed* self, YtvGetFeedCallback callback,
+        void (*get_entries_async) (YtvFeed* self,
+                                   YtvGetEntriesCallback callback,
                                    gpointer user_data);
 };
 
@@ -56,7 +57,7 @@ void ytv_feed_set_fetch_strategy (YtvFeed* self, YtvFeedFetchStrategy* st);
 YtvFeedFetchStrategy* ytv_feed_get_fetch_strategy (YtvFeed* self);
 void ytv_feed_set_parse_strategy (YtvFeed* self, YtvFeedParseStrategy* st);
 YtvFeedParseStrategy* ytv_feed_get_parse_strategy (YtvFeed *self);
-void ytv_feed_get_entries_async (YtvFeed* self, YtvGetFeedCallback callback,
+void ytv_feed_get_entries_async (YtvFeed* self, YtvGetEntriesCallback callback,
                                  gpointer user_data);
 
 G_END_DECLS
