@@ -3,7 +3,7 @@
 #ifndef _YTV_FEED_H_
 #define _YTV_FEED_H_
 
-/* ytv-feed.h - A type that defines a feed
+o/* ytv-feed.h - A type that defines a feed
  * Copyright (C) 2008 Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
  *
  * This library is free software; you can redistribute it and/or
@@ -22,8 +22,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <glib-object.h>
 #include <ytv-shared.h>
-
 #include <ytv-list.h>
 
 G_BEGIN_DECLS

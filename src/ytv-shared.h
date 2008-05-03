@@ -40,6 +40,10 @@ typedef struct _YtvFeed YtvFeed;
 typedef struct _YtvFeedIface YtvFeedIface;
 typedef struct _YtvEntry YtvEntry;
 typedef struct _YtvEntryClass YtvEntryClass;
+typedef struct _YtvFeedFetchStrategy YtvFeedFetchStrategy;
+typedef struct _YtvFeedFetchStrategyIface YtvFeedFetchStrategyIface;
+typedef struct _YtvFeedParseStrategy YtvFeedParseStrategy;
+typedef struct _YtvFeedParseStrategyIface YtvFeedParseStrategyIface;
 
 /**
  * YtvGetEntriesCallback:
