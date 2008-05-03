@@ -1,5 +1,5 @@
-#ifndef TNY_SIMPLE_LIST_H
-#define TNY_SIMPLE_LIST_H
+#ifndef _YTV_SIMPLE_LIST_H_
+#define _YTV_SIMPLE_LIST_H_
 
 /* ytv-simple-list.h - An simple gobject list object
  * Copyright (C) 2006-2007 Philip Van Hoof <pvanhoof@gnome.org>
@@ -19,9 +19,8 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  */
-#include <ytv-shared.h>
-#include <ytv-list.h>
-#include <ytv-iterator.h>
+
+#include <glib-object.h>
 
 G_BEGIN_DECLS
 
@@ -47,4 +46,4 @@ YtvList* ytv_simple_list_new (void);
 
 G_END_DECLS
 
-#endif
+#endif /* _YTV_SIMPLE_LIST_H_ */

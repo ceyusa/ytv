@@ -39,8 +39,13 @@
 #include <config.h>
 #endif
 
+#include <glib-object.h>
+
+#include <ytv-shared.h>
+
 #include <ytv-iterator.h>
 #include <ytv-list.h>
+
 #include <ytv-simple-list.h>
 
 #include "ytv-simple-list-priv.h"
@@ -52,9 +57,9 @@ ytv_simple_list_get_length (YtvList* self)
         YtvSimpleListPriv *priv = YTV_SIMPLE_LIST_GET_PRIVATE (self);
         guint retval = 0;
 
-        g_mutex_lock (priv->list_lock);
+        g_mutex_lock (priv->iterator_lock);
         retval = priv->first ? g_list_length (priv->first) : 0;
-        g_mutex_unlock (priv->list_lock);
+        g_mutex_unlock (priv->iterator_lock);
 
         return retval;
 }
@@ -92,7 +97,7 @@ ytv_simple_list_remove (YtvList* self, GObject* item)
         GList *link;
 
         g_mutex_lock (priv->iterator_lock);
-        link = g_list_find (priv->list, item);
+        link = g_list_find (priv->first, item);
         if (link)
         {
                 priv->first = g_list_delete_link (priv->first, link);
@@ -176,7 +181,7 @@ ytv_simple_list_finalize (GObject* object)
         {
                 g_list_foreach (priv->first, destroy_items, NULL);
                 g_list_free (priv->first);
-                self->first = NULL;
+                priv->first = NULL;
         }
         g_mutex_unlock (priv->iterator_lock);
 
@@ -205,7 +210,7 @@ ytv_simple_list_class_init (YtvSimpleListClass *klass)
 static void
 ytv_simple_list_init (YtvSimpleList *self)
 {
-        YtvSimpleListPriv* priv = YTV_SIMPLE_LIST_GET_PRIVATE (object);
+        YtvSimpleListPriv* priv = YTV_SIMPLE_LIST_GET_PRIVATE (self);
         
         priv->iterator_lock = g_mutex_new ();
         priv->first = NULL;

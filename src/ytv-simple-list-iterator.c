@@ -23,16 +23,22 @@
 #include <config.h>
 #endif
 
+#include <glib-object.h>
+
+#include <ytv-shared.h>
+
 #include <ytv-simple-list.h>
 
 #include "ytv-simple-list-priv.h"
 #include "ytv-simple-list-iterator-priv.h"
 
+static GObjectClass *parent_class = NULL;
+
 static void
 ytv_simple_list_iterator_next (YtvIterator *self)
 {
         YtvSimpleListIterator* me = YTV_SIMPLE_LIST_ITERATOR (self);
-        YtvSimpleListPri* lpriv;
+        YtvSimpleListPriv* lpriv;
 
         if (G_UNLIKELY (!me || !me->current || !me->model))
         {
@@ -52,7 +58,7 @@ static void
 ytv_simple_list_iterator_prev (YtvIterator *self)
 {
         YtvSimpleListIterator* me = YTV_SIMPLE_LIST_ITERATOR (self);
-        YtvSimpleListPri* lpriv;
+        YtvSimpleListPriv* lpriv;
 
         if (G_UNLIKELY (!me || !me->current || !me->model))
         {
@@ -72,7 +78,7 @@ static void
 ytv_simple_list_iterator_first (YtvIterator *self)
 {
         YtvSimpleListIterator* me = YTV_SIMPLE_LIST_ITERATOR (self);
-        YtvSimpleListPri* lpriv;
+        YtvSimpleListPriv* lpriv;
 
         if (G_UNLIKELY (!me || !me->current || !me->model))
         {
@@ -92,7 +98,7 @@ static void
 ytv_simple_list_iterator_nth (YtvIterator *self, guint nth)
 {
         YtvSimpleListIterator* me = YTV_SIMPLE_LIST_ITERATOR (self);
-        YtvSimpleListPri* lpriv;
+        YtvSimpleListPriv* lpriv;
 
         if (G_UNLIKELY (!me || !me->current || !me->model))
         {
@@ -112,7 +118,7 @@ static GObject*
 ytv_simple_list_iterator_get_current (YtvIterator* self)
 {
         YtvSimpleListIterator* me = YTV_SIMPLE_LIST_ITERATOR (self);
-        YtvSimpleListPri* lpriv;
+        YtvSimpleListPriv* lpriv;
         gpointer retval;
 
         if (G_UNLIKELY (!me->current || !me->model))
@@ -136,7 +142,7 @@ ytv_simple_list_iterator_get_current (YtvIterator* self)
 static YtvList*
 ytv_simple_list_iterator_get_list (YtvIterator* self)
 {
-        YtvSimple_ListIterator* me = YTV_SIMPLE_LIST_ITERATOR (self);
+        YtvSimpleListIterator* me = YTV_SIMPLE_LIST_ITERATOR (self);
 
         if (G_LIKELY (!me->current || !me->model))
         {
@@ -145,13 +151,13 @@ ytv_simple_list_iterator_get_list (YtvIterator* self)
 
         g_object_ref (G_OBJECT (me->model));
 
-        return (YtvList*) lpriv ;
+        return YTV_LIST (me->model);
 }
 
 static gboolean
 ytv_simple_list_iterator_is_done (YtvIterator* self)
 {
-        YtvSimple_ListIterator* me = YTV_SIMPLE_LIST_ITERATOR (self);
+        YtvSimpleListIterator* me = YTV_SIMPLE_LIST_ITERATOR (self);
 
         if (G_UNLIKELY (!me || !me->model))
         {
@@ -173,28 +179,26 @@ ytv_iterator_init (YtvIteratorIface* klass)
         klass->is_done_func = ytv_simple_list_iterator_is_done;
 }
 
-G_DEFINE_TYPE_EXTENDED (YtvSimple_ListIterator, ytv_simple_list_iterator,
-                        G_TYPE_OBJECT, 0,
-                        G_IMPLEMENT_INTERFACE (YTV_TYPE_ITERATOR,
-                                               ytv_iterator_init))
 static void
 ytv_simple_list_iterator_finalize (GObject* object)
 {
-        YtvSimpleIterator* self = (YtvSimpleListIterator*) object;
+        YtvSimpleListIterator* self = (YtvSimpleListIterator*) object;
 
         if (self->model != NULL)
         {
                 g_object_unref (self->model);
         }
         
-        G_OBJECT_CLASS (ytv_simple_list_iterator_parent_class)->finalize (object);
+        parent_class->finalize (object);
         return;
 }
 
 static void
-ytv_simple_list_iterator_class_init (YtvSimple_ListIteratorClass* klass)
+ytv_simple_list_iterator_class_init (YtvSimpleListIteratorClass* klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+        parent_class = g_type_class_peek_parent (klass);
 
         object_class->finalize = ytv_simple_list_iterator_finalize;
 
@@ -202,12 +206,15 @@ ytv_simple_list_iterator_class_init (YtvSimple_ListIteratorClass* klass)
 }
 
 static void
-ytv_simple_list_iterator_init (GTypeInstance* instance, gpointer g_class)
+ytv_simple_list_iterator_instance_init (GTypeInstance *instance,
+                                        gpointer g_class)
 {
-        YtvSimpleListIterator* self = (YtvSimpleListIterator*) instance;
-
+        YtvSimpleListIterator *self = (YtvSimpleListIterator*) instance;
+        
         self->model = NULL;
         self->current = NULL;
+
+        return;
 }
 
 void
@@ -234,12 +241,51 @@ _ytv_simple_list_iterator_set_model (YtvSimpleListIterator* self,
 
 
 YtvIterator*
-ytv_simple_list_iterator_new (YtvSimple_ListList* list)
+_ytv_simple_list_iterator_new (YtvSimpleList* model)
 {
         YtvSimpleListIterator *self =
                 g_object_new (YTV_TYPE_SIMPLE_LIST_ITERATOR, NULL);
 
-        _ytv_simple_list_iterator_set_model (self, list);
+        _ytv_simple_list_iterator_set_model (self, model);
 
         return YTV_ITERATOR (self);
+}
+
+GType
+_ytv_simple_list_iterator_get_type (void)
+{
+        static GType type = 0;
+
+        if (G_UNLIKELY (type == 0))
+        {
+                static const GTypeInfo info =
+                {
+                        sizeof (YtvSimpleListIteratorClass),
+                        NULL,
+                        NULL,
+                        (GClassInitFunc) ytv_simple_list_iterator_class_init,
+                        NULL,
+                        NULL,
+                        sizeof (YtvSimpleListIterator),
+                        0,
+                        ytv_simple_list_iterator_instance_init,
+                        NULL
+                };
+
+                static const GInterfaceInfo ytv_iterator_info =
+                {
+                        (GInterfaceInitFunc) ytv_iterator_init,
+                        NULL,
+                        NULL
+                };
+
+                type = g_type_register_static (G_TYPE_OBJECT,
+                                               "YtvSimpleListIterator",
+                                               &info, 0);
+
+                g_type_add_interface_static (type, YTV_TYPE_ITERATOR,
+                                             &ytv_iterator_info);
+        }
+
+        return type;
 }

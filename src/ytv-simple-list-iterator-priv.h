@@ -1,7 +1,7 @@
 /* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 8; coding: utf-8 -*- */
 
-#ifndef _YTV_SIMPLE_LIST_ITERATOR_H_
-#define _YTV_SIMPLE_LIST_ITERATOR_H_
+#ifndef _YTV_SIMPLE_LIST_ITERATOR_PRIV_H_
+#define _YTV_SIMPLE_LIST_ITERATOR_PRIV_H_
 
 /* ytv-simple-list-iterator.h - Object for a simple list iterator
  * Copyright (C) 2008 Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
@@ -25,6 +25,7 @@
 #include <glib-object.h>
 
 #include <ytv-shared.h>
+
 #include <ytv-list.h>
 #include <ytv-iterator.h>
 
@@ -43,8 +44,8 @@ G_BEGIN_DECLS
 #define YTV_SIMPLE_LIST_ITERATOR_GET_CLASS(obj) \
         (G_TYPE_INSTANCE_GET_CLASS ((obj), YTV_TYPE_SIMPLE_LIST_ITERATOR, YtvSimpleListIteratorClass))
 
-typedef struct _YtvSimpleIterator YtvSimpleIterator;
-typedef struct _YtvSimpleIteratorClass YtvSimpleIteratorClass;
+typedef struct _YtvSimpleListIterator YtvSimpleListIterator;
+typedef struct _YtvSimpleListIteratorClass YtvSimpleListIteratorClass;
 
 struct _YtvSimpleListIterator
 {
@@ -67,4 +68,4 @@ void _ytv_simple_list_iterator_set_model (YtvSimpleListIterator* self,
 
 G_END_DECLS
 
-#endif /* _YTV_SIMPLE_LIST_ITERATOR_H_ */
+#endif /* _YTV_SIMPLE_LIST_ITERATOR_PRIV_H_ */
