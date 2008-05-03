@@ -23,7 +23,7 @@
  */
 
 #include <ytv-shared.h>
-#include <ytv-entry.h>
+
 #include <ytv-list.h>
 
 G_BEGIN_DECLS
