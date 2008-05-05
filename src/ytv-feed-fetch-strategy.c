@@ -35,6 +35,13 @@
 
 #include <ytv-feed-fetch-strategy.h>
 
+/**
+ * ytv_feed_fetch_strategy_perform:
+ * @self: a #YtvFeedFetchStrategy instance
+ * @uri: the URI to fetch
+ *
+ * Performs the async fetch of a feed through HTTP.
+ */
 void
 ytv_feed_fetch_strategy_perform (YtvFeedFetchStrategy* self, gchar* uri)
 {

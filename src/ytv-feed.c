@@ -52,7 +52,7 @@
  * Get the strategy for receiving a feed. The return value of this method
  * must be unreferenced after use.
  *
- * return: (caller-owns): the strategy for receiving a feed
+ * returns: (caller-owns): the strategy for receiving a feed
  */
 YtvFeedFetchStrategy*
 ytv_feed_get_fetch_strategy (YtvFeed* self)
@@ -102,7 +102,7 @@ ytv_feed_set_fetch_strategy (YtvFeed* self, YtvFeedFetchStrategy* st)
  * Get the strategy for parsing a feed. The return value of this method
  * must be unreferenced after use.
  *
- * return: (caller-owns): the strategy for parsing a feed
+ * returns: (caller-owns): the strategy for parsing a feed
  */
 YtvFeedParseStrategy*
 ytv_feed_get_parse_strategy (YtvFeed* self)

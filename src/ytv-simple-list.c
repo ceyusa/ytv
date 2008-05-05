@@ -20,7 +20,7 @@
  */
 
 /**
- * SECTION: ytv-simple-list-priv
+ * SECTION: ytv-simple-list
  * @short_description: A list of video entries in a feed or search
  * @see_also: #YtvList, #GList
  *

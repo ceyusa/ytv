@@ -41,14 +41,14 @@ struct _YtvFeedParseStrategyIface
 {
         GTypeInterface parent;
 
-        YtvList* (*perform) (YtvFeedParseStrategy* self, gchar* data,
+        YtvList* (*perform) (YtvFeedParseStrategy* self, const gchar* data,
                              GError **err);
 };
 
 GType ytv_feed_parse_strategy_get_type (void);
 
 YtvList* ytv_feed_parse_strategy_perform (YtvFeedParseStrategy* self,
-                                          gchar* data, GError **err);
+                                          const gchar* data, GError **err);
 
 G_END_DECLS
 

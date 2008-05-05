@@ -46,10 +46,14 @@
  * @err: (null-ok): A #GError or NULL
  *
  * Parse the recevied data in order to extract a #YtvList of #YtvEntries
- * contained in a #YtvFeed.
+ * contained in a #YtvFeed. If not NULL, the returned value must be
+ * unreferenced after use.
+ *
+ * returns: (null-ok) (caller-owns): the list of #YtvEntry available in the
+ * feed or NULL
  */
 YtvList*
-ytv_feed_parse_strategy_perform (YtvFeedParseStrategy* self, gchar* data,
+ytv_feed_parse_strategy_perform (YtvFeedParseStrategy* self, const gchar* data,
                                  GError **err)
 {
         g_assert (YTV_IS_FEED_PARSE_STRATEGY (self));
