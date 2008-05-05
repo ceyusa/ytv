@@ -10,17 +10,23 @@ ytv_LDADD =			\
 	$(GOBJECT_LIBS)		\
 	$(GLIB_LIBS)
 
-ytv_SOURCES = 			\
-	ytv-shared.h		\
-	ytv-entry.c 		\
-	ytv-entry.h 		\
-	ytv-iterator.c		\
-	ytv-iterator.h		\
-	ytv-list.c		\
-	ytv-list.h		\
+ytv_SOURCES = 				\
+	ytv-shared.h			\
+	ytv-entry.c 			\
+	ytv-entry.h 			\
+	ytv-iterator.c			\
+	ytv-iterator.h			\
+	ytv-list.c			\
+	ytv-list.h			\
 	ytv-simple-list-iterator.c	\
 	ytv-simple-list-iterator-priv.h	\
-	ytv-simple-list.c	\
-	ytv-simple-list.h	\
-	ytv-entry-list-priv.h	\
+	ytv-simple-list.c		\
+	ytv-simple-list.h		\
+	ytv-entry-list-priv.h		\
+	ytv-feed-fetch-strategy.c	\
+	ytv-feed-fetch-strategy.h	\
+	ytv-feed-parse-strategy.c	\
+	ytv-feed-parse-strategy.h	\
+	ytv-feed.h			\
+	ytv-feed.c			\
 	main.c
