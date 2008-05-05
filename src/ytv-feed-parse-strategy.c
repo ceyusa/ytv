@@ -34,6 +34,7 @@
 #include <config.h>
 #endif
 
+#include <ytv-list.h>
 #include <ytv-feed-parse-strategy.h>
 
 /**
@@ -52,11 +53,11 @@ ytv_feed_parse_strategy_perform (YtvFeedParseStrategy* self, gchar* data,
                                  GError **err)
 {
         g_assert (YTV_IS_FEED_PARSE_STRATEGY (self));
-        g_assert (uri != NULL);
+        g_assert (data != NULL);
         g_assert (YTV_FEED_PARSE_STRATEGY_GET_IFACE (self)->perform != NULL);
 
         YtvList* l;
-        l = YTV_FEED_PARSE_STRATEGY_GET_IFACE (self)->perform (self, data);
+        l = YTV_FEED_PARSE_STRATEGY_GET_IFACE (self)->perform (self, data, err);
 
         if (l != NULL)
         {
@@ -88,7 +89,7 @@ ytv_feed_parse_strategy_get_type (void)
         {
                 static const GTypeInfo info =
                 {
-                        sizeof (YtvFeedParseStrategy),
+                        sizeof (YtvFeedParseStrategyIface),
                         ytv_feed_parse_strategy_base_init,
                         NULL,
                         NULL,

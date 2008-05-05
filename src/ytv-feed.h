@@ -3,7 +3,7 @@
 #ifndef _YTV_FEED_H_
 #define _YTV_FEED_H_
 
-o/* ytv-feed.h - A type that defines a feed
+/* ytv-feed.h - A type that defines a feed
  * Copyright (C) 2008 Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
  *
  * This library is free software; you can redistribute it and/or
@@ -23,8 +23,8 @@ o/* ytv-feed.h - A type that defines a feed
  */
 
 #include <glib-object.h>
+
 #include <ytv-shared.h>
-#include <ytv-list.h>
 
 G_BEGIN_DECLS
 
@@ -35,7 +35,7 @@ G_BEGIN_DECLS
 #define YTV_IS_FEED(obj)                        \
         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), YTV_TYPE_FEED))
 #define YTV_FEED_GET_IFACE(inst)                \
-        (G_TYPE_INSTANCE_GET_INTERFACE ((inst), YTV_TYPE_LIST, YtvListIface))
+        (G_TYPE_INSTANCE_GET_INTERFACE ((inst), YTV_TYPE_FEED, YtvFeedIface))
 
 struct _YtvFeedIface
 {

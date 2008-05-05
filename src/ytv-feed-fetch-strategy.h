@@ -44,7 +44,10 @@ struct _YtvFeedFetchStrategyIface
         void (*perform) (YtvFeedFetchStrategy* self, gchar* uri);
 };
 
+GType ytv_feed_fetch_strategy_get_type (void);
+
 void ytv_feed_fetch_strategy_perform (YtvFeedFetchStrategy* self, gchar* uri);
+
 
 G_END_DECLS
 

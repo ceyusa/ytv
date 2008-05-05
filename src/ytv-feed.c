@@ -40,7 +40,8 @@
 #include <config.h>
 #endif
 
-#include <ytv-feed.c>
+#include <ytv-feed.h>
+#include <ytv-list.h>
 #include <ytv-feed-fetch-strategy.h>
 #include <ytv-feed-parse-strategy.h>
 
@@ -83,7 +84,7 @@ ytv_feed_set_fetch_strategy (YtvFeed* self, YtvFeedFetchStrategy* st)
         g_assert (YTV_IS_FEED_FETCH_STRATEGY (st));
         g_assert (YTV_FEED_GET_IFACE (self)->set_fetch_strategy != NULL);
 
-        YTV_FFED_GET_IFACE (self)->set_fetch_strategy (self, st);
+        YTV_FEED_GET_IFACE (self)->set_fetch_strategy (self, st);
 
         YtvFeedFetchStrategy* test = ytv_feed_get_fetch_strategy (self);
         g_assert (test);
@@ -133,7 +134,7 @@ ytv_feed_set_parse_strategy (YtvFeed* self, YtvFeedParseStrategy* st)
         g_assert (YTV_IS_FEED_PARSE_STRATEGY (st));
         g_assert (YTV_FEED_GET_IFACE (self)->set_parse_strategy != NULL);
 
-        YTV_FFED_GET_IFACE (self)->set_parse_strategy (self, st);
+        YTV_FEED_GET_IFACE (self)->set_parse_strategy (self, st);
 
         YtvFeedParseStrategy* test = ytv_feed_get_parse_strategy (self);
         g_assert (test);
@@ -214,7 +215,7 @@ ytv_feed_get_type (void)
                         NULL
                 };
 
-                type = g_type_register_static (G_TYPE_INTERFACE, "YtvFeed"
+                type = g_type_register_static (G_TYPE_INTERFACE, "YtvFeed",
                                                &info, 0);
 
                 g_type_interface_add_prerequisite (type, G_TYPE_OBJECT);

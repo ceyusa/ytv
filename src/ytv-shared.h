@@ -46,6 +46,20 @@ typedef struct _YtvFeedParseStrategy YtvFeedParseStrategy;
 typedef struct _YtvFeedParseStrategyIface YtvFeedParseStrategyIface;
 
 /**
+ * YtvGetFeedFetchCallback:
+ * @feedfetchst: a #YtvFeedFetchStrategy that caused the callback
+ * @cancelled: if the operation got cancelled
+ * @reponse: (null-ok): the HTTP response data body from YouTube
+ * @err: (null-ok): if an error ocurred
+ * @user_data: (null-ok): user data that was passed to the callbacks
+ *
+ * A feed fetch strategy callback 
+ */
+typedef void (*YtvGetFeedFetchCallback) (YtvFeedFetchStrategy* feedfetchst,
+                                         gboolean cancelled, gchar* response,
+                                         GError *err, gpointer user_data);
+
+/**
  * YtvGetEntriesCallback:
  * @feed: a #YtvFeed that caused the callback
  * @cancelled: if the operation got cancelled
@@ -61,9 +75,9 @@ typedef struct _YtvFeedParseStrategyIface YtvFeedParseStrategyIface;
  * If @err is not NULL, an error occurred that you should handle gracefully.
  * The @entries parameter might be NULL in case of error or cancellation.
  */
-void (*YtvGetEntriesCallback) (YtvFeed* feed, gboolean canceled,
-			       YtvList* entries, GError *err, gpointer data);
-
+typedef void (*YtvGetEntriesCallback) (YtvFeed* feed, gboolean cancelled,
+                                       YtvList* entries, GError *err,
+                                       gpointer user_data);
 
 G_END_DECLS
 

@@ -69,7 +69,7 @@ ytv_feed_fetch_strategy_get_type (void)
         {
                 static const GTypeInfo info =
                 {
-                        sizeof (YtvFeedFetchStrategy),
+                        sizeof (YtvFeedFetchStrategyIface),
                         ytv_feed_fetch_strategy_base_init,
                         NULL,
                         NULL,
