@@ -11,13 +11,11 @@ AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 AC_HEADER_STDC
 
-dnl versions of GLib
-GLIB_MAJORMINOR=2.0
-GLIB_REQUIRED=2.0.0
-
 dnl #####################################
 dnl ### Basic dependencies - Required ###
 dnl #####################################
+GLIB_MAJORMINOR=2.0
+GLIB_REQUIRED=2.0.0
 PKG_CHECK_MODULES([GOBJECT], [gobject-$GLIB_MAJORMINOR >= $GLIB_REQUIRED])
 PKG_CHECK_MODULES([GLIB], [glib-$GLIB_MAJORMINOR >= $GLIB_REQUIRED])
 
@@ -25,6 +23,10 @@ dnl #####################################
 dnl ### Optional dependencies         ###
 dnl #####################################
 GTK_DOC_CHECK([1.4])
+
+LIBSOUP_MAJORMINOR=2.4
+LIBSOUP_REQUIRED=2.20.0
+PKG_CHECK_MODULES([LIBSOUB], [glib-$LIBSOUP_MAJORMINOR > $LIBSOUP_REQUIRED]]
 
 AC_OUTPUT([
 Makefile
