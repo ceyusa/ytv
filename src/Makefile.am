@@ -4,11 +4,13 @@ ytv_CFLAGS =			\
 	-I. -I$(top_srcdir) 	\
 	-I$(top_srcdir)/src 	\
 	$(GOBJECT_CFLAGS)   	\
-	$(GLIB_CFLAGS)
+	$(GLIB_CFLAGS)		\
+	$(SOUP_CFLAGS)
 
 ytv_LDADD =			\
 	$(GOBJECT_LIBS)		\
-	$(GLIB_LIBS)
+	$(GLIB_LIBS)		\
+	$(SOUP_LIBS)
 
 ytv_SOURCES = 				\
 	ytv-shared.h			\
@@ -29,4 +31,6 @@ ytv_SOURCES = 				\
 	ytv-feed-parse-strategy.h	\
 	ytv-feed.h			\
 	ytv-feed.c			\
+	ytv-soup-feed-fetch-strategy.c	\
+	ytv-soup-feed-fetch-strategy.c	\
 	main.c
