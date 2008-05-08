@@ -21,6 +21,11 @@
 
 #include <ytv-entry.h>
 
+#include <ytv-feed-fetch-strategy.h>
+#include <ytv-soup-feed-fetch-strategy.h>
+
+GMainLoop *loop;
+
 static void
 create_entry ()
 {
@@ -46,12 +51,49 @@ create_entry ()
 	return;
 }
 
+static void
+fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
+               const gint8* response, gint64 length, GError *err)
+{
+        if (err == NULL)
+        {
+                g_print ("%s\n", (gchar *) response);
+        }
+        else
+        {
+                g_print ("%s\n", ytv_error_get_message (err));
+                g_error_free (err);
+        }
+
+        g_main_loop_quit (loop);
+        
+        return;
+}
+
+static gboolean
+fetch_feed ()
+{
+        gchar* base = "http://gdata.youtube.com/feeds/api/videos?max-results=3&vq=muse+invincible&alt=json";
+        /* gchar* base = "http://www.ceyusa.com/feeds/api/videos?max-results=3&vq=muse+invincible&alt=json"; */
+        
+        YtvFeedFetchStrategy* st = ytv_soup_feed_fetch_strategy_new ();
+        ytv_feed_fetch_strategy_perform (st, base, fetch_feed_cb);
+
+        return FALSE;
+}        
+
 gint
 main (gint argc, gchar** argv)
 {
+        g_thread_init (NULL);
 	g_type_init ();
 
 	create_entry ();
 
-	return;
+        loop = g_main_loop_new (NULL, TRUE);
+        g_idle_add ((GSourceFunc) fetch_feed, NULL);
+        g_main_loop_run (loop);
+	g_main_loop_unref (loop);
+        
+	return 0;
 }	

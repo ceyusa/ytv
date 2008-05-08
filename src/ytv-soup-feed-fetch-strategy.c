@@ -139,7 +139,7 @@ create_session (YtvSoupFeedFetchStrategy* self)
 static void
 retrieval_done (SoupSession* session, SoupMessage* message, gpointer user_data)
 {
-        g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (user_data));
+        g_assert (user_data != NULL);
 
         YtvCbWrapper* cbw = (YtvCbWrapper*) user_data;
 
