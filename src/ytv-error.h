@@ -54,6 +54,6 @@ const gchar* ytv_error_get_message (GError *err);
 gint ytv_error_get_code (GError *err);
 
 GType ytv_error_domain_get_type (void);
-GType ytv_error_get_code (void);
+GType ytv_error_get_type (void);
 
 #endif /* _YTV_ERROR_H_ */

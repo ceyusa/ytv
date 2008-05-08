@@ -27,6 +27,7 @@
 #include <libsoup/soup.h>
 #include <gconf/gconf-client.h>
 
+#include <ytv-error.h>
 #include <ytv-soup-feed-fetch-strategy.h>
 
 typedef struct _YtvSoupFeedFetchStrategyPriv YtvSoupFeedFetchStrategyPriv;
@@ -52,7 +53,7 @@ create_session (YtvSoupFeedFetchStrategy* self)
                 return; /* no need to have another */
         }
 
-        priv->session = soup_session_async_new_new_options
+        priv->session = soup_session_async_new_with_options
                 (SOUP_SESSION_USER_AGENT, "youtube-viewer/" VERSION, NULL);
 
         conf_client = gconf_client_get_default ();
@@ -126,6 +127,8 @@ retrieval_done (SoupSession* session, SoupMessage* message, gpointer user_data)
         
         YtvSoupFeedFetchStrategy* self =
                 YTV_SOUP_FEED_FETCH_STRATEGY (user_data);
+        YtvSoupFeedFetchStrategyPriv* priv =
+                YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE (self);
                 
         if (!SOUP_STATUS_IS_SUCCESSFUL (message->status_code))
         {
@@ -185,7 +188,7 @@ ytv_soup_feed_fetch_strategy_perform_default (YtvFeedFetchStrategy* self,
                                     (SoupSessionCallback) retrieval_done,
                                     me);
 
-        return FALSE;
+        return;
 }
 
 static void
