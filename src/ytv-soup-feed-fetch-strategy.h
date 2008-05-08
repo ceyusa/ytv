@@ -52,14 +52,16 @@ struct _YtvSoupFeedFetchStrategyClass
 {
         GObjectClass parent_class;
 
-        void (*perform) (YtvFeedFetchStrategy* self, gchar* uri);
+        void (*perform) (YtvFeedFetchStrategy* self, gchar* uri,
+                         YtvGetResponseCallback callback);
 };
 
 GType ytv_soup_feed_fetch_strategy_get_type (void);
 
 YtvFeedFetchStrategy* ytv_soup_feed_fetch_strategy_new (void);
 void ytv_soup_feed_fetch_strategy_perform (YtvFeedFetchStrategy *self,
-                                           gchar* uri);
+                                           gchar* uri,
+                                           YtvGetResponseCallback callback);
 
 
 G_END_DECLS

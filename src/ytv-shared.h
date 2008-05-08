@@ -79,6 +79,7 @@ typedef void (*YtvGetEntriesCallback) (YtvFeed* feed, gboolean cancelled,
                                        YtvList* entries, GError *err,
                                        gpointer user_data);
 
+
 G_END_DECLS
 
 #endif /* _YTV_SHARED_H_ */

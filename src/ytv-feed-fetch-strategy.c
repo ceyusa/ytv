@@ -39,17 +39,19 @@
  * ytv_feed_fetch_strategy_perform:
  * @self: a #YtvFeedFetchStrategy instance
  * @uri: the URI to fetch
+ * @callback: the #YtvGetResponseCallback callback with the result
  *
  * Performs the async fetch of a feed through HTTP.
  */
 void
-ytv_feed_fetch_strategy_perform (YtvFeedFetchStrategy* self, gchar* uri)
+ytv_feed_fetch_strategy_perform (YtvFeedFetchStrategy* self, gchar* uri,
+                                 YtvGetResponseCallback callback)
 {
         g_assert (YTV_IS_FEED_FETCH_STRATEGY (self));
         g_assert (uri != NULL);
         g_assert (YTV_FEED_FETCH_STRATEGY_GET_IFACE (self)->perform != NULL);
 
-        YTV_FEED_FETCH_STRATEGY_GET_IFACE (self)->perform (self, uri);
+        YTV_FEED_FETCH_STRATEGY_GET_IFACE (self)->perform (self, uri, callback);
         
         return;
 }

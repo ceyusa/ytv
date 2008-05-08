@@ -20,6 +20,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
+/**
+ * SECTION:ytv-soup-feed-fetch-strategy
+ * @short_description: Object for HTTP communication using libsoup
+ *
+ * It is a #YtvFeedFetchStrategy implementation using the libsoup
+ * library for the HTTP client communications.
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -35,6 +43,14 @@ typedef struct _YtvSoupFeedFetchStrategyPriv YtvSoupFeedFetchStrategyPriv;
 struct _YtvSoupFeedFetchStrategyPriv
 {
 	SoupSession* session;
+};
+
+/* helper for the session_async queue */
+typedef struct _YtvCbWrapper YtvCbWrapper;
+struct _YtvCbWrapper
+{
+        YtvSoupFeedFetchStrategy* st;
+        YtvGetResponseCallback callback;
 };
 
 #define YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE(o) \
@@ -124,43 +140,70 @@ static void
 retrieval_done (SoupSession* session, SoupMessage* message, gpointer user_data)
 {
         g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (user_data));
-        
+
+        YtvCbWrapper* cbw = (YtvCbWrapper*) user_data;
+
         YtvSoupFeedFetchStrategy* self =
-                YTV_SOUP_FEED_FETCH_STRATEGY (user_data);
+                YTV_SOUP_FEED_FETCH_STRATEGY (cbw->st);
         YtvSoupFeedFetchStrategyPriv* priv =
                 YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE (self);
+        GError *err = NULL;
                 
         if (!SOUP_STATUS_IS_SUCCESSFUL (message->status_code))
         {
-                GError *err = NULL;
                 g_set_error (&err, YTV_HTTP_ERROR, YTV_HTTP_ERROR_CONNECTION,
                              "HTTP error - HTTP/1.%d %d %s",
                              soup_message_get_http_version (message),
                              message->status_code, message->reason_phrase);
-                return;
+
+                if (cbw->cb != NULL)
+                {
+                        cbw->cb (self, NULL, NULL, 0, err);
+                }
+                goto done;
         }
 
         const gchar* mimetype = soup_message_headers_get
                 (message->response_headers, "Content-Type");
 
+        if (cbw->callback != NULL)
+        {
+                cbw->cb (self, mimetype, message->response_body->data,
+                         message->response_body->length, err);
+        }
+        
+done:
+        g_slice_free (YtvCbWrapper, cbw);
         return;
 }
 
+/**
+ * ytv_soup_feed_fetch_strategy_perform:
+ * @self: a #YtvSoupFeedFetchStrategy instance
+ * @uri: the URI to fetch
+ * @callback: a #YtvGetResponseCallback to execute when the response arrives
+ *
+ * Performs the async fetch of a feed through HTTP using
+ * libsoup.
+ */
 void
-ytv_soup_feed_fetch_strategy_perform (YtvFeedFetchStrategy *self, gchar* uri)
+ytv_soup_feed_fetch_strategy_perform (YtvFeedFetchStrategy *self, gchar* uri,
+                                      YtvGetResponseCallback callback)
 {
         g_assert (self != NULL);
         g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (self));
         g_assert (uri != NULL);
         
-	YTV_SOUP_FEED_FETCH_STRATEGY_GET_CLASS (self)->perform (self, uri);
+	YTV_SOUP_FEED_FETCH_STRATEGY_GET_CLASS (self)->perform (self, uri,
+                                                                callback);
 
 	return;
 }
 
 static void
 ytv_soup_feed_fetch_strategy_perform_default (YtvFeedFetchStrategy* self,
-					      gchar* uri)
+					      gchar* uri,
+                                              YtvGetResponseCallback callback)
 {
         g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (self));
         
@@ -184,9 +227,13 @@ ytv_soup_feed_fetch_strategy_perform_default (YtvFeedFetchStrategy* self,
         
         soup_message_set_flags (message, SOUP_MESSAGE_NO_REDIRECT);
 
+        YtvCbWrapper* cbw = g_slice_new (YtvCbWrapper);
+        cbw->st = self;
+        cbw->cb = callback;
+
         soup_session_queue_message (priv->session, message,
                                     (SoupSessionCallback) retrieval_done,
-                                    me);
+                                    cbw);
 
         return;
 }
@@ -207,7 +254,6 @@ ytv_soup_feed_fetch_strategy_finalize (GObject *object)
         YtvSoupFeedFetchStrategy* self = YTV_SOUP_FEED_FETCH_STRATEGY (object);
         YtvSoupFeedFetchStrategyPriv* priv =
                 YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE (self);
-
 
         if (priv->session != NULL)
         {
@@ -250,6 +296,12 @@ ytv_soup_feed_fetch_strategy_init (YtvSoupFeedFetchStrategy* self)
 	return;
 }
 
+/**
+ * ytv_soup_feed_fetch_strategy_new:
+ *
+ * Creates a new instance of the #YtvSoupFeedFetchStrategy which
+ * implements the #YtvFeedFetchStrategy interface
+ */
 YtvFeedFetchStrategy*
 ytv_soup_feed_fetch_strategy_new (void)
 {
