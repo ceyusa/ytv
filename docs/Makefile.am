@@ -70,10 +70,12 @@ expand_content_files=
 INCLUDES=			\
 	$(GOBJECT_CFLAGS)	\
 	$(GLIB_CFLAGS)		\
+	$(SOUP_CFLAGS)		\
 	-I$(top_srcdir)/src
 GTKDOC_LIBS= 			\
 	$(GOBJECT_LIBS)		\
 	$(GLIB_LIBS)		\
+	$(SOUP_LIBS)		\
 	../src/ytv-ytv-*.o
 
 # This includes the standard gtk-doc make rules, copied by gtkdocize.

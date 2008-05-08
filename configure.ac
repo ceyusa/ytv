@@ -14,21 +14,20 @@ AC_HEADER_STDC
 dnl #####################################
 dnl ### Basic dependencies - Required ###
 dnl #####################################
-GLIB_MAJORMINOR=2.0
-GLIB_REQUIRED=2.0.0
-PKG_CHECK_MODULES([GOBJECT], [gobject-$GLIB_MAJORMINOR >= $GLIB_REQUIRED])
-PKG_CHECK_MODULES([GLIB], [glib-$GLIB_MAJORMINOR >= $GLIB_REQUIRED])
+gobject_modules="   gobject-2.0 >= 2.0.0
+		    glib-2.0 >= 2.0.0"
+
+PKG_CHECK_MODULES([GOBJECT], [$gobject_modules])
 
 dnl #####################################
 dnl ### Optional dependencies         ###
 dnl #####################################
+libsoup_modules="    libsoup-2.4 > 2.3.0
+ 		     gconf-2.0 >= 1.1.9"
+
+PKG_CHECK_MODULES([SOUP], [$libsoup_modules])
+
 GTK_DOC_CHECK([1.4])
-
-LIBSOUP_MAJORMINOR=2.4
-LIBSOUP_REQUIRED=2.3.0
-PKG_CHECK_MODULES([SOUP], [libsoup-$LIBSOUP_MAJORMINOR > $LIBSOUP_REQUIRED])
-
-AM_GCONF_SOURCE_2
 
 AC_OUTPUT([
 Makefile

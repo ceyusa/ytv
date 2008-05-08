@@ -4,12 +4,10 @@ ytv_CFLAGS =			\
 	-I. -I$(top_srcdir) 	\
 	-I$(top_srcdir)/src 	\
 	$(GOBJECT_CFLAGS)   	\
-	$(GLIB_CFLAGS)		\
 	$(SOUP_CFLAGS)
 
 ytv_LDADD =			\
 	$(GOBJECT_LIBS)		\
-	$(GLIB_LIBS)		\
 	$(SOUP_LIBS)
 
 ytv_SOURCES = 				\

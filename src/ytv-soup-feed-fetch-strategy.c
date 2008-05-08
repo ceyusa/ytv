@@ -45,16 +45,15 @@ create_session (YtvSoupFeedFetchStrategy* self)
 {
         YtvSoupFeedFetchStrategyPriv* priv =
                 YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE (self);
-
+        GConfClient* conf_client;
 
         if (priv->session != NULL)
         {
                 return; /* no need to have another */
         }
 
-        GConfClient* conf_client;
-
-        priv->session = soup_session_async_new ();
+        priv->session = soup_session_async_new_new_options
+                (SOUP_SESSION_USER_AGENT, "youtube-viewer/" VERSION, NULL);
 
         conf_client = gconf_client_get_default ();
 
@@ -72,7 +71,7 @@ create_session (YtvSoupFeedFetchStrategy* self)
 
                 if (server && server[0])
                 {
-                        SoupUri *suri;
+                        SoupURI *suri;
 
                         if (gconf_client_get_bool
                             (conf_client,
@@ -121,9 +120,21 @@ create_session (YtvSoupFeedFetchStrategy* self)
 }
 
 static void
-feed_retrieval_done (SoupSession* session, SoupMessage* message,
-                     YtvSoupFeedFetchStrategy* self)
+retrieval_done (SoupSession* session, SoupMessage* message, gpointer user_data)
 {
+        g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (user_data));
+        
+        YtvSoupFeedFetchStrategy* self =
+                YTV_SOUP_FEED_FETCH_STRATEGY (user_data);
+        const gchar* mimetype;
+                
+        if (!SOUP_STATUS_IS_SUCCESSFULL (messasge->status_code))
+        {
+        }
+
+        mimetype = soup_message_headers_get (message->response_headers,
+                                             "Content-Type");
+
         
 }
 
@@ -145,12 +156,12 @@ ytv_soup_feed_fetch_strategy_perform_default (YtvFeedFetchStrategy* self,
 {
         g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (self));
         
-        YtvSoupFeedFetchStrategy* me = YTV_SOUP_FEED_FEED_STRATEGY (self);
+        YtvSoupFeedFetchStrategy* me = YTV_SOUP_FEED_FETCH_STRATEGY (self);
         YtvSoupFeedFetchStrategyPriv* priv =
                 YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE (me);
         SoupMessage* message;
 
-        crate_session (me);
+        create_session (me);
         
         message = soup_message_new (SOUP_METHOD_GET, uri);
 
@@ -159,12 +170,11 @@ ytv_soup_feed_fetch_strategy_perform_default (YtvFeedFetchStrategy* self,
                 /* could not parse uri error */
         }
         
-        soup_message_add_header (message->request_headers, "User-Agent",
-                                 "YTV/" VERSION);
-        soup_message_set_flags (message-> SOUP_MESSAGE_NO_REDIRECT);
+        soup_message_set_flags (message, SOUP_MESSAGE_NO_REDIRECT);
 
         soup_session_queue_message (priv->session, message,
-                                    (SoupMessageCallbacFn) retrieval_done, me);
+                                    (SoupSessionCallback) retrieval_done,
+                                    me);
 
         return FALSE;
 }
@@ -182,7 +192,7 @@ ytv_soup_feed_fetch_strategy_finalize (GObject *object)
 {
         g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (object));
 
-        YtvSoupFeedFetchStrategy* self = YTV_SOUP_FEED_FEED_STRATEGY (object);
+        YtvSoupFeedFetchStrategy* self = YTV_SOUP_FEED_FETCH_STRATEGY (object);
         YtvSoupFeedFetchStrategyPriv* priv =
                 YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE (self);
 
