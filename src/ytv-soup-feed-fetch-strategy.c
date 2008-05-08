@@ -49,8 +49,8 @@ struct _YtvSoupFeedFetchStrategyPriv
 typedef struct _YtvCbWrapper YtvCbWrapper;
 struct _YtvCbWrapper
 {
-        YtvSoupFeedFetchStrategy* st;
-        YtvGetResponseCallback callback;
+        YtvFeedFetchStrategy*  st;
+        YtvGetResponseCallback cb;
 };
 
 #define YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE(o) \
@@ -158,7 +158,7 @@ retrieval_done (SoupSession* session, SoupMessage* message, gpointer user_data)
 
                 if (cbw->cb != NULL)
                 {
-                        cbw->cb (self, NULL, NULL, 0, err);
+                        cbw->cb (cbw->st, NULL, NULL, 0, err);
                 }
                 goto done;
         }
@@ -166,9 +166,9 @@ retrieval_done (SoupSession* session, SoupMessage* message, gpointer user_data)
         const gchar* mimetype = soup_message_headers_get
                 (message->response_headers, "Content-Type");
 
-        if (cbw->callback != NULL)
+        if (cbw->cb != NULL)
         {
-                cbw->cb (self, mimetype, message->response_body->data,
+                cbw->cb (cbw->st, mimetype, message->response_body->data,
                          message->response_body->length, err);
         }
         
