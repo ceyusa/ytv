@@ -40,9 +40,10 @@
 /**
  * ytv_feed_parse_strategy_perform:
  * @self: a #YtvFeedParseStrategy instance
- * @data: the serialized data to parse. Each implementation could parse a
- *        a different format, such as json, xml, and so on, or could use
+ * @data: (null-ok): the serialized data to parse. Each implementation could
+ *        parse a different format, such as json, xml, and so on, or could use
  *        a different parsing library
+ * @length: the length of the data buffer or -1
  * @err: (null-ok): A #GError or NULL
  *
  * Parse the recevied data in order to extract a #YtvList of #YtvEntries
@@ -54,14 +55,15 @@
  */
 YtvList*
 ytv_feed_parse_strategy_perform (YtvFeedParseStrategy* self, const gchar* data,
-                                 GError **err)
+                                 gssize length, GError **err)
 {
         g_assert (YTV_IS_FEED_PARSE_STRATEGY (self));
         g_assert (data != NULL);
         g_assert (YTV_FEED_PARSE_STRATEGY_GET_IFACE (self)->perform != NULL);
 
         YtvList* l;
-        l = YTV_FEED_PARSE_STRATEGY_GET_IFACE (self)->perform (self, data, err);
+        l = YTV_FEED_PARSE_STRATEGY_GET_IFACE (self)->perform (self, data,
+                                                               length, err);
 
         if (l != NULL)
         {

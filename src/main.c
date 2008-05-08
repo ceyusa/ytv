@@ -54,7 +54,7 @@ create_entry ()
 
 static void
 fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
-               const gint8* response, gint64 length, GError *err)
+               const gint8* response, gssize length, GError *err)
 {
         if (err == NULL)
         {

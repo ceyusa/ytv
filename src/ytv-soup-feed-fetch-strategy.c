@@ -158,7 +158,7 @@ retrieval_done (SoupSession* session, SoupMessage* message, gpointer user_data)
 
                 if (cbw->cb != NULL)
                 {
-                        cbw->cb (cbw->st, NULL, NULL, 0, err);
+                        cbw->cb (cbw->st, NULL, NULL, -1, err);
                 }
                 goto done;
         }
