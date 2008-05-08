@@ -246,6 +246,11 @@ ytv_feed_fetch_strategy_init (YtvFeedFetchStrategyIface* klass)
 	return;
 }
 
+G_DEFINE_TYPE_EXTENDED (YtvSoupFeedFetchStrategy, ytv_soup_feed_fetch_strategy,
+			G_TYPE_OBJECT, 0,
+			G_IMPLEMENT_INTERFACE (YTV_TYPE_FEED_FETCH_STRATEGY,
+					       ytv_feed_fetch_strategy_init))
+
 static void
 ytv_soup_feed_fetch_strategy_finalize (GObject *object)
 {
@@ -261,14 +266,11 @@ ytv_soup_feed_fetch_strategy_finalize (GObject *object)
                 g_object_unref (priv->session);
                 priv->session = NULL;
         }
+
+        (*G_OBJECT_CLASS (ytv_soup_feed_fetch_strategy_parent_class)->finalize) (object);
         
         return;
 }
-
-G_DEFINE_TYPE_EXTENDED (YtvSoupFeedFetchStrategy, ytv_soup_feed_fetch_strategy,
-			G_TYPE_OBJECT, 0,
-			G_IMPLEMENT_INTERFACE (YTV_TYPE_FEED_FETCH_STRATEGY,
-					       ytv_feed_fetch_strategy_init))
 
 static void
 ytv_soup_feed_fetch_strategy_class_init (YtvSoupFeedFetchStrategyClass* klass)

@@ -25,6 +25,7 @@
 #include <ytv-soup-feed-fetch-strategy.h>
 
 GMainLoop *loop;
+YtvFeedFetchStrategy* st;
 
 static void
 create_entry ()
@@ -57,7 +58,7 @@ fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
 {
         if (err == NULL)
         {
-                g_print ("%s\n", (gchar *) response);
+                g_print ("%s\n", (gchar *) response ? response : NULL);
         }
         else
         {
@@ -76,7 +77,7 @@ fetch_feed ()
         gchar* base = "http://gdata.youtube.com/feeds/api/videos?max-results=3&vq=muse+invincible&alt=json";
         /* gchar* base = "http://www.ceyusa.com/feeds/api/videos?max-results=3&vq=muse+invincible&alt=json"; */
         
-        YtvFeedFetchStrategy* st = ytv_soup_feed_fetch_strategy_new ();
+        st = ytv_soup_feed_fetch_strategy_new ();
         ytv_feed_fetch_strategy_perform (st, base, fetch_feed_cb);
 
         return FALSE;
@@ -94,6 +95,8 @@ main (gint argc, gchar** argv)
         g_idle_add ((GSourceFunc) fetch_feed, NULL);
         g_main_loop_run (loop);
 	g_main_loop_unref (loop);
+
+        g_object_unref (st);
         
 	return 0;
 }	
