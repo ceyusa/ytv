@@ -126,16 +126,21 @@ retrieval_done (SoupSession* session, SoupMessage* message, gpointer user_data)
         
         YtvSoupFeedFetchStrategy* self =
                 YTV_SOUP_FEED_FETCH_STRATEGY (user_data);
-        const gchar* mimetype;
                 
-        if (!SOUP_STATUS_IS_SUCCESSFULL (messasge->status_code))
+        if (!SOUP_STATUS_IS_SUCCESSFUL (message->status_code))
         {
+                GError *err = NULL;
+                g_set_error (&err, YTV_HTTP_ERROR, YTV_HTTP_ERROR_CONNECTION,
+                             "HTTP error - HTTP/1.%d %d %s",
+                             soup_message_get_http_version (message),
+                             message->status_code, message->reason_phrase);
+                return;
         }
 
-        mimetype = soup_message_headers_get (message->response_headers,
-                                             "Content-Type");
+        const gchar* mimetype = soup_message_headers_get
+                (message->response_headers, "Content-Type");
 
-        
+        return;
 }
 
 void
@@ -168,6 +173,10 @@ ytv_soup_feed_fetch_strategy_perform_default (YtvFeedFetchStrategy* self,
         if (message == NULL)
         {
                 /* could not parse uri error */
+                GError *err = NULL;
+                g_set_error (&err, YTV_HTTP_ERROR, YTV_HTTP_ERROR_BAD_URI,
+                             "Could not parse URI - %s", uri);
+                return;
         }
         
         soup_message_set_flags (message, SOUP_MESSAGE_NO_REDIRECT);
