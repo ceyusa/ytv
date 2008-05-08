@@ -33,9 +33,9 @@ G_BEGIN_DECLS
         (G_TYPE_CHECK_INSTANCE_CAST ((obj), YTV_TYPE_SOUP_FEED_FETCH_STRATEGY, YtvSoupFeedFetchStrategy))
 #define YTV_SOUP_FEED_FETCH_STRATEGY_CLASS(klass)                       \
         (G_TYPE_CHECK_CLASS_CAST ((klass), YTV_TYPE_SOUP_FEED_FETCH_STRATEGY, YtvSoupFeedFetchStrategyClass))
-#define YTV_IS_ENTRY(obj)                                               \
+#define YTV_IS_SOUP_FEED_FETCH_STRATEGY(obj)                            \
         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), YTV_TYPE_SOUP_FEED_FETCH_STRATEGY))
-#define YTV_IS_ENTRY_CLASS(klass)                                       \
+#define YTV_IS_SOUP_FEED_FETCH_STRATEGY_CLASS(klass)                    \
         (G_TYPE_CHECK_CLASS_TYPE ((klass), YTV_TYPE_SOUP_FEED_FETCH_STRATEGY))
 #define YTV_SOUP_FEED_FETCH_STRATEGY_GET_CLASS(obj)                     \
         (G_TYPE_INSTANCE_GET_CLASS ((obj), YTV_TYPE_SOUP_FEED_FETCH_STRATEGY, YtvSoupFeedFetchStrategyClass))
@@ -58,6 +58,9 @@ struct _YtvSoupFeedFetchStrategyClass
 GType ytv_soup_feed_fetch_strategy_get_type (void);
 
 YtvFeedFetchStrategy* ytv_soup_feed_fetch_strategy_new (void);
+void ytv_soup_feed_fetch_strategy_perform (YtvFeedFetchStrategy *self,
+                                           gchar* uri);
+
 
 G_END_DECLS
 
