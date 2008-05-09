@@ -25,7 +25,7 @@
 
 #include <ytv-feed-parse-strategy.h>
 
-G_BEGIN_DECS
+G_BEGIN_DECLS
 
 #define YTV_TYPE_JSON_FEED_PARSE_STRATEGY               \
         (ytv_json_feed_parse_strategy_get_type ())

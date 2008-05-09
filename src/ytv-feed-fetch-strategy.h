@@ -37,6 +37,16 @@ G_BEGIN_DECLS
 #define YTV_FEED_FETCH_STRATEGY_GET_IFACE(inst)                         \
         (G_TYPE_INSTANCE_GET_INTERFACE ((inst), YTV_TYPE_FEED_FETCH_STRATEGY, YtvFeedFetchStrategyIface))
 
+#ifndef _YTV_SHARED_H_
+typedef struct _YtvFeedFetchStrategy YtvFeedFetchStrategy;
+typedef struct _YtvFeedFetchStrategyIface YtvFeedFetchStrategyIface;
+typedef void (*YtvGetResponseCallback) (YtvFeedFetchStrategy* st,
+                                        const gchar* mimetype,
+                                        const gint8* response,
+                                        gssize length,
+                                        GError *err);
+#endif
+
 struct _YtvFeedFetchStrategyIface
 {
         GTypeInterface parent;

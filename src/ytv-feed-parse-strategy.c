@@ -25,9 +25,18 @@
  * @title: YtvFeedParseStrategy
  * @short_description: A type that defines a strategy for parse feeds
  *
+ * A strategy that can implement parsing a feed. For example parsing XML
+ * formated data, or JSON.
+ */
+
+/**
+ * YtvFeedParseStrategy:
+ *
  * An abstract type that defines a strategy for parse feed. The
  * implementation mean to be a mechanism to transform the serialized data
  * (json/xml/etc) to a list of entries.
+ *
+ * free-function: g_object_unref
  */
 
 #ifdef HAVE_CONFIG_H

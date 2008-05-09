@@ -20,6 +20,23 @@
  * Boston, MA 02110-1301, USA.
  */
 
+/**
+ * SECTION: ytv-json-feed-parse-strategy
+ * @short_description: JSON format implementation for #YtvFeedParseStrategy
+ *
+ * Implementation of the #YtvFeedParseStrategy intefaces, parsing JSON format
+ * feeds with the json-glib library.
+ */
+
+/**
+ * YtvJsonFeedParseStrategy:
+ *
+ * Object that represent the feed parsing strategy in JSON format using
+ * the json-glib library.
+ *
+ * free-function: g_object_unref
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -40,10 +57,21 @@ struct _YtvJsonFeedParseStrategyPriv
 #define YTV_JSON_FEED_PARSE_STRATEGY_GET_PRIVATE(o) \
 	(G_TYPE_INSTANCE_GET_PRIVATE ((o), YTV_TYPE_JSON_FEED_PARSE_STRATEGY, YtvJsonFeedParseStrategyPriv))
 
-static YtvList*
+/**
+ * ytv_json_feed_parse_strategy_perform:
+ * @self: a #YtvFeedParseStrategy implementation instance
+ * @data: (null-ok): the string to parse
+ * @length: the length of the string to parse
+ * @err: the error to propagates if something goes wrong.
+ *
+ * Parse a JSON format feed and extract the entries available.
+ *
+ * returns: (null-ok) (caller-own): a #YtvList of #YtvEntry
+ */
+YtvList*
 ytv_json_feed_parse_strategy_perform (YtvFeedParseStrategy* self,
 				      const gchar* data, gssize length,
-				      GError *err)
+				      GError **err)
 {
         g_assert (self != NULL);
         g_assert (YTV_IS_JSON_FEED_PARSE_STRATEGY (self));
@@ -55,7 +83,7 @@ ytv_json_feed_parse_strategy_perform (YtvFeedParseStrategy* self,
 static YtvList*
 ytv_json_feed_parse_strategy_perform_default (YtvFeedParseStrategy* self,
                                               const gchar* data, gssize length,
-                                              GError *err)
+                                              GError **err)
 {
         return NULL;
 }

@@ -45,51 +45,10 @@ typedef struct _YtvFeedFetchStrategyIface YtvFeedFetchStrategyIface;
 typedef struct _YtvFeedParseStrategy YtvFeedParseStrategy;
 typedef struct _YtvFeedParseStrategyIface YtvFeedParseStrategyIface;
 
-/**
- * YtvGetFeedFetchCallback:
- * @feedfetchst: a #YtvFeedFetchStrategy that caused the callback
- * @cancelled: if the operation got cancelled
- * @reponse: (null-ok): the HTTP response data body from YouTube
- * @err: (null-ok): if an error ocurred
- * @user_data: (null-ok): user data that was passed to the callbacks
- *
- * A feed fetch strategy callback 
- */
-typedef void (*YtvGetFeedFetchCallback) (YtvFeedFetchStrategy* feedfetchst,
-                                         gboolean cancelled, gchar* response,
-                                         GError *err, gpointer user_data);
-
-/**
- * YtvGetEntriesCallback:
- * @feed: a #YtvFeed that caused the callback
- * @cancelled: if the operation got cancelled
- * @entries: (null-ok): a #YtvList of fetched #YtvEntry or NULL
- * @err: (null-ok): if an error ocurred
- * @user_data: (null-ok): user data that was passed to the callbacks
- *
- * A feed callback for when a feed fetch was requested. If allocated, you
- * must cleanup @user_data at the end of your implementation of the callback.
- * All other fields in the parameters of the callback are read-only.
- *
- * When cancelled, @cancelled will be TRUE while @err might nonetheless NULL.
- * If @err is not NULL, an error occurred that you should handle gracefully.
- * The @entries parameter might be NULL in case of error or cancellation.
- */
 typedef void (*YtvGetEntriesCallback) (YtvFeed* feed, gboolean cancelled,
                                        YtvList* entries, GError *err,
                                        gpointer user_data);
 
-/**
- * YtvGetResponseCallback:
- * @st: a #YtvFeedFetchStrategy that caused the callback
- * @mimetype: (null-ok): the response's MIME type
- * @response: (null-ok): the response data
- * @length: length of the response data buffer or -1
- * @err: (null-ok): if an error occurred
- *
- * A callback for when a response is retrieved. The mimetype and the
- * response might be NULL in case of error.
- */
 typedef void (*YtvGetResponseCallback) (YtvFeedFetchStrategy* st,
                                         const gchar* mimetype,
                                         const gint8* response,

@@ -189,7 +189,7 @@ done:
 
 /**
  * ytv_soup_feed_fetch_strategy_perform:
- * @self: a #YtvSoupFeedFetchStrategy instance
+ * @self: a #YtvFeedFetchStrategy instance
  * @uri: the URI to fetch
  * @callback: a #YtvGetResponseCallback to execute when the response arrives
  *

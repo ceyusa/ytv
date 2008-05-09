@@ -36,6 +36,11 @@ G_BEGIN_DECLS
 #define YTV_LIST_GET_IFACE(inst) \
         (G_TYPE_INSTANCE_GET_INTERFACE ((inst), YTV_TYPE_LIST, YtvListIface))
 
+#ifndef _YTV_SHARED_H_
+typedef struct _YtvList YtvList;
+typedef struct _YtvListIface YtvListIface;
+#endif
+
 struct _YtvListIface
 {
         GTypeInterface parent;

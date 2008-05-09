@@ -36,6 +36,11 @@ G_BEGIN_DECLS
 #define YTV_ITERATOR_GET_IFACE(inst) \
 	(G_TYPE_INSTANCE_GET_INTERFACE ((inst), YTV_TYPE_ITERATOR, YtvIteratorIface))
 
+#ifndef _YTV_SHARED_H_
+typedef struct _YtvIterator YtvIterator;
+typedef struct _YtvIteratorIface YtvIteratorIface;
+#endif
+
 struct _YtvIteratorIface
 {
 	GTypeInterface parent;

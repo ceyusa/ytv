@@ -19,6 +19,7 @@
 
 /**
  * SECTION: ytv-error
+ * @title: YtvError
  * @short_description: Ytv errors under GError structure
  *
  * Definitions of the Ytv errors for GError handling

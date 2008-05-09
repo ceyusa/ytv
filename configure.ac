@@ -24,7 +24,7 @@ dnl ### Optional dependencies         ###
 dnl #####################################
 libsoup_modules="    libsoup-2.4 >= 2.23.0
  		     gconf-2.0 >= 2.22.0
-		     json-glib-1.0 >= 2.17.0"
+		     json-glib-1.0 >= 0.5.0"
 
 PKG_CHECK_MODULES([SOUP], [$libsoup_modules])
 

@@ -20,6 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
+
 /**
  * SECTION: ytv-feed-fetch-strategy
  * @title: YtvFeedFetchStrategy
@@ -29,11 +30,31 @@
  * implementation mean to be an asynchronous mechanism for HTTP requests.
  */
 
+/**
+ * YtvFeedFetchStrategy:
+ *
+ * A strategy for fetching resources trough the HTTP protocol
+ *
+ * free-function: g_object_unref
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
 #include <ytv-feed-fetch-strategy.h>
+
+/**
+ * YtvGetResponseCallback:
+ * @st: a #YtvFeedFetchStrategy that caused the callback
+ * @mimetype: (null-ok): the response's MIME type
+ * @response: (null-ok): the response data
+ * @length: length of the response data buffer or -1
+ * @err: (null-ok): if an error occurred
+ *
+ * A callback for when a response is retrieved. The @mimetype and the
+ * @response might be NULL in case of error.
+ */
 
 /**
  * ytv_feed_fetch_strategy_perform:
