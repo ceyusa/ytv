@@ -23,6 +23,8 @@
 
 #include <ytv-feed-fetch-strategy.h>
 #include <ytv-soup-feed-fetch-strategy.h>
+#include <ytv-feed-parse-strategy.h>
+#include <ytv-json-feed-parse-strategy.h>
 
 GMainLoop *loop;
 YtvFeedFetchStrategy* st;
@@ -58,7 +60,19 @@ fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
 {
         if (err == NULL)
         {
-                g_print ("%s\n", (gchar *) response ? response : NULL);
+                GError *tmp_error = NULL;
+                if (g_strrstr (mime, "application/json") != NULL)
+                {
+                        YtvFeedParseStrategy* parse_st =
+                                ytv_json_feed_parse_strategy_new ();
+                        YtvList *feed =
+                                ytv_feed_parse_strategy_perform (parse_st,
+                                                                 response,
+                                                                 length,
+                                                                 &tmp_error);
+                        g_object_unref (parse_st);
+                        g_object_unref (feed);
+                }
         }
         else
         {

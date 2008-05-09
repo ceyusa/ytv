@@ -45,6 +45,7 @@
 
 #include <ytv-error.h>
 #include <ytv-json-feed-parse-strategy.h>
+#include <ytv-simple-list.h>
 
 typedef struct _YtvJsonFeedParseStrategyPriv YtvJsonFeedParseStrategyPriv;
 
@@ -56,6 +57,21 @@ struct _YtvJsonFeedParseStrategyPriv
 
 #define YTV_JSON_FEED_PARSE_STRATEGY_GET_PRIVATE(o) \
 	(G_TYPE_INSTANCE_GET_PRIVATE ((o), YTV_TYPE_JSON_FEED_PARSE_STRATEGY, YtvJsonFeedParseStrategyPriv))
+
+#define JSON_BAIL(err, obj, msg)                                \
+        if (obj == NULL) {                                      \
+                g_set_error (err, YTV_PARSE_ERROR,              \
+                             YTV_PARSE_ERROR_BAD_FORMAT, msg);  \
+                goto beach;                                     \
+        }
+
+#define JSON_GET_OBJECT(obj, node)                                      \
+        obj = json_node_get_object ((node));                            \
+        JSON_BAIL (err, obj, "Could not find the " #node " element")
+
+#define JSON_GET_NODE(obj,node)                                         \
+        node = json_object_get_member (obj, #node);                     \
+        JSON_BAIL (err, node, "Could not find the " #node " element"); 
 
 #define do_indent(i) { gint z; for (z = 0; z < i; z++) g_print (" ");  }
 
@@ -136,6 +152,164 @@ traverse (JsonNode* node)
 	return;
 }
 
+/* extracts the authors from the entry */
+static gchar*
+get_authors (JsonNode *node)
+{
+        g_return_val_if_fail (node != NULL, NULL);
+        g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_ARRAY, NULL);
+
+        gchar* authors = NULL;
+        JsonArray* arr = json_node_get_array (node);
+        gint i; gint size = json_array_get_length (arr);
+        for (i = 0; i < size; i++)
+        {
+                const gchar* author = json_node_get_string (
+                        json_object_get_member (
+                                json_node_get_object (
+                                        json_object_get_member (
+                                                json_node_get_object (
+                                                        json_array_get_element (
+                                                                arr, i
+                                                                )
+                                                        ),
+                                                "name"
+                                                )
+                                        ),
+                                "$t"
+                                )
+                        );
+
+                if (author != NULL)
+                {
+                        if (g_utf8_validate (author, -1, NULL))
+                        {
+                                if (authors == NULL)
+                                        authors = g_strdup (author);
+                                else 
+                                {
+                                        gchar* tmp = g_strconcat (authors,
+                                                                  " ", author);
+                                        g_free (authors);
+                                        authors = tmp;
+                                }
+
+                        }
+                }
+        }
+
+        return authors;
+}
+
+/* extract the title from the entry */
+static gchar*
+get_title (JsonNode *node)
+{
+        g_return_val_if_fail (node != NULL, NULL);
+        g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, NULL);
+
+        gchar* retval = NULL;
+        const gchar* title = json_node_get_string (
+                json_object_get_member (
+                        json_node_get_object (node), "$t"
+                        )
+                );
+
+        if (title != NULL && g_utf8_validate (title, -1, NULL))
+        {
+                retval = g_strdup (title);
+        }
+
+        return retval;
+}
+
+static gint
+get_duration (JsonNode* node)
+{
+        g_return_val_if_fail (node != NULL, NULL);
+        g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, NULL);
+
+        JsonObject* obj = json_node_get_object (node);
+
+        gint retval = -1;
+        const gchar* duration = json_node_get_string (
+                json_object_get_member (
+                        json_node_get_object (
+                                json_object_get_member (obj, "yt$duration");
+                                ),
+                        "seconds"
+                        )
+                );
+
+        if (duration != NULL && g_utf8_validate (duration, -1, NULL))
+        {
+                while (1)
+                {
+                        gchar *tail;
+                        gint next;
+
+                        while (isspace (*duration)) duration++
+                }
+        }
+
+        return retval;
+}
+
+static YtvEntry*
+parse_entry (JsonNode* node)
+{
+        g_return_val_if_fail (node != NULL, NULL);
+        g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, NULL);
+        
+        JsonObject* obj = json_node_get_object (node);
+
+        gchar* authors = get_authors (
+                json_object_get_member (obj, "author")
+                );
+
+        if (authors != NULL)
+        {
+                g_print ("authors = %s\n", authors);
+                g_free (authors);
+        }
+
+        gchar* title = get_title (
+                json_object_get_member (obj, "title")
+                );
+
+        if (title != NULL)
+        {
+                g_print ("title = %s\n", title);
+                g_free (title);
+        }
+
+        gint duration = get_duration (
+                json_object_get_member (obj, "media$group")
+                );
+
+        const gchar* duration = json_node_get_string (
+                json_object_get_member (
+                        json_node_get_object (
+                                json_object_get_member (
+                                        json_node_get_object (
+                                                json_object_get_member (
+                                                        obj,
+                                                        "media$group"
+                                                        )
+                                                ),
+                                        "yt$duration"
+                                        )
+                                ),
+                        "seconds"
+                        )
+                );
+
+        g_print ("duration = %s\n", duration);
+
+beach:
+        return NULL;
+}
+
 /**
  * ytv_json_feed_parse_strategy_perform:
  * @self: a #YtvFeedParseStrategy implementation instance
@@ -166,7 +340,7 @@ ytv_json_feed_parse_strategy_perform_default (YtvFeedParseStrategy* self,
 {
         g_return_val_if_fail (err == NULL || *err == NULL, NULL);
         g_return_val_if_fail (data != NULL, NULL);
-        g_return_val_if_fail (lenght != 0, NULL);
+        g_return_val_if_fail (length != 0, NULL);
 
         GError* tmp_error;
         JsonParser* parser;
@@ -182,11 +356,39 @@ ytv_json_feed_parse_strategy_perform_default (YtvFeedParseStrategy* self,
                 }
         }
 
-        JsonNode* root;
-
+        JsonNode* root; JsonObject* object_root;
         root = json_parser_get_root (parser);
+        JSON_BAIL (err, root, "Could not find the root element");
+        JSON_GET_OBJECT (object_root, root);
         
-        traverse (root);
+        JsonNode* feed; JsonObject* object_feed;
+        JSON_GET_NODE (object_root, feed);
+        JSON_GET_OBJECT (object_feed, feed);
+
+        JsonNode* entry;
+        JSON_GET_NODE (object_feed, entry);
+
+        JsonArray* entries_arr = json_node_get_array (entry);
+        JSON_BAIL (err, entries_arr, "Could not find the entry array");
+
+        YtvList* fl = ytv_simple_list_new (); /* feed list */
+        gint i; gint size = json_array_get_length (entries_arr);
+        for (i = 0; i < size; i++)
+        {
+                entry = json_array_get_element (entries_arr, i);
+                if (entry != NULL)
+                {
+                        g_print ("--> %d\n", i);
+                        traverse (entry);
+                        YtvEntry* e = parse_entry (entry);
+                        if (e != NULL)
+                        {
+                                ytv_list_append (fl, e);
+                        }
+                }
+        }
+
+        return fl;
 
 beach:            
         g_object_unref (parser);
