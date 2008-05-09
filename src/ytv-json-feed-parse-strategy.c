@@ -57,6 +57,85 @@ struct _YtvJsonFeedParseStrategyPriv
 #define YTV_JSON_FEED_PARSE_STRATEGY_GET_PRIVATE(o) \
 	(G_TYPE_INSTANCE_GET_PRIVATE ((o), YTV_TYPE_JSON_FEED_PARSE_STRATEGY, YtvJsonFeedParseStrategyPriv))
 
+#define do_indent(i) { gint z; for (z = 0; z < i; z++) g_print (" ");  }
+
+static void
+traverse (JsonNode* node)
+{
+	g_assert (node != NULL);
+	static gint indent = -1;
+
+	indent++;
+	
+	switch (JSON_NODE_TYPE(node))
+	{
+	case JSON_NODE_OBJECT:
+	{
+		g_print ("\n");
+		do_indent (indent);
+		g_print ("{\n");
+		indent++;
+		JsonObject* object = json_node_get_object (node);
+		GList* members = json_object_get_members (object);
+		GList* tmp = NULL; JsonNode* nextnode = NULL;
+		for (tmp = members; tmp; tmp = tmp->next)
+		{
+			do_indent (indent);
+			g_print ("%s: ", (gchar*) tmp->data);
+			nextnode = json_object_get_member (object,
+							   (gchar*) tmp->data);
+			traverse (nextnode);
+		}
+		g_list_free (members);
+		indent--;
+		do_indent (indent);
+		g_print ("}\n");
+	}
+		break;
+	case JSON_NODE_ARRAY:
+	{
+		g_print ("\n");
+		do_indent (indent);
+		g_print ("[\n");
+		indent++;
+		JsonArray* arr = json_node_get_array (node);
+		gint size = json_array_get_length (arr);
+		gint i; JsonNode* nextnode;
+		for (i = 0; i < size; i++)
+		{
+			nextnode = json_array_get_element (arr, i);
+			traverse (nextnode);
+		}
+		indent--;
+		do_indent (indent);
+		g_print ("]\n");
+	}
+		break;
+	case JSON_NODE_VALUE:
+	{
+		GType gtype = json_node_get_value_type (node);
+		if (gtype == G_TYPE_STRING)
+		{
+			g_print ("%s\n", json_node_get_string (node));
+		}
+		else
+		{
+			g_print ("other type\n");
+		}
+	}
+		break;
+	case JSON_NODE_NULL:
+		g_print ("= null\n");
+		break;
+	default:
+		g_assert_not_reached ();
+	}
+
+	indent--;
+	
+	return;
+}
+
 /**
  * ytv_json_feed_parse_strategy_perform:
  * @self: a #YtvFeedParseStrategy implementation instance
@@ -85,6 +164,33 @@ ytv_json_feed_parse_strategy_perform_default (YtvFeedParseStrategy* self,
                                               const gchar* data, gssize length,
                                               GError **err)
 {
+        g_return_val_if_fail (err == NULL || *err == NULL, NULL);
+        g_return_val_if_fail (data != NULL, NULL);
+        g_return_val_if_fail (lenght != 0, NULL);
+
+        GError* tmp_error;
+        JsonParser* parser;
+
+        parser = json_parser_new ();
+
+        if (!json_parser_load_from_data (parser, data, length, &tmp_error))
+        {
+                if (tmp_error != NULL)
+                {
+                        g_propagate_error (err, tmp_error);
+                        goto beach;
+                }
+        }
+
+        JsonNode* root;
+
+        root = json_parser_get_root (parser);
+        
+        traverse (root);
+
+beach:            
+        g_object_unref (parser);
+        
         return NULL;
 }
 
