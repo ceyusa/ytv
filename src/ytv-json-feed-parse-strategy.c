@@ -41,7 +41,11 @@ struct _YtvJsonFeedParseStrategyPriv
 	(G_TYPE_INSTANCE_GET_PRIVATE ((o), YTV_TYPE_JSON_FEED_PARSE_STRATEGY, YtvJsonFeedParseStrategyPriv))
 
 void
-ytv_json_feed_parse_strategy_perform (YtvFeedParseStrategy* self, )
+ytv_json_feed_parse_strategy_perform (YtvFeedParseStrategy* self,
+				      const gchar* data, gssize length,
+				      GError *err)
+{
+}
 
 static void
 ytv_feed_parse_strategy_init (YtvFeedParseStrategyIface* klass)
