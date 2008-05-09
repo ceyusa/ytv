@@ -40,11 +40,24 @@ struct _YtvJsonFeedParseStrategyPriv
 #define YTV_JSON_FEED_PARSE_STRATEGY_GET_PRIVATE(o) \
 	(G_TYPE_INSTANCE_GET_PRIVATE ((o), YTV_TYPE_JSON_FEED_PARSE_STRATEGY, YtvJsonFeedParseStrategyPriv))
 
-void
+static YtvList*
 ytv_json_feed_parse_strategy_perform (YtvFeedParseStrategy* self,
 				      const gchar* data, gssize length,
 				      GError *err)
 {
+        g_assert (self != NULL);
+        g_assert (YTV_IS_JSON_FEED_PARSE_STRATEGY (self));
+
+        return YTV_JSON_FEED_PARSE_STRATEGY_GET_CLASS (self)->perform
+                (self, data, length, err);
+}
+
+static YtvList*
+ytv_json_feed_parse_strategy_perform_default (YtvFeedParseStrategy* self,
+                                              const gchar* data, gssize length,
+                                              GError *err)
+{
+        return NULL;
 }
 
 static void
@@ -59,3 +72,35 @@ G_DEFINE_TYPE_EXTENDED (YtvJsonFeedParseStrategy, ytv_json_feed_parse_strategy,
 			G_TYPE_OBJECT, 0,
 			G_IMPLEMENT_INTERFACE (YTV_TYPE_FEED_PARSE_STRATEGY,
 					       ytv_feed_parse_strategy_init))
+
+static void
+ytv_json_feed_parse_strategy_class_init (YtvJsonFeedParseStrategyClass* klass)
+{
+        klass->perform = ytv_json_feed_parse_strategy_perform_default;
+        
+        return;
+}
+
+static void
+ytv_json_feed_parse_strategy_init (YtvJsonFeedParseStrategy* self)
+{
+        return;
+}
+
+/**
+ * ytv_json_feed_parse_strategy_new:
+ *
+ * Creates a new instance of the #YtvJsonFeedParseStrategy which
+ * implements the #YtvFeedParseStrategy interface
+ *
+ * returns: (not-null): a new json-glib implementation of the
+ * #YtvFeedParseStrategy interface
+ */
+YtvFeedParseStrategy*
+ytv_json_feed_parse_strategy_new (void)
+{
+        YtvJsonFeedParseStrategy* self = g_object_new
+                (YTV_TYPE_JSON_FEED_PARSE_STRATEGY, NULL);
+
+        return YTV_FEED_PARSE_STRATEGY (self);
+}

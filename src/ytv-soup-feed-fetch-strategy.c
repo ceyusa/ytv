@@ -28,6 +28,16 @@
  * library for the HTTP client communications.
  */
 
+/**
+ * YtvSoupFeedFetchStrategy:
+ *
+ * It is a #YtvFeedFetchStrategy implementation using the libsoup
+ * library for the HTTP client communications.
+ *
+ * free-function: g_object_unref
+ */
+
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -303,6 +313,9 @@ ytv_soup_feed_fetch_strategy_init (YtvSoupFeedFetchStrategy* self)
  *
  * Creates a new instance of the #YtvSoupFeedFetchStrategy which
  * implements the #YtvFeedFetchStrategy interface
+ *
+ * returns: (not-null): a new soup implementation of the
+ * #YtvFeedFetchStrategy interface
  */
 YtvFeedFetchStrategy*
 ytv_soup_feed_fetch_strategy_new (void)

@@ -17,6 +17,13 @@
  * Boston, MA 02110-1301, USA.
  */
 
+/**
+ * SECTION: ytv-error
+ * @short_description: Ytv errors under GError structure
+ *
+ * Definitions of the Ytv errors for GError handling
+ */
+
 #include <ytv-error.h>
 
 /**

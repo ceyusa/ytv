@@ -33,4 +33,6 @@ ytv_SOURCES = 				\
 	ytv-soup-feed-fetch-strategy.c	\
 	ytv-error.c			\
 	ytv-error.h			\
+	ytv-json-feed-parse-strategy.h	\
+	ytv-json-feed-parse-strategy.c	\
 	main.c
