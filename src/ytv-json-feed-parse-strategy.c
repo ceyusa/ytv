@@ -41,8 +41,12 @@
 #include <config.h>
 #endif
 
+#include <errno.h>
+#include <stdlib.h>
+
 #include <json-glib/json-glib.h>
 
+#include <ytv-entry.h>
 #include <ytv-error.h>
 #include <ytv-json-feed-parse-strategy.h>
 #include <ytv-simple-list.h>
@@ -152,9 +156,35 @@ traverse (JsonNode* node)
 	return;
 }
 
+/* extracts the video's id */
+static gchar*
+get_id (JsonNode* node)
+{
+        g_return_val_if_fail (node != NULL, NULL);
+        g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, NULL);
+
+        gchar* retval = NULL;
+        const gchar* id = json_node_get_string (
+                json_object_get_member (
+                        json_node_get_object (node), "$t"
+                        )
+                );
+
+        if (id != NULL && g_utf8_validate (id, -1, NULL))
+        {
+                gchar* pos = g_strrstr (id, "/");
+                if (pos != NULL && ++pos != NULL)
+                {
+                        retval = g_strdup (pos);
+                }
+        }
+
+        return retval;
+}
+
 /* extracts the authors from the entry */
 static gchar*
-get_authors (JsonNode *node)
+get_authors (JsonNode* node)
 {
         g_return_val_if_fail (node != NULL, NULL);
         g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_ARRAY, NULL);
@@ -201,9 +231,9 @@ get_authors (JsonNode *node)
         return authors;
 }
 
-/* extract the title from the entry */
+/* extracts the title from the entry */
 static gchar*
-get_title (JsonNode *node)
+get_title (JsonNode* node)
 {
         g_return_val_if_fail (node != NULL, NULL);
         g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, NULL);
@@ -223,11 +253,12 @@ get_title (JsonNode *node)
         return retval;
 }
 
+/* extracts the video's duration */
 static gint
 get_duration (JsonNode* node)
 {
-        g_return_val_if_fail (node != NULL, NULL);
-        g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, NULL);
+        g_return_val_if_fail (node != NULL, -1);
+        g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, -1);
 
         JsonObject* obj = json_node_get_object (node);
 
@@ -235,7 +266,7 @@ get_duration (JsonNode* node)
         const gchar* duration = json_node_get_string (
                 json_object_get_member (
                         json_node_get_object (
-                                json_object_get_member (obj, "yt$duration");
+                                json_object_get_member (obj, "yt$duration")
                                 ),
                         "seconds"
                         )
@@ -243,15 +274,179 @@ get_duration (JsonNode* node)
 
         if (duration != NULL && g_utf8_validate (duration, -1, NULL))
         {
-                while (1)
-                {
-                        gchar *tail;
-                        gint next;
-
-                        while (isspace (*duration)) duration++
-                }
+                errno = 0;
+                gchar* tail;
+                retval = strtol (duration, &tail, 0);
+                if (errno != 0 || tail == duration)
+                        return -1;
         }
 
+        return retval;
+}
+
+/* extracts the rating */
+static gfloat
+get_rating (JsonNode* node)
+{
+        g_return_val_if_fail (node != NULL, -1);
+        g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, -1);
+
+        gfloat retval = -1;
+
+        JsonObject* obj = json_node_get_object (node);
+        const gchar* rating = json_node_get_string (
+                        json_object_get_member (obj, "average")
+                );
+
+        if (rating != NULL && g_utf8_validate (rating, -1, NULL))
+        {
+                errno = 0;
+                gchar* tail;
+                retval = (float) strtod (rating, &tail);
+                if (errno != 0 || rating == tail)
+                        return -1;
+        }        
+        
+        return retval;
+}
+
+/* extracts the published date */
+static gchar*
+get_published (JsonNode* node)
+{
+        g_return_val_if_fail (node != NULL, NULL);
+        g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, NULL);
+
+        gchar* retval = NULL;
+        const gchar* published = json_node_get_string (
+                json_object_get_member (
+                        json_node_get_object (node), "$t"
+                        )
+                );
+
+        if (published != NULL && g_utf8_validate (published, -1, NULL))
+        {
+                retval = g_strdup (published);
+        }
+
+        return retval;
+}
+
+/* extracts the number of views */
+static gint
+get_views (JsonNode* node)
+{
+        g_return_val_if_fail (node != NULL, -1);
+        g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, -1);
+
+        JsonObject* obj = json_node_get_object (node);
+
+        gint retval = -1;
+        const gchar* views = json_node_get_string (
+                json_object_get_member (obj, "viewCount")
+                );
+
+        if (views != NULL && g_utf8_validate (views, -1, NULL))
+        {
+                errno = 0;
+                gchar* tail;
+                retval = strtol (views, &tail, 0);
+                if (errno != 0 || tail == views)
+                        return -1;
+        }
+
+        return retval;
+}
+
+/* extracts the entry's category */
+static gchar*
+get_category (JsonNode* node)
+{
+        g_return_val_if_fail (node != NULL, NULL);
+        g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, NULL);
+
+        gchar* retval = NULL;
+        
+        JsonObject* obj = json_node_get_object (node);
+        const gchar* category = json_node_get_string (
+                json_object_get_member (
+                        json_node_get_object (
+                                json_array_get_element (
+                                        json_node_get_array (
+                                                json_object_get_member
+                                                (obj, "media$category")
+                                                ),
+                                        0
+                                        )
+                                ),
+                        "$t"
+                        )
+                );
+
+        if (category != NULL && g_utf8_validate (category, -1, NULL))
+        {
+                retval = g_strdup (category);
+        }
+        
+        return retval;
+}
+
+/* extracts the entry's tags */
+static gchar*
+get_tags (JsonNode* node)
+{
+        g_return_val_if_fail (node != NULL, NULL);
+        g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, NULL);
+
+        gchar* retval = NULL;
+        
+        JsonObject* obj = json_node_get_object (node);
+
+        /* only the first element */
+        const gchar* tags = json_node_get_string (
+                json_object_get_member (
+                        json_node_get_object (
+                                json_object_get_member (obj, "media$keywords")
+                                ),
+                        "$t"
+                        )
+                );
+
+        if (tags != NULL && g_utf8_validate (tags, -1, NULL))
+        {
+                retval = g_strdup (tags);
+        }
+        
+        return retval;
+}
+
+/* extracts the video's description */
+static gchar*
+get_description (JsonNode* node)
+{
+        g_return_val_if_fail (node != NULL, NULL);
+        g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, NULL);
+
+        gchar* retval = NULL;
+        
+        JsonObject* obj = json_node_get_object (node);
+
+        /* only the first element */
+        const gchar* description = json_node_get_string (
+                json_object_get_member (
+                        json_node_get_object (
+                                json_object_get_member (obj,
+                                                        "media$description")
+                                ),
+                        "$t"
+                        )
+                );
+
+        if (description != NULL && g_utf8_validate (description, -1, NULL))
+        {
+                retval = g_strdup (description);
+        }
+        
         return retval;
 }
 
@@ -260,54 +455,85 @@ parse_entry (JsonNode* node)
 {
         g_return_val_if_fail (node != NULL, NULL);
         g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, NULL);
-        
+
+        YtvEntry* entry = NULL;
         JsonObject* obj = json_node_get_object (node);
+
+        gchar* id = get_id (
+                json_object_get_member (obj, "id")
+                );
 
         gchar* authors = get_authors (
                 json_object_get_member (obj, "author")
                 );
 
-        if (authors != NULL)
-        {
-                g_print ("authors = %s\n", authors);
-                g_free (authors);
-        }
-
         gchar* title = get_title (
                 json_object_get_member (obj, "title")
                 );
-
-        if (title != NULL)
-        {
-                g_print ("title = %s\n", title);
-                g_free (title);
-        }
 
         gint duration = get_duration (
                 json_object_get_member (obj, "media$group")
                 );
 
-        const gchar* duration = json_node_get_string (
-                json_object_get_member (
-                        json_node_get_object (
-                                json_object_get_member (
-                                        json_node_get_object (
-                                                json_object_get_member (
-                                                        obj,
-                                                        "media$group"
-                                                        )
-                                                ),
-                                        "yt$duration"
-                                        )
-                                ),
-                        "seconds"
-                        )
+        gfloat rating = get_rating (
+                json_object_get_member (obj, "gd$rating")
                 );
 
-        g_print ("duration = %s\n", duration);
+        gchar* published = get_published (
+                json_object_get_member (obj, "published")
+                );
 
-beach:
-        return NULL;
+        gint views = get_views (
+                json_object_get_member (obj, "yt$statistics")
+                );
+
+        gchar* category = get_category (
+                json_object_get_member (obj,"media$group")
+                );
+
+        gchar* tags = get_tags (
+                json_object_get_member (obj,"media$group")
+                );
+
+        gchar* description = get_description (
+                json_object_get_member (obj,"media$group")
+                );
+
+        if (id != NULL && authors != NULL && title != NULL && duration > 0 &&
+            rating > -1 && published != NULL && views > 0 &&
+            category != NULL && tags != NULL && description != NULL)
+        {
+                entry = g_object_new (YTV_TYPE_ENTRY,
+                                      "id", id, "author", authors, 
+                                      "title", title, "duration", duration,
+                                      "rating", rating, "published", published,
+                                      "views", views, "category", category,
+                                      "tags", tags, "description", description,
+                                      NULL);
+        }
+        
+        if (id != NULL)
+                g_free (id);
+
+        if (authors != NULL)
+                g_free (authors);
+
+        if (title != NULL)
+                g_free (title);
+
+        if (published != NULL)
+                g_free (published);
+
+        if (category != NULL)
+                g_free (category);
+
+        if (tags != NULL)
+                g_free (tags);
+
+        if (description != NULL)
+                g_free (description);
+
+        return entry;
 }
 
 /**
@@ -378,8 +604,7 @@ ytv_json_feed_parse_strategy_perform_default (YtvFeedParseStrategy* self,
                 entry = json_array_get_element (entries_arr, i);
                 if (entry != NULL)
                 {
-                        g_print ("--> %d\n", i);
-                        traverse (entry);
+                        /* traverse (entry); */
                         YtvEntry* e = parse_entry (entry);
                         if (e != NULL)
                         {
@@ -388,6 +613,8 @@ ytv_json_feed_parse_strategy_perform_default (YtvFeedParseStrategy* self,
                 }
         }
 
+        g_debug ("number of entries = %d", ytv_list_get_length (fl));
+        
         return fl;
 
 beach:            
