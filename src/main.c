@@ -71,6 +71,8 @@ fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
                                                                  length,
                                                                  &tmp_error);
                         g_object_unref (parse_st);
+
+                        ytv_list_foreach (feed, ytv_entry_dump, NULL);
                         g_object_unref (feed);
                 }
         }

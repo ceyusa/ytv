@@ -343,4 +343,24 @@ ytv_entry_class_init (YtvEntryClass* klass)
 
 /** Public methods **/
 
+void
+ytv_entry_dump (YtvEntry* self)
+{
+	g_return_if_fail (YTV_IS_ENTRY (self));
 
+	YtvEntryPriv* priv = YTV_ENTRY_GET_PRIVATE (self);
+
+        g_print ("====\n");
+        g_print ("id = %s\n", priv->id);
+        g_print ("authors = %s\n", priv->author);
+        g_print ("title = %s\n", priv->title);
+        g_print ("duration = %d\n", priv->duration);
+        g_print ("rating = %f\n", priv->rating);
+        g_print ("published = %s\n", priv->published);
+        g_print ("views = %d\n", priv->views);
+        g_print ("category = %s\n", priv->category);
+        g_print ("tags = %s\n", priv->tags);
+        g_print ("description = %s\n", priv->description);
+
+	return;
+}

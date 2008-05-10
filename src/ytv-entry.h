@@ -56,6 +56,8 @@ struct _YtvEntryClass
 
 GType ytv_entry_get_type (void);
 
+void ytv_entry_dump (YtvEntry* self);
+
 G_END_DECLS
 
 #endif /* _YTV_ENTRY_H_ */
