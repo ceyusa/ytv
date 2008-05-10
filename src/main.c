@@ -88,7 +88,7 @@ fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
 static gboolean
 fetch_feed ()
 {
-        gchar* base = "http://gdata.youtube.com/feeds/api/videos?max-results=3&vq=muse+invincible&alt=json";
+        gchar* base = "http://gdata.youtube.com/feeds/api/videos?vq=muse+invincible&alt=json";
         /* gchar* base = "http://www.ceyusa.com/feeds/api/videos?max-results=3&vq=muse+invincible&alt=json"; */
         
         st = ytv_soup_feed_fetch_strategy_new ();

@@ -570,6 +570,7 @@ ytv_json_feed_parse_strategy_perform_default (YtvFeedParseStrategy* self,
 
         GError* tmp_error;
         JsonParser* parser;
+        YtvList* fl = NULL;
 
         parser = json_parser_new ();
 
@@ -597,7 +598,7 @@ ytv_json_feed_parse_strategy_perform_default (YtvFeedParseStrategy* self,
         JsonArray* entries_arr = json_node_get_array (entry);
         JSON_BAIL (err, entries_arr, "Could not find the entry array");
 
-        YtvList* fl = ytv_simple_list_new (); /* feed list */
+        fl = ytv_simple_list_new (); /* feed list */
         gint i; gint size = json_array_get_length (entries_arr);
         for (i = 0; i < size; i++)
         {
@@ -609,18 +610,17 @@ ytv_json_feed_parse_strategy_perform_default (YtvFeedParseStrategy* self,
                         if (e != NULL)
                         {
                                 ytv_list_append (fl, e);
+                                g_object_unref (e); /* we don't want the ref */
                         }
                 }
         }
 
         g_debug ("number of entries = %d", ytv_list_get_length (fl));
         
-        return fl;
-
 beach:            
         g_object_unref (parser);
         
-        return NULL;
+        return fl;
 }
 
 static void
