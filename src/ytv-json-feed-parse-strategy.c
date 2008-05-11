@@ -288,7 +288,7 @@ get_duration (JsonNode* node)
 static gfloat
 get_rating (JsonNode* node)
 {
-        g_return_val_if_fail (node != NULL, -1);
+        g_return_val_if_fail (node != NULL, 1); /* this is in most_recent feed */
         g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, -1);
 
         gfloat retval = -1;

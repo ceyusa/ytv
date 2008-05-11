@@ -25,6 +25,7 @@
 #include <ytv-soup-feed-fetch-strategy.h>
 #include <ytv-feed-parse-strategy.h>
 #include <ytv-json-feed-parse-strategy.h>
+#include <ytv-youtube-uri-builder.h>
 
 GMainLoop *loop;
 YtvFeedFetchStrategy* st;
@@ -90,14 +91,50 @@ fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
 static gboolean
 fetch_feed ()
 {
-        gchar* base = "http://gdata.youtube.com/feeds/api/videos?vq=muse+invincible&alt=json";
+        /* gchar* base = "http://gdata.youtube.com/feeds/api/videos?vq=muse+invincible&alt=json"; */
         /* gchar* base = "http://www.ceyusa.com/feeds/api/videos?max-results=3&vq=muse+invincible&alt=json"; */
-        
-        st = ytv_soup_feed_fetch_strategy_new ();
-        ytv_feed_fetch_strategy_perform (st, base, fetch_feed_cb);
 
+        gchar *furi = NULL;
+
+        YtvUriBuilder* ub = ytv_youtube_uri_builder_new ();
+/*         g_object_set (G_OBJECT (ub), "max-results", 5, NULL); */
+/*         furi = ytv_uri_builder_get_standard_feed */
+/*                 (ub, YTV_YOUTUBE_STD_FEED_MOST_RECENT); */
+/*         g_warning ("%s", furi); */
+/*         ytv_feed_fetch_strategy_perform (st, furi, fetch_feed_cb); */
+/*         g_free (furi); */
+
+
+        g_object_set (G_OBJECT (ub),
+                      "max-results", 25,
+                      "time", YTV_YOUTUBE_TIME_TODAY,
+                      NULL);
+        furi = ytv_uri_builder_get_standard_feed
+                (ub, YTV_YOUTUBE_STD_FEED_MOST_VIEWED);
+        g_warning ("%s", furi);
+        ytv_feed_fetch_strategy_perform (st, furi, fetch_feed_cb);
+        g_free (furi);
+
+        g_object_unref (ub);
+        
         return FALSE;
-}        
+}
+
+static void
+build_uris ()
+{
+        YtvUriBuilder* ub = ytv_youtube_uri_builder_new ();
+        gchar *furi = NULL;
+
+        furi = ytv_uri_builder_get_standard_feed
+                (ub, YTV_YOUTUBE_STD_FEED_TOP_RATED);
+
+        g_print ("top rated = %s\n", furi);
+
+        g_free (furi);
+
+        return;
+}
 
 gint
 main (gint argc, gchar** argv)
@@ -106,7 +143,11 @@ main (gint argc, gchar** argv)
 	g_type_init ();
 
 	create_entry ();
+        
+        build_uris ();
 
+        st = ytv_soup_feed_fetch_strategy_new ();
+        
         loop = g_main_loop_new (NULL, TRUE);
         g_idle_add ((GSourceFunc) fetch_feed, NULL);
         g_main_loop_run (loop);
