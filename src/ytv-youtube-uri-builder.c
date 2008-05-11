@@ -21,9 +21,18 @@
  */
 
 /**
+ * SECTION: ytv-youtube-uri-builder
+ * @title: YtvYoutubeUriBuilder
+ * @short_description: It is a #YtvUriBuilder implementation for the YouTube video
+ * repository
+ *
+ * This is an implementation of the #YtvUriBuilder interface for the YouTube service.
+ */
+
+/**
  * YtvYoutubeUriBuilder:
  *
- * It is a #YtvUriBuilder implementation for the YouTube video repository.
+ * It is a #YtvUriBuilder implementation for the YouTube video repository
  *
  * free-function: g_object_unref
  */
@@ -33,6 +42,17 @@
 #endif
 
 #include <ytv-youtube-uri-builder.h>
+
+/**
+ * YtvYoutubeOrder:
+ *
+ * Order to sort videos in the search result set
+ *
+ * @YTV_YOUTUBE_ORDER_RELEVANCE:
+ * @YTV_YOUTUBE_ORDER_PUBLISHED:
+ * @YTV_YOUTUBE_ORDER_VIEWCOUNT:
+ * @YTV_YOUTUBE_ORDER_RATING:
+ */
 
 enum _YtvYoutubeUriBuilderProp
 {
@@ -57,7 +77,7 @@ struct _YtvYoutubeUriBuilderPriv
 };
 
 #define YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE(obj)			\
-	(G_TYPE_INSTANCE_GET_PRIVATE ((obj), YTV_YOUTUBE_URI_BUILDER, YtvYoutubeUriBuilderPriv))
+	(G_TYPE_INSTANCE_GET_PRIVATE ((obj), YTV_TYPE_YOUTUBE_URI_BUILDER, YtvYoutubeUriBuilderPriv))
 
 static gchar*
 ytv_youtube_uri_builder_get_standard_feed_default (YtvUriBuilder* self, guint type)
@@ -92,7 +112,7 @@ ytv_youtube_uri_builder_get_related_feed_default (YtvUriBuilder* self, const gch
 }
 	
 static void
-ytv_youtube_uri_builder_init (YtvUriBuilderIface* klass)
+ytv_uri_builder_init (YtvUriBuilderIface* klass)
 {
 	klass->get_standard_feed = ytv_youtube_uri_builder_get_standard_feed_default;
 	klass->search_feed = ytv_youtube_uri_builder_search_feed_default;
@@ -127,6 +147,7 @@ ytv_youtube_uri_builder_set_property (GObject* object, guint prop_id,
 		priv->max_results = g_value_get_int (value);
 		break;
 	case PROP_AUTHOR:
+	{
 		const gchar* author = g_value_get_string (value);
 		g_return_if_fail (author != NULL);
 
@@ -134,6 +155,7 @@ ytv_youtube_uri_builder_set_property (GObject* object, guint prop_id,
 			g_free (priv->author);
 		
 		priv->author = g_strdup (author);
+	}
 		break;
 	case PROP_ALT:
 		priv->alt = g_value_get_enum (value);
@@ -185,11 +207,28 @@ ytv_youtube_uri_builder_get_property (GObject* object, guint prop_id,
 }
 
 static void
+ytv_youtube_uri_builder_finalize (GObject* object)
+{
+	g_return_if_fail (YTV_IS_YOUTUBE_URI_BUILDER (object));
+	YtvYoutubeUriBuilderPriv* priv = YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (object);
+
+	if (priv->author != NULL)
+	{
+		g_free (priv->author);
+		priv->author = NULL;
+	}
+
+	(*G_OBJECT_CLASS (ytv_youtube_uri_builder_parent_class)->finalize) (object);
+
+	return;
+}
+
+static void
 ytv_youtube_uri_builder_class_init (YtvYoutubeUriBuilderClass* klass)
 {
 	GObjectClass* g_klass = G_OBJECT_CLASS (klass);
 	
-	g_type_class_add_private (g_klas, sizeof (YtvYoutubeUriBuilderPriv));
+	g_type_class_add_private (g_klass, sizeof (YtvYoutubeUriBuilderPriv));
 	g_klass->set_property = ytv_youtube_uri_builder_set_property;
 	g_klass->get_property = ytv_youtube_uri_builder_get_property;
 	g_klass->finalize = ytv_youtube_uri_builder_finalize;
@@ -238,7 +277,7 @@ ytv_youtube_uri_builder_class_init (YtvYoutubeUriBuilderClass* klass)
 		 g_param_spec_enum
 		 ("time", "time", "Restricts the search to videos uploaded within "
 		  "the specified time", YTV_TYPE_YOUTUBE_TIME,
-		  YTV_YOUTUBE_TIME_ALL_TIME));
+		  YTV_YOUTUBE_TIME_ALL_TIME, G_PARAM_READWRITE));
 			
 	return;
 }
@@ -294,10 +333,10 @@ ytv_youtube_uri_builder_get_standard_feed (YtvUriBuilder* self, guint type)
         gchar* retval;
 
         g_assert (YTV_IS_YOUTUBE_URI_BUILDER (self));
-        g_assert (YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_standard_feed_default != NULL);
+        g_assert (YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_standard_feed != NULL);
 
-        retval = YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_standard_feed_default
-		(self, type);
+        retval = YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_standard_feed (self,
+									      type);
 
         return retval;
 }       
@@ -319,10 +358,9 @@ ytv_youtube_uri_builder_search_feed (YtvUriBuilder* self, const gchar* query)
 
         g_assert (query != NULL);
         g_assert (YTV_IS_YOUTUBE_URI_BUILDER (self));
-        g_assert (YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_standard_feed_default != NULL);
+        g_assert (YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_standard_feed != NULL);
 
-        retval = YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->search_feed_default (self,
-										query);
+        retval = YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->search_feed (self, query);
 
         return retval;
 }
@@ -344,10 +382,9 @@ ytv_youtube_uri_builder_get_user_feed (YtvUriBuilder* self, const gchar* user)
 
         g_assert (user != NULL);
         g_assert (YTV_IS_YOUTUBE_URI_BUILDER (self));
-        g_assert (YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_user_feed_default != NULL);
+        g_assert (YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_user_feed != NULL);
 
-        retval = YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_user_feed_default (self,
-										  user);
+        retval = YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_user_feed (self, user);
 
         return retval;
 }
@@ -372,10 +409,11 @@ ytv_youtube_uri_builder_get_keywords_feed (YtvUriBuilder* self, const gchar* cat
 
         g_assert (category != NULL || keywords != NULL);
         g_assert (YTV_IS_YOUTUBE_URI_BUILDER (self));
-        g_assert (YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_keywords_feed_default != NULL);
+        g_assert (YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_keywords_feed != NULL);
 
-        retval = YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_keywords_feed_default
-		(self, category, keywords);
+        retval = YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_keywords_feed (self,
+									      category,
+									      keywords);
 
         return retval;
 }
@@ -397,10 +435,9 @@ ytv_youtube_uri_builder_get_related_feed (YtvUriBuilder* self, const gchar* vid)
 
         g_assert (vid != NULL);
         g_assert (YTV_IS_YOUTUBE_URI_BUILDER (self));
-        g_assert (YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_related_feed_default != NULL);
+        g_assert (YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_related_feed != NULL);
 
-        retval = YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_related_feed_default
-		(self, vid);
+        retval = YTV_YOUTUBE_URI_BUILDER_GET_CLASS (self)->get_related_feed (self, vid);
 
         return retval;
 }
@@ -415,11 +452,11 @@ ytv_youtube_uri_builder_get_related_feed (YtvUriBuilder* self, const gchar* vid)
 GType
 ytv_youtube_order_get_type (void)
 {
-	statci GType type = 0;
+	static GType type = 0;
 
 	if (G_UNLIKELY (type == 0))
 	{
-		static const GEnumValue valus[] = {
+		static const GEnumValue values[] = {
 			{ YTV_YOUTUBE_ORDER_RELEVANCE, "YTV_YOUTUBE_ORDER_RELEVANCE", "relevance" },
 			{ YTV_YOUTUBE_ORDER_PUBLISHED, "YTV_YOUTUBE_ORDER_PUBLISHED", "published" },
 			{ YTV_YOUTUBE_ORDER_VIEWCOUNT, "YTV_YOUTUBE_ORDER_VIEWCOUNT", "viewcount" },
@@ -443,11 +480,11 @@ ytv_youtube_order_get_type (void)
 GType
 ytv_youtube_alt_get_type (void)
 {
-	statci GType type = 0;
+	static GType type = 0;
 
 	if (G_UNLIKELY (type == 0))
 	{
-		static const GEnumValue valus[] = {
+		static const GEnumValue values[] = {
 			{ YTV_YOUTUBE_ALT_ATOM, "YTV_YOUTUBE_ALT_ATOM", "atom" },
 			{ YTV_YOUTUBE_ALT_RSS, "YTV_YOUTUBE_ALT_RSS", "rss" },
 			{ YTV_YOUTUBE_ALT_JSON, "YTV_YOUTUBE_ALT_JSON", "json" },
@@ -471,11 +508,11 @@ ytv_youtube_alt_get_type (void)
 GType
 ytv_youtube_time_get_type (void)
 {
-	statci GType type = 0;
+	static GType type = 0;
 
 	if (G_UNLIKELY (type == 0))
 	{
-		static const GEnumValue valus[] = {
+		static const GEnumValue values[] = {
 			{ YTV_YOUTUBE_TIME_TODAY, "YTV_YOUTUBE_TIME_TODAY", "today" },
 			{ YTV_YOUTUBE_TIME_THIS_WEEK, "YTV_YOUTUBE_TIME_THIS_WEEK", "this_week" },
 			{ YTV_YOUTUBE_TIME_THIS_MONTH, "YTV_YOUTUBE_TIME_THIS_MONTH", "this_month" },
