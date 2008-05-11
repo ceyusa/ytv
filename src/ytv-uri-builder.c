@@ -82,7 +82,7 @@ ytv_uri_builder_search_feed (YtvUriBuilder* self, const gchar* query)
 
         g_assert (query != NULL);
         g_assert (YTV_IS_URI_BUILDER (self));
-        g_assert (YTV_URI_BUILDER_GET_IFACE (self)->get_standard_feed != NULL);
+        g_assert (YTV_URI_BUILDER_GET_IFACE (self)->search_feed != NULL);
 
         retval = YTV_URI_BUILDER_GET_IFACE (self)->search_feed (self, query);
 
