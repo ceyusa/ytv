@@ -44,6 +44,8 @@ typedef struct _YtvFeedFetchStrategy YtvFeedFetchStrategy;
 typedef struct _YtvFeedFetchStrategyIface YtvFeedFetchStrategyIface;
 typedef struct _YtvFeedParseStrategy YtvFeedParseStrategy;
 typedef struct _YtvFeedParseStrategyIface YtvFeedParseStrategyIface;
+typedef struct _YtvUriBuilder YtvUriBuilder;
+typedef struct _YtvUriBuilderIface YtvUriBuilderIface;
 
 typedef void (*YtvGetEntriesCallback) (YtvFeed* feed, gboolean cancelled,
                                        YtvList* entries, GError *err,

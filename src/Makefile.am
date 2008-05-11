@@ -35,4 +35,6 @@ ytv_SOURCES = 				\
 	ytv-error.h			\
 	ytv-json-feed-parse-strategy.h	\
 	ytv-json-feed-parse-strategy.c	\
+	ytv-uri-builder.h		\
+	ytv-uri-builder.c		\
 	main.c
