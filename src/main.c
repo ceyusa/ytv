@@ -105,12 +105,16 @@ fetch_feed ()
 /*         g_free (furi); */
 
 
-        g_object_set (G_OBJECT (ub),
-                      "max-results", 25,
-                      "time", YTV_YOUTUBE_TIME_TODAY,
-                      NULL);
-        furi = ytv_uri_builder_get_standard_feed
-                (ub, YTV_YOUTUBE_STD_FEED_MOST_VIEWED);
+/*         g_object_set (G_OBJECT (ub), */
+/*                       "max-results", 25, */
+/*                       "time", YTV_YOUTUBE_TIME_TODAY, */
+/*                       NULL); */
+/*         furi = ytv_uri_builder_get_standard_feed */
+/*                 (ub, YTV_YOUTUBE_STD_FEED_MOST_VIEWED); */
+
+/*         furi = ytv_uri_builder_get_user_feed (ub, "pinkipons"); */
+
+        furi = ytv_uri_builder_get_related_feed (ub, "FOwQETKKyF0");
         g_warning ("%s", furi);
         ytv_feed_fetch_strategy_perform (st, furi, fetch_feed_cb);
         g_free (furi);
