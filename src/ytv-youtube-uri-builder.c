@@ -340,7 +340,31 @@ static gchar*
 ytv_youtube_uri_builder_search_feed_default (YtvUriBuilder* self,
                                              const gchar* query)
 {
-	return NULL;
+
+        gchar *c;
+        for (c = query; c; c++)
+        {
+                if (c == '+')
+                {
+                        /* should change it for his encoded value */
+                }
+                else if (g_ascii_isspace (c))
+                {
+                        *c = "+"
+                }
+        }
+
+        gchar* retval = g_strconcat (BASEURL, "videos?vq=", query, NULL);
+        
+        gchar* params = all_params (YTV_YOUTUBE_URI_BUILDER (self), TRUE);
+	if (params != NULL)
+	{
+		gchar* tmp = g_strconcat (retval, "&", params, NULL);
+		g_free (retval);
+		retval = tmp;
+	}
+
+	return retval;
 }
 
 static gchar*
