@@ -197,7 +197,8 @@ done:
  * libsoup.
  */
 void
-ytv_soup_feed_fetch_strategy_perform (YtvFeedFetchStrategy *self, gchar* uri,
+ytv_soup_feed_fetch_strategy_perform (YtvFeedFetchStrategy *self,
+                                      const gchar* uri,
                                       YtvGetResponseCallback callback)
 {
         g_assert (self != NULL);
@@ -212,7 +213,7 @@ ytv_soup_feed_fetch_strategy_perform (YtvFeedFetchStrategy *self, gchar* uri,
 
 static void
 ytv_soup_feed_fetch_strategy_perform_default (YtvFeedFetchStrategy* self,
-					      gchar* uri,
+					      const gchar* uri,
                                               YtvGetResponseCallback callback)
 {
         g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (self));
@@ -223,8 +224,10 @@ ytv_soup_feed_fetch_strategy_perform_default (YtvFeedFetchStrategy* self,
         SoupMessage* message;
 
         create_session (me);
-        
-        message = soup_message_new (SOUP_METHOD_GET, uri);
+
+        gchar *encuri = soup_uri_encode (uri, NULL);
+        message = soup_message_new (SOUP_METHOD_GET, encuri);
+        g_free (encuri);
 
         if (message == NULL)
         {

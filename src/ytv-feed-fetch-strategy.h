@@ -51,13 +51,14 @@ struct _YtvFeedFetchStrategyIface
 {
         GTypeInterface parent;
 
-        void (*perform) (YtvFeedFetchStrategy* self, gchar* uri,
+        void (*perform) (YtvFeedFetchStrategy* self, const gchar* uri,
                          YtvGetResponseCallback callback);
 };
 
 GType ytv_feed_fetch_strategy_get_type (void);
 
-void ytv_feed_fetch_strategy_perform (YtvFeedFetchStrategy* self, gchar* uri,
+void ytv_feed_fetch_strategy_perform (YtvFeedFetchStrategy* self,
+                                      const gchar* uri,
                                       YtvGetResponseCallback callback);
 
 G_END_DECLS

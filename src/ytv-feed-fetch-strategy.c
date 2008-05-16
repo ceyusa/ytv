@@ -65,7 +65,7 @@
  * Performs the async fetch of a feed through HTTP.
  */
 void
-ytv_feed_fetch_strategy_perform (YtvFeedFetchStrategy* self, gchar* uri,
+ytv_feed_fetch_strategy_perform (YtvFeedFetchStrategy* self, const gchar* uri,
                                  YtvGetResponseCallback callback)
 {
         g_assert (YTV_IS_FEED_FETCH_STRATEGY (self));
