@@ -50,13 +50,15 @@ struct _YtvFeedIface
         GTypeInterface parent;
 
         /* Methods */
-        YtvFeedFetchStrategy* (*get_fetch_strategy) (YtvFeed *self);
+        YtvFeedFetchStrategy* (*get_fetch_strategy) (YtvFeed* self);
         void (*set_fetch_strategy) (YtvFeed* self, YtvFeedFetchStrategy* st);
-        YtvFeedParseStrategy* (*get_parse_strategy) (YtvFeed *self);
+        YtvFeedParseStrategy* (*get_parse_strategy) (YtvFeed* self);
         void (*set_parse_strategy) (YtvFeed* self, YtvFeedParseStrategy* st);
+        YtvUriBuilder* (*get_uri_builder) (YtvFeed* self);
+        void (*set_uri_builder) (YtvFeed* self, YtvUriBuilder* ub);
         void (*get_entries_async) (YtvFeed* self,
                                    YtvGetEntriesCallback callback,
-                                   gpointer user_data);
+                                   gpointer user_data);        
 };
 
 GType ytv_feed_get_type (void);
@@ -67,7 +69,8 @@ void ytv_feed_set_parse_strategy (YtvFeed* self, YtvFeedParseStrategy* st);
 YtvFeedParseStrategy* ytv_feed_get_parse_strategy (YtvFeed *self);
 void ytv_feed_get_entries_async (YtvFeed* self, YtvGetEntriesCallback callback,
                                  gpointer user_data);
-
+YtvUriBuilder* ytv_feed_get_uri_builder (YtvFeed* self);
+void ytv_feed_set_uri_builder (YtvFeed* self, YtvUriBuilder* ub);
 G_END_DECLS
 
 #endif /* _YTV_FEED_H_ */
