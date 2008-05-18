@@ -41,6 +41,7 @@
 #include <config.h>
 #endif
 
+#include <ytv-error.h>
 #include <ytv-base-feed.h>
 
 enum _YtvBaseFeedProp
@@ -67,8 +68,8 @@ fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
 {
         g_return_if_fail (YTV_IS_BASE_FEED (user_data));
 
-        YtvBaseFeed* me = YTV_BASE_FEED (user_data);
-        YtvBaseFeedPriv* priv = YTV_BASE_FEED_GET_PRIVATE (me);
+        YtvBaseFeed* self = YTV_BASE_FEED (user_data);
+        YtvBaseFeedPriv* priv = YTV_BASE_FEED_GET_PRIVATE (self);
         YtvList *feed = NULL;
         GError *tmp_error = NULL;
 
@@ -76,10 +77,11 @@ fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
         {
                 goto beach;
         }           
-        
-        if (g_strrstr (mime, ytv_feed_parse_strategy_get_mime (self)) != NULL)
+
+        const gchar* stmime = ytv_feed_parse_strategy_get_mime (self->parsest);
+        if (g_strrstr (mime, stmime) != NULL)
         {
-                feed = ytv_feed_parse_strategy_perform (parse_st,
+                feed = ytv_feed_parse_strategy_perform (self->parsest,
                                                         response,
                                                         length,
                                                         &tmp_error);
@@ -92,7 +94,7 @@ fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
         }
         else
         {
-                g_set_error (&err, YTV_PARSE_ERROR, YTV_PARSE_ERROR_BAD_MIME,
+                g_set_error (err, YTV_PARSE_ERROR, YTV_PARSE_ERROR_BAD_MIME,
                              "Bad MIME type receibed - %s", mime);
         }
 
@@ -100,7 +102,7 @@ fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
 beach:
         if (priv->cb != NULL)
         {
-                priv->cb (me, FALSE, feed, err, priv->user_data);
+                priv->cb (self, FALSE, feed, err, priv->user_data);
         }
 
         return;
@@ -279,23 +281,24 @@ ytv_base_feed_get_entries_async_default (YtvFeed* self,
                                          YtvGetEntriesCallback callback,
                                          gpointer user_data)
 {
-       YtvBaseFeedPriv* priv = YTV_BASE_FEED_GET_PRIVATE (me);
+        YtvBaseFeed* me = YTV_BASE_FEED (self);
+        YtvBaseFeedPriv* priv = YTV_BASE_FEED_GET_PRIVATE (me);
 
-       g_return_if_fail (self->parserst != NULL);
-       g_return_if_fail (self->fetchst != NULL);
-       g_return_if_fail (priv->uri != NULL);
+        g_return_if_fail (me->parsest != NULL);
+        g_return_if_fail (me->fetchst != NULL);
+        g_return_if_fail (priv->uri != NULL);
 
-       priv->cb = callback;
-       priv->user_data = user_data;
+        priv->cb = callback;
+        priv->user_data = user_data;
+        
+        ytv_feed_fetch_strategy_perform (me->fetchst, priv->uri,
+                                         fetch_feed_cb, me);
 
-       ytv_feed_fetch_strategy_perform (self->fetchst, priv->uri,
-                                        fetch_feed_cb, me);
-
-       /* put this uri in a history ?? */
-       g_free (priv->uri);
-       priv->uri = NULL;
+        /* put this uri in a history ?? */
+        g_free (priv->uri);
+        priv->uri = NULL;
        
-       return;
+        return;
 }
 
 static void
@@ -323,6 +326,27 @@ G_DEFINE_TYPE_EXTENDED (YtvBaseFeed, ytv_base_feed,
                         G_TYPE_OBJECT, 0,
                         G_IMPLEMENT_INTERFACE (YTV_TYPE_FEED,
                                                ytv_feed_init))
+
+static void
+ytv_base_feed_get_property (GObject* object, guint prop_id,
+                            GValue* value, GParamSpec* spec)
+{
+        g_return_if_fail (YTV_IS_BASE_FEED (object));
+
+        YtvBaseFeedPriv* priv = YTV_BASE_FEED_GET_PRIVATE (object);
+
+        switch (prop_id)
+        {
+        case PROP_URI:
+                g_value_set_string (value, priv->uri);
+                break;
+        default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
+		break;
+        }
+
+        return;
+}
 
 static void
 ytv_base_feed_dispose (GObject* object)
@@ -357,11 +381,12 @@ ytv_base_feed_finalize (GObject* object)
         g_return_if_fail (YTV_IS_BASE_FEED (object));
 
         YtvBaseFeed* self = YTV_BASE_FEED (object);
+        YtvBaseFeedPriv* priv = YTV_BASE_FEED_GET_PRIVATE (self);
 
-        if (self->uri != NULL)
+        if (priv->uri != NULL)
         {
-                g_free (self->uri);
-                self->uri = NULL;
+                g_free (priv->uri);
+                priv->uri = NULL;
         }
 
         (*G_OBJECT_CLASS (ytv_base_feed_parent_class)->finalize) (object);
@@ -376,7 +401,6 @@ ytv_base_feed_class_init (YtvBaseFeedClass* klass)
 
         g_type_class_add_private (g_klass, sizeof (YtvBaseFeedPriv));
         
-        g_klass->set_property = ytv_base_feed_set_property;
         g_klass->get_property = ytv_base_feed_get_property;
         g_klass->dispose      = ytv_base_feed_dispose;
         g_klass->finalize     = ytv_base_feed_finalize;
@@ -397,7 +421,7 @@ ytv_base_feed_class_init (YtvBaseFeedClass* klass)
         klass->get_entries_async = ytv_base_feed_get_entries_async;
 
         g_object_class_install_property
-                (g_klas, PROP_URI,
+                (g_klass, PROP_URI,
                  g_param_spec_string
                  ("uri", "URI", "Feed URI", NULL, G_PARAM_READABLE));
         
@@ -417,4 +441,71 @@ ytv_base_feed_init (YtvBaseFeed* self)
         priv->user_data = NULL;
 
         return;
+}
+
+
+void
+ytv_base_feed_set_fetch_strategy (YtvFeed* self,
+                                  YtvFeedFetchStrategy* st)
+{
+}
+
+YtvFeedFetchStrategy*
+ytv_base_feed_get_fetch_strategy (YtvFeed* self)
+{
+}
+
+void
+ytv_base_feed_set_parse_strategy (YtvFeed* self,
+                                  YtvFeedParseStrategy* st)
+{
+}
+
+YtvFeedParseStrategy*
+ytv_base_feed_get_parse_strategy (YtvFeed *self)
+{
+
+}
+
+YtvUriBuilder*
+ytv_base_feed_get_uri_builder (YtvFeed* self)
+{
+}
+
+void
+ytv_base_feed_set_uri_builder (YtvFeed* self, YtvUriBuilder* ub)
+{
+}
+
+void
+ytv_base_feed_standard (YtvFeed* self, guint type)
+{
+}
+
+void
+ytv_base_feed_search (YtvFeed* self, const gchar* query)
+{
+}
+
+void
+ytv_base_feed_user (YtvFeed* self, const gchar* user)
+{
+}
+
+void
+ytv_base_feed_keywords (YtvFeed* self, const gchar* category,
+                        const gchar* keywords)
+{
+}
+
+void
+ytv_base_feed_related (YtvFeed* self, const gchar* vid)
+{
+}
+
+void
+ytv_base_feed_get_entries_async (YtvFeed* self,
+                                 YtvGetEntriesCallback callback,
+                                 gpointer user_data)
+{
 }

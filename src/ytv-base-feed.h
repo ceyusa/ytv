@@ -39,10 +39,13 @@ G_BEGIN_DECLS
 #define YTV_BASE_FEED_GET_CLASS(obj)                \
         (G_TYPE_INSTANCE_GET_CLASS ((obj), YTV_TYPE_BASE_FEED, YtvBaseFeedClass))
 
+typedef struct _YtvBaseFeed YtvBaseFeed;
+typedef struct _YtvBaseFeedClass YtvBaseFeedClass;
+
 /**
- * YtvBase_Feed:
+ * YtvBaseFeed:
  *
- * Describes a YouTube video base_feed
+ * Describes a YouTube video feed
  */
 struct _YtvBaseFeed
 {
@@ -77,7 +80,6 @@ struct _YtvBaseFeedClass
 };
 
 GType ytv_base_feed_get_type (void);
-
 
 void ytv_base_feed_set_fetch_strategy (YtvFeed* self,
                                        YtvFeedFetchStrategy* st);
