@@ -48,14 +48,14 @@ typedef struct _YtvUriBuilder YtvUriBuilder;
 typedef struct _YtvUriBuilderIface YtvUriBuilderIface;
 
 typedef void (*YtvGetEntriesCallback) (YtvFeed* feed, gboolean cancelled,
-                                       YtvList* entries, GError *err,
+                                       YtvList* entries, GError **err,
                                        gpointer user_data);
 
 typedef void (*YtvGetResponseCallback) (YtvFeedFetchStrategy* st,
                                         const gchar* mimetype,
                                         const gint8* response,
                                         gssize length,
-                                        GError *err);
+                                        GError **err, gpointer user_data);
 
 G_END_DECLS
 

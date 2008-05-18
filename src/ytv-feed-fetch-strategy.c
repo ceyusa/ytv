@@ -66,13 +66,15 @@
  */
 void
 ytv_feed_fetch_strategy_perform (YtvFeedFetchStrategy* self, const gchar* uri,
-                                 YtvGetResponseCallback callback)
+                                 YtvGetResponseCallback callback,
+                                 gpointer user_data)
 {
         g_assert (YTV_IS_FEED_FETCH_STRATEGY (self));
         g_assert (uri != NULL);
         g_assert (YTV_FEED_FETCH_STRATEGY_GET_IFACE (self)->perform != NULL);
 
-        YTV_FEED_FETCH_STRATEGY_GET_IFACE (self)->perform (self, uri, callback);
+        YTV_FEED_FETCH_STRATEGY_GET_IFACE (self)->perform (self, uri, callback,
+                                                           user_data);
         
         return;
 }

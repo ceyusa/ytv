@@ -29,6 +29,8 @@ ytv_SOURCES = 				\
 	ytv-feed-parse-strategy.h	\
 	ytv-feed.h			\
 	ytv-feed.c			\
+	ytv-base-feed.h			\
+	ytv-base-feed.c			\
 	ytv-soup-feed-fetch-strategy.h	\
 	ytv-soup-feed-fetch-strategy.c	\
 	ytv-error.c			\

@@ -47,6 +47,7 @@ enum _YtvError
 	YTV_HTTP_ERROR_BAD_URI,
 
 	YTV_PARSE_ERROR_BAD_FORMAT,
+        YTV_PARSE_ERROR_BAD_MIME,
 };
 
 typedef GError YError;

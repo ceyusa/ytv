@@ -53,7 +53,7 @@ struct _YtvSoupFeedFetchStrategyClass
         GObjectClass parent_class;
 
         void (*perform) (YtvFeedFetchStrategy* self, const gchar* uri,
-                         YtvGetResponseCallback callback);
+                         YtvGetResponseCallback callback, gpointer user_data);
 };
 
 GType ytv_soup_feed_fetch_strategy_get_type (void);
@@ -61,7 +61,8 @@ GType ytv_soup_feed_fetch_strategy_get_type (void);
 YtvFeedFetchStrategy* ytv_soup_feed_fetch_strategy_new (void);
 void ytv_soup_feed_fetch_strategy_perform (YtvFeedFetchStrategy *self,
                                            const gchar* uri,
-                                           YtvGetResponseCallback callback);
+                                           YtvGetResponseCallback callback,
+                                           gpointer user_data);
 
 
 G_END_DECLS

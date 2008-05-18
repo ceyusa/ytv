@@ -57,9 +57,10 @@ create_entry ()
 
 static void
 fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
-               const gint8* response, gssize length, GError *err)
+               const gint8* response, gssize length, GError **err,
+               gpointer user_data)
 {
-        if (err == NULL)
+        if (*err == NULL)
         {
                 GError *tmp_error = NULL;
                 if (g_strrstr (mime, "application/json") != NULL)
@@ -79,8 +80,8 @@ fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
         }
         else
         {
-                g_print ("%s\n", ytv_error_get_message (err));
-                g_error_free (err);
+                g_print ("%s\n", ytv_error_get_message (*err));
+                g_error_free (*err);
         }
 
         g_main_loop_quit (loop);
@@ -116,7 +117,7 @@ fetch_feed ()
 
         furi = ytv_uri_builder_get_related_feed (ub, "FOwQETKKyF0");
         g_warning ("%s", furi);
-        ytv_feed_fetch_strategy_perform (st, furi, fetch_feed_cb);
+        ytv_feed_fetch_strategy_perform (st, furi, fetch_feed_cb, NULL);
         g_free (furi);
 
         g_object_unref (ub);

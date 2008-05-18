@@ -61,6 +61,7 @@ struct _YtvCbWrapper
 {
         YtvFeedFetchStrategy*  st;
         YtvGetResponseCallback cb;
+        gpointer user_data;
 };
 
 #define YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE(o) \
@@ -168,7 +169,7 @@ retrieval_done (SoupSession* session, SoupMessage* message, gpointer user_data)
 
                 if (cbw->cb != NULL)
                 {
-                        cbw->cb (cbw->st, NULL, NULL, -1, err);
+                        cbw->cb (cbw->st, NULL, NULL, -1, &err, cbw->user_data);
                 }
                 goto done;
         }
@@ -179,7 +180,7 @@ retrieval_done (SoupSession* session, SoupMessage* message, gpointer user_data)
         if (cbw->cb != NULL)
         {
                 cbw->cb (cbw->st, mimetype, message->response_body->data,
-                         message->response_body->length, err);
+                         message->response_body->length, &err, cbw->user_data);
         }
         
 done:
@@ -199,14 +200,16 @@ done:
 void
 ytv_soup_feed_fetch_strategy_perform (YtvFeedFetchStrategy *self,
                                       const gchar* uri,
-                                      YtvGetResponseCallback callback)
+                                      YtvGetResponseCallback callback,
+                                      gpointer user_data)
 {
         g_assert (self != NULL);
         g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (self));
         g_assert (uri != NULL);
         
 	YTV_SOUP_FEED_FETCH_STRATEGY_GET_CLASS (self)->perform (self, uri,
-                                                                callback);
+                                                                callback,
+                                                                user_data);
 
 	return;
 }
@@ -214,7 +217,8 @@ ytv_soup_feed_fetch_strategy_perform (YtvFeedFetchStrategy *self,
 static void
 ytv_soup_feed_fetch_strategy_perform_default (YtvFeedFetchStrategy* self,
 					      const gchar* uri,
-                                              YtvGetResponseCallback callback)
+                                              YtvGetResponseCallback callback,
+                                              gpointer user_data)
 {
         g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (self));
         
@@ -243,6 +247,7 @@ ytv_soup_feed_fetch_strategy_perform_default (YtvFeedFetchStrategy* self,
         YtvCbWrapper* cbw = g_slice_new (YtvCbWrapper);
         cbw->st = self;
         cbw->cb = callback;
+        cbw->user_data = user_data;
 
         soup_session_queue_message (priv->session, message,
                                     (SoupSessionCallback) retrieval_done,
