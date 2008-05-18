@@ -146,6 +146,101 @@ ytv_feed_set_parse_strategy (YtvFeed* self, YtvFeedParseStrategy* st)
 }
 
 /**
+ * ytv_feed_standard:
+ * @self: a #YtvFeed
+ * @type: a type of standard of feed
+ *
+ * Configures the object to retrieve a standard feed indicated by @type
+ */
+void
+ytv_feed_standard (YtvFeed* self, guint type)
+{
+        g_assert (YTV_IS_FEED (self));
+        g_assert (YTV_FEED_GET_IFACE (self)->standard != NULL);
+
+        YTV_FEED_GET_IFACE (self)->standard (self, type);
+
+        return;
+}
+
+/**
+ * ytv_feed_search:
+ * @self: a #YtvFeed
+ * @query: the query string
+ *
+ * Configures the #YtvFeed to retrieve query results
+ */
+void
+ytv_feed_search (YtvFeed* self, const gchar* query)
+{
+        g_assert (query != NULL);
+        g_assert (YTV_IS_FEED (self));
+        g_assert (YTV_FEED_GET_IFACE (self)->search != NULL);
+
+        YTV_FEED_GET_IFACE (self)->search (self, query);
+
+        return;
+}
+
+/**
+ * ytv_feed_user:
+ * @self: a #YtvFeed
+ * @user: the user id
+ *
+ * Configures the object to retrieve the feed with tye @user entries
+ */
+void
+ytv_feed_user (YtvFeed* self, const gchar* user)
+{
+        g_assert (user != NULL);
+        g_assert (YTV_IS_FEED (self));
+        g_assert (YTV_FEED_GET_IFACE (self)->user != NULL);
+
+        YTV_FEED_GET_IFACE (self)->user (self, user);
+
+        return ;
+}
+
+/**
+ * ytv_feed_keywords:
+ * @self: a #YtvFeed
+ * @category: a feed category to browse
+ * @keywords: tags set to select
+ *
+ * Configures the object to retrieve a category and tagged feed
+ */
+void
+ytv_feed_keywords (YtvFeed* self, const gchar* category, const gchar* keywords)
+{
+        g_assert (category != NULL || keywords != NULL);
+        g_assert (YTV_IS_FEED (self));
+        g_assert (YTV_FEED_GET_IFACE (self)->keywords != NULL);
+
+        YTV_FEED_GET_IFACE (self)->keywords (self, category, keywords);
+
+        return;
+}
+
+/**
+ * ytv_feed_related:
+ * @self: a #YtvFeed
+ * @vid: the entry id 
+ *
+ * Configures the object to retrieve a feed with entries related to @vid
+ */
+void
+ytv_feed_related (YtvFeed* self, const gchar* vid)
+{
+        g_assert (vid != NULL);
+        g_assert (YTV_IS_FEED (self));
+        g_assert (YTV_FEED_GET_IFACE (self)->related != NULL);
+
+        YTV_FEED_GET_IFACE (self)->related (self, vid);
+
+        return;
+}
+
+/**
  * YtvGetEntriesCallback:
  * @feed: a #YtvFeed that caused the callback
  * @cancelled: if the operation got cancelled
@@ -189,6 +284,7 @@ void
 ytv_feed_get_entries_async (YtvFeed* self, YtvGetEntriesCallback callback,
                             gpointer user_data)
 {
+        g_assert (callback != NULL);
         g_assert (YTV_IS_FEED (self));
         g_assert (YTV_FEED_GET_IFACE (self)->get_entries_async != NULL);
 

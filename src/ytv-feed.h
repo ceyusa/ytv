@@ -56,9 +56,16 @@ struct _YtvFeedIface
         void (*set_parse_strategy) (YtvFeed* self, YtvFeedParseStrategy* st);
         YtvUriBuilder* (*get_uri_builder) (YtvFeed* self);
         void (*set_uri_builder) (YtvFeed* self, YtvUriBuilder* ub);
+
+        void (*standard) (YtvFeed* self, guint type);
+        void (*search) (YtvFeed* self, const gchar* query);
+        void (*user) (YtvFeed* self, const gchar* user);
+        void (*keywords) (YtvFeed* self, const gchar* category,
+                          const gchar* keywords);
+        void (*related) (YtvFeed* self, const gchar* vid);
         void (*get_entries_async) (YtvFeed* self,
                                    YtvGetEntriesCallback callback,
-                                   gpointer user_data);        
+                                   gpointer user_data);
 };
 
 GType ytv_feed_get_type (void);
@@ -67,10 +74,18 @@ void ytv_feed_set_fetch_strategy (YtvFeed* self, YtvFeedFetchStrategy* st);
 YtvFeedFetchStrategy* ytv_feed_get_fetch_strategy (YtvFeed* self);
 void ytv_feed_set_parse_strategy (YtvFeed* self, YtvFeedParseStrategy* st);
 YtvFeedParseStrategy* ytv_feed_get_parse_strategy (YtvFeed *self);
-void ytv_feed_get_entries_async (YtvFeed* self, YtvGetEntriesCallback callback,
-                                 gpointer user_data);
 YtvUriBuilder* ytv_feed_get_uri_builder (YtvFeed* self);
 void ytv_feed_set_uri_builder (YtvFeed* self, YtvUriBuilder* ub);
+
+void ytv_feed_standard (YtvFeed* self, guint type);
+void ytv_feed_search (YtvFeed* self, const gchar* query);
+void ytv_feed_user (YtvFeed* self, const gchar* user);
+void ytv_feed_keywords (YtvFeed* self, const gchar* category,
+                        const gchar* keywords);
+void ytv_feed_related (YtvFeed* self, const gchar* vid);
+void ytv_feed_get_entries_async (YtvFeed* self, YtvGetEntriesCallback callback,
+                                 gpointer user_data);
+
 G_END_DECLS
 
 #endif /* _YTV_FEED_H_ */

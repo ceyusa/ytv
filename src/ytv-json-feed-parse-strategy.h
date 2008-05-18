@@ -54,6 +54,7 @@ struct _YtvJsonFeedParseStrategyClass
 
         YtvList* (*perform) (YtvFeedParseStrategy* self, const gchar* data,
                              gssize length, GError **err);
+        gchar* (*get_mime) (YtvFeedParseStrategy* self);
 };
 
 GType ytv_json_feed_parse_strategy_get_type (void);
@@ -61,6 +62,7 @@ YtvFeedParseStrategy* ytv_json_feed_parse_strategy_new (void);
 YtvList* ytv_json_feed_parse_strategy_perform (YtvFeedParseStrategy *self,
 					       const gchar* data, gssize length,
 					       GError **err);
+gchar* ytv_json_feed_parse_strategy_get_mime (YtvFeedParseStrategy* self);
 
 G_END_DECLS
 

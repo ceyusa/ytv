@@ -48,6 +48,7 @@ struct _YtvFeedParseStrategyIface
 
         YtvList* (*perform) (YtvFeedParseStrategy* self, const gchar* data,
                              gssize length, GError **err);
+        gchar* (*get_mime) (YtvFeedParseStrategy* self);
 };
 
 GType ytv_feed_parse_strategy_get_type (void);
@@ -55,6 +56,7 @@ GType ytv_feed_parse_strategy_get_type (void);
 YtvList* ytv_feed_parse_strategy_perform (YtvFeedParseStrategy* self,
                                           const gchar* data, gssize length,
                                           GError **err);
+gchar* ytv_feed_parse_strategy_get_mime (YtvFeedParseStrategy* self);
 
 G_END_DECLS
 

@@ -75,7 +75,9 @@ struct _YtvJsonFeedParseStrategyPriv
 
 #define JSON_GET_NODE(obj,node)                                         \
         node = json_object_get_member (obj, #node);                     \
-        JSON_BAIL (err, node, "Could not find the " #node " element"); 
+        JSON_BAIL (err, node, "Could not find the " #node " element");
+
+#define MIMETYPE "application/json"
 
 #define do_indent(i) { gint z; for (z = 0; z < i; z++) g_print (" ");  }
 
@@ -86,7 +88,7 @@ traverse (JsonNode* node)
 	static gint indent = -1;
 
 	indent++;
-	
+
 	switch (JSON_NODE_TYPE(node))
 	{
 	case JSON_NODE_OBJECT:
@@ -152,7 +154,7 @@ traverse (JsonNode* node)
 	}
 
 	indent--;
-	
+
 	return;
 }
 
@@ -216,7 +218,7 @@ get_authors (JsonNode* node)
                         {
                                 if (authors == NULL)
                                         authors = g_strdup (author);
-                                else 
+                                else
                                 {
                                         gchar* tmp = g_strconcat (authors,
                                                                   " ", author);
@@ -305,8 +307,8 @@ get_rating (JsonNode* node)
                 retval = (float) strtod (rating, &tail);
                 if (errno != 0 || rating == tail)
                         return -1;
-        }        
-        
+        }
+
         return retval;
 }
 
@@ -366,7 +368,7 @@ get_category (JsonNode* node)
         g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, NULL);
 
         gchar* retval = NULL;
-        
+
         JsonObject* obj = json_node_get_object (node);
         const gchar* category = json_node_get_string (
                 json_object_get_member (
@@ -387,7 +389,7 @@ get_category (JsonNode* node)
         {
                 retval = g_strdup (category);
         }
-        
+
         return retval;
 }
 
@@ -399,7 +401,7 @@ get_tags (JsonNode* node)
         g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, NULL);
 
         gchar* retval = NULL;
-        
+
         JsonObject* obj = json_node_get_object (node);
 
         /* only the first element */
@@ -416,7 +418,7 @@ get_tags (JsonNode* node)
         {
                 retval = g_strdup (tags);
         }
-        
+
         return retval;
 }
 
@@ -428,7 +430,7 @@ get_description (JsonNode* node)
         g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, NULL);
 
         gchar* retval = NULL;
-        
+
         JsonObject* obj = json_node_get_object (node);
 
         /* only the first element */
@@ -446,7 +448,7 @@ get_description (JsonNode* node)
         {
                 retval = g_strdup (description);
         }
-        
+
         return retval;
 }
 
@@ -504,14 +506,14 @@ parse_entry (JsonNode* node)
             category != NULL && tags != NULL && description != NULL)
         {
                 entry = g_object_new (YTV_TYPE_ENTRY,
-                                      "id", id, "author", authors, 
+                                      "id", id, "author", authors,
                                       "title", title, "duration", duration,
                                       "rating", rating, "published", published,
                                       "views", views, "category", category,
                                       "tags", tags, "description", description,
                                       NULL);
         }
-        
+
         if (id != NULL)
                 g_free (id);
 
@@ -534,29 +536,6 @@ parse_entry (JsonNode* node)
                 g_free (description);
 
         return entry;
-}
-
-/**
- * ytv_json_feed_parse_strategy_perform:
- * @self: a #YtvFeedParseStrategy implementation instance
- * @data: (null-ok): the string to parse
- * @length: the length of the string to parse
- * @err: the error to propagates if something goes wrong.
- *
- * Parse a JSON format feed and extract the entries available.
- *
- * returns: (null-ok) (caller-own): a #YtvList of #YtvEntry
- */
-YtvList*
-ytv_json_feed_parse_strategy_perform (YtvFeedParseStrategy* self,
-				      const gchar* data, gssize length,
-				      GError **err)
-{
-        g_assert (self != NULL);
-        g_assert (YTV_IS_JSON_FEED_PARSE_STRATEGY (self));
-
-        return YTV_JSON_FEED_PARSE_STRATEGY_GET_CLASS (self)->perform
-                (self, data, length, err);
 }
 
 static YtvList*
@@ -587,7 +566,7 @@ ytv_json_feed_parse_strategy_perform_default (YtvFeedParseStrategy* self,
         root = json_parser_get_root (parser);
         JSON_BAIL (err, root, "Could not find the root element");
         JSON_GET_OBJECT (object_root, root);
-        
+
         JsonNode* feed; JsonObject* object_feed;
         JSON_GET_NODE (object_root, feed);
         JSON_GET_OBJECT (object_feed, feed);
@@ -616,17 +595,24 @@ ytv_json_feed_parse_strategy_perform_default (YtvFeedParseStrategy* self,
         }
 
         g_debug ("number of entries = %d", ytv_list_get_length (fl));
-        
-beach:            
+
+beach:
         g_object_unref (parser);
-        
+
         return fl;
+}
+
+static gchar*
+ytv_json_feed_parse_strategy_get_mime_default (YtvFeedParseStrategy* self)
+{
+        return MIMETYPE;
 }
 
 static void
 ytv_feed_parse_strategy_init (YtvFeedParseStrategyIface* klass)
 {
 	klass->perform = ytv_json_feed_parse_strategy_perform;
+        klass->get_mime = ytv_json_feed_parse_strategy_get_mime_default;
 
 	return;
 }
@@ -640,7 +626,8 @@ static void
 ytv_json_feed_parse_strategy_class_init (YtvJsonFeedParseStrategyClass* klass)
 {
         klass->perform = ytv_json_feed_parse_strategy_perform_default;
-        
+        klass->get_mime = ytv_json_feed_parse_strategy_get_mime_default;
+
         return;
 }
 
@@ -666,4 +653,46 @@ ytv_json_feed_parse_strategy_new (void)
                 (YTV_TYPE_JSON_FEED_PARSE_STRATEGY, NULL);
 
         return YTV_FEED_PARSE_STRATEGY (self);
+}
+
+/**
+ * ytv_json_feed_parse_strategy_perform:
+ * @self: a #YtvFeedParseStrategy implementation instance
+ * @data: (null-ok): the string to parse
+ * @length: the length of the string to parse
+ * @err: the error to propagates if something goes wrong.
+ *
+ * Parse a JSON format feed and extract the entries available.
+ *
+ * returns: (null-ok) (caller-own): a #YtvList of #YtvEntry
+ */
+YtvList*
+ytv_json_feed_parse_strategy_perform (YtvFeedParseStrategy* self,
+				      const gchar* data, gssize length,
+				      GError **err)
+{
+        g_assert (self != NULL);
+        g_assert (YTV_IS_JSON_FEED_PARSE_STRATEGY (self));
+
+        return YTV_JSON_FEED_PARSE_STRATEGY_GET_CLASS (self)->perform
+                (self, data, length, err);
+}
+
+
+/**
+ * ytv_json_feed_parse_strategy_get_mime:
+ * @self: a #YtvFeedParseStrategy implementation instance
+ *
+ * Retrieves the MIME type that this parser can handle: application/json
+ *
+ * returns: (not-null): a string with the MIME type. Do not modify the internal
+ * string.
+ */
+gchar*
+ytv_json_feed_parse_strategy_get_mime (YtvFeedParseStrategy* self)
+{
+        g_assert (self != NULL);
+        g_assert (YTV_IS_JSON_FEED_PARSE_STRATEGY (self));
+
+        return YTV_JSON_FEED_PARSE_STRATEGY_GET_CLASS (self)->get_mime (self);
 }
