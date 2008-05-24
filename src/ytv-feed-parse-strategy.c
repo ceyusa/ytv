@@ -93,13 +93,13 @@ ytv_feed_parse_strategy_perform (YtvFeedParseStrategy* self, const gchar* data,
  * returns: (not-null): a string with the MIME type. Do not modify the internal
  * string.
  */
-gchar*
+const gchar*
 ytv_feed_parse_strategy_get_mime (YtvFeedParseStrategy* self)
 {
         g_assert (YTV_IS_FEED_PARSE_STRATEGY (self));
         g_assert (YTV_FEED_PARSE_STRATEGY_GET_IFACE (self)->get_mime != NULL);
 
-        gchar* mime = NULL;
+        const gchar* mime = NULL;
         mime = YTV_FEED_PARSE_STRATEGY_GET_IFACE (self)->get_mime (self);
 
         g_assert (mime != NULL);

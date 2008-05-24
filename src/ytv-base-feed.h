@@ -22,8 +22,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <ytv-feed.h>
 #include <glib-object.h>
+
+#include <ytv-feed.h>
 
 G_BEGIN_DECLS
 

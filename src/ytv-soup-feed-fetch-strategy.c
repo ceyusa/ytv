@@ -229,9 +229,12 @@ ytv_soup_feed_fetch_strategy_perform_default (YtvFeedFetchStrategy* self,
 
         create_session (me);
 
-        gchar *encuri = soup_uri_encode (uri, NULL);
-        message = soup_message_new (SOUP_METHOD_GET, encuri);
-        g_free (encuri);
+        YtvCbWrapper* cbw = g_slice_new (YtvCbWrapper);
+        cbw->st = self;
+        cbw->cb = callback;
+        cbw->user_data = user_data;
+
+        message = soup_message_new (SOUP_METHOD_GET, uri);
 
         if (message == NULL)
         {
@@ -239,15 +242,18 @@ ytv_soup_feed_fetch_strategy_perform_default (YtvFeedFetchStrategy* self,
                 GError *err = NULL;
                 g_set_error (&err, YTV_HTTP_ERROR, YTV_HTTP_ERROR_BAD_URI,
                              "Could not parse URI - %s", uri);
+
+                if (cbw->cb != NULL)
+                {
+                        cbw->cb (cbw->st, NULL, NULL, -1, &err, cbw->user_data);
+                }
+
+                g_slice_free (YtvCbWrapper, cbw);
+
                 return;
         }
         
         soup_message_set_flags (message, SOUP_MESSAGE_NO_REDIRECT);
-
-        YtvCbWrapper* cbw = g_slice_new (YtvCbWrapper);
-        cbw->st = self;
-        cbw->cb = callback;
-        cbw->user_data = user_data;
 
         soup_session_queue_message (priv->session, message,
                                     (SoupSessionCallback) retrieval_done,

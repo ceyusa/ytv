@@ -602,7 +602,7 @@ beach:
         return fl;
 }
 
-static gchar*
+static const gchar*
 ytv_json_feed_parse_strategy_get_mime_default (YtvFeedParseStrategy* self)
 {
         return MIMETYPE;
@@ -612,7 +612,7 @@ static void
 ytv_feed_parse_strategy_init (YtvFeedParseStrategyIface* klass)
 {
 	klass->perform = ytv_json_feed_parse_strategy_perform;
-        klass->get_mime = ytv_json_feed_parse_strategy_get_mime_default;
+        klass->get_mime = ytv_json_feed_parse_strategy_get_mime;
 
 	return;
 }
@@ -688,7 +688,7 @@ ytv_json_feed_parse_strategy_perform (YtvFeedParseStrategy* self,
  * returns: (not-null): a string with the MIME type. Do not modify the internal
  * string.
  */
-gchar*
+const gchar*
 ytv_json_feed_parse_strategy_get_mime (YtvFeedParseStrategy* self)
 {
         g_assert (self != NULL);

@@ -53,6 +53,7 @@ struct _YtvFeedFetchStrategyIface
 
         void (*perform) (YtvFeedFetchStrategy* self, const gchar* uri,
                          YtvGetResponseCallback callback, gpointer user_data);
+        gchar* (*encode) (YtvFeedFetchStrategy* self, const gchar* part);
 };
 
 GType ytv_feed_fetch_strategy_get_type (void);
@@ -61,6 +62,8 @@ void ytv_feed_fetch_strategy_perform (YtvFeedFetchStrategy* self,
                                       const gchar* uri,
                                       YtvGetResponseCallback callback,
                                       gpointer user_data);
+
+gchar* ytv_feed_fetch_strategy_encode (YtvFeedFetchStrategy* self, const gchar* part);
 
 G_END_DECLS
 

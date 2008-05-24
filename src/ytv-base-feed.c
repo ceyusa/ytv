@@ -78,8 +78,9 @@ fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
                 goto beach;
         }           
 
-        const gchar* stmime = ytv_feed_parse_strategy_get_mime (self->parsest);
-        if (g_strrstr (mime, stmime) != NULL)
+        const gchar* pmime = ytv_feed_parse_strategy_get_mime (self->parsest);
+        if (g_strrstr (mime, (const gchar*)
+                       ytv_feed_parse_strategy_get_mime (self->parsest)) != NULL)
         {
                 feed = ytv_feed_parse_strategy_perform (self->parsest,
                                                         response,
