@@ -1,3 +1,4 @@
+
 AC_INIT([ytv], [0.0.1], [http://www.igalia.com])
 AC_CONFIG_AUX_DIR([config])
 AM_INIT_AUTOMAKE([dist-bzip2 foreign])
@@ -14,8 +15,9 @@ AC_HEADER_STDC
 dnl #####################################
 dnl ### Basic dependencies - Required ###
 dnl #####################################
-gobject_modules="   gobject-2.0 >= 2.0.0
-		    glib-2.0 >= 2.0.0"
+gobject_modules="   gobject-2.0 >= 2.6.0
+		    glib-2.0 >= 2.6.0
+		    gtk+-2.0 >= 2.6.0"
 
 PKG_CHECK_MODULES([GOBJECT], [$gobject_modules])
 
