@@ -41,4 +41,6 @@ ytv_SOURCES = 				\
 	ytv-uri-builder.c		\
 	ytv-youtube-uri-builder.h	\
 	ytv-youtube-uri-builder.c	\
+	ytv-star.h			\
+	ytv-star.c			\
 	main.c
