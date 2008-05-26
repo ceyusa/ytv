@@ -33,9 +33,10 @@
 
 #include <ytv-star.h>
 
-#include <glib/glib.h>
-#include <cairo.h>
+#include <glib.h>
 #include <gtk/gtk.h>
+
+#include <math.h>
 
 enum _YtvStarProperties
 {
@@ -43,7 +44,7 @@ enum _YtvStarProperties
         PROP_RANK
 };
 
-typedef struct _YtvPoint YtvPoint
+typedef struct _YtvPoint YtvPoint;
 
 struct _YtvPoint
 {
@@ -55,8 +56,8 @@ typedef struct _YtvStarPriv YtvStarPriv;
 struct _YtvStarPriv
 {
         gfloat rank;
-        GArray star_points;
-}
+        GArray* star_points;
+};
 
 #define YTV_STAR_GET_PRIVATE(obj) \
 	(G_TYPE_INSTANCE_GET_PRIVATE ((obj), YTV_TYPE_STAR, YtvStarPriv))
@@ -81,7 +82,7 @@ calculate_star_points (GArray* star_points)
         {
                 rad = i * incr - G_PI_2;
 
-                point = g_new0 (YtPoint, 1);
+                point = g_new0 (YtvPoint, 1);
 
                 point->x = cos (rad);
                 point->y = sin (rad);
@@ -102,7 +103,7 @@ calculate_star_points (GArray* star_points)
 }
 
 static void
-draw_star (GtkWidget* self, cairo_t* cr)
+draw (GtkWidget* self, cairo_t* cr)
 {
         YtvStarPriv* priv = YTV_STAR_GET_PRIVATE (self);
 
@@ -111,24 +112,16 @@ draw_star (GtkWidget* self, cairo_t* cr)
                 calculate_star_points (priv->star_points);
         }
 
-
-        if (rank < 0.0)
-        {
-                rank = 0.0;
-        }
-        else if (rank > 1.0)
-        {
-                rank = 1.0;
-        }
-
-        gdouble x, y, side;
+        gdouble width, height, side;
         YtvPoint* point;
         gint i, num_points;
 
-        x = self->allocation.width;
-        y = self->allocation.height;
+        width = self->allocation.width;
+        height = self->allocation.height;
 
-        size = MIN (x, y);
+        cairo_translate (cr, width / 2.0, height / 1.85);
+        side = MIN (width, height);
+        cairo_scale (cr, side / 2.0, side / 2.0);
 
         cairo_save (cr); /* stack-pen-size */
 
@@ -136,12 +129,12 @@ draw_star (GtkWidget* self, cairo_t* cr)
         cairo_set_line_width (cr, 0.1);
         cairo_set_line_join (cr, CAIRO_LINE_JOIN_ROUND);
 
-        point = g_array_index (priv->star_points, YtvPoint, 0);
+        point = g_array_index (priv->star_points, YtvPoint*, 0);
         cairo_move_to (cr, point->x, point->y);
 
         for (i = 1; i < priv->star_points->len; i++)
         {
-                point = g_array_index (priv->star_points, YtvPoint, 1);
+                point = g_array_index (priv->star_points, YtvPoint*, i);
                 cairo_line_to (cr, point->x, point->y);
         }
 
@@ -150,12 +143,12 @@ draw_star (GtkWidget* self, cairo_t* cr)
 
         if (priv->rank != 1.0)
         {
-                cairo_set_source_rgb (cr, 1.0, 1.0, 1.0);
+                cairo_set_source_rgb (cr, 1, 1, 1);
                 cairo_rectangle (cr, -1, -1, 2, 2);
                 cairo_fill (cr);
-                cairo_set_source_rgb (cfr, 1.0, 0.75, 0.25);
+                cairo_set_source_rgb (cr, 1.0, 0.75, 0.25);
                 
-                num_points = 1 + rint ((priv->rank + 0.05) / 0.1);
+                num_points = 1 + rint (priv->rank / 0.1);
 
                 if (num_points != 1)
                 {
@@ -164,29 +157,25 @@ draw_star (GtkWidget* self, cairo_t* cr)
                         for (i = 0; i < num_points; i++)
                         {
                                 point = g_array_index (priv->star_points,
-                                                       YtvPoint, i);
+                                                       YtvPoint*, i);
                                 cairo_line_to (cr, point->x, point->y);
                         }
-
-                        /* cairo_move_to (cr, 0, 0); */
                 }
         }
         else
         {
-                
                 cairo_set_source_rgb (cr, 1.0, 0.75, 0.25);
                 cairo_rectangle (cr, -1, -1, 2, 2);
                 cairo_fill (cr);
-                /* cairo_set_source_rgb (cr, 1.0, 0.75, 0.25); */
         }
         
         cairo_fill (cr);
-        cairo_restore (cr)
+        cairo_restore (cr);
 
         return;
 }
 
-static void
+static gboolean
 ytv_star_expose (GtkWidget* self, GdkEventExpose* event)
 {
         cairo_t* cr;
@@ -247,11 +236,20 @@ ytv_star_get_property (GObject* object, guint prop_id,
 static void
 ytv_star_finalize (GObject* object)
 {
-        YtvStarPriv* priv = YTV_STAR_GET_PRIVATE (self);
+        YtvStarPriv* priv = YTV_STAR_GET_PRIVATE (object);
 
-        g_array_free (priv->star_points, TRUE);
+        gint i;
+        YtvPoint* point;
 
-	(*G_OBJECT_CLASS (ytv_entry_parent_class)->finalize) (object);
+        for (i = 0; i < priv->star_points->len; i++)
+        {
+                point = g_array_index (priv->star_points, YtvPoint*, i);
+                g_free (point);
+        }
+        
+        g_array_free (priv->star_points, FALSE);
+
+	(*G_OBJECT_CLASS (ytv_star_parent_class)->finalize) (object);
 
         return;
 }
@@ -262,7 +260,8 @@ ytv_star_init (YtvStar* self)
         YtvStarPriv* priv = YTV_STAR_GET_PRIVATE (self);
 
         priv->rank = 0;
-        priv->star_points = g_array_new (FALSE, FALSE, sizeof (YtvPoint), 10);
+        priv->star_points = g_array_sized_new (FALSE, FALSE,
+                                               sizeof (YtvPoint*), 12);
 
         return;
 }
@@ -270,7 +269,7 @@ ytv_star_init (YtvStar* self)
 static void
 ytv_star_class_init (YtvStarClass* klass)
 {
-        GObjecClass* object_class = G_OBJECT_CLASS (klass);
+        GObjectClass* object_class = G_OBJECT_CLASS (klass);
         GtkWidgetClass* widget_class = GTK_WIDGET_CLASS (klass);
 
         g_type_class_add_private (object_class, sizeof (YtvStarPriv));
@@ -279,7 +278,7 @@ ytv_star_class_init (YtvStarClass* klass)
         object_class->get_property = ytv_star_get_property;
         object_class->finalize     = ytv_star_finalize;
         
-        wiget_class->expose_event  = ytv_star_expose;
+        widget_class->expose_event  = ytv_star_expose;
         
         g_object_class_install_property
                 (object_class, PROP_RANK,
@@ -298,8 +297,8 @@ ytv_star_class_init (YtvStarClass* klass)
  *
  * return value: a #YtvStar
  */
-YtvStar*
+GtkWidget*
 ytv_star_new (gfloat rank)
 {
-        return g_object_new (YTV_TYPE_STAR, "rank", rank, NULL);
+        return GTK_WIDGET (g_object_new (YTV_TYPE_STAR, "rank", rank, NULL));
 }

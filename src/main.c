@@ -27,6 +27,10 @@
 #include <ytv-json-feed-parse-strategy.h>
 #include <ytv-youtube-uri-builder.h>
 
+#include <ytv-star.h>
+
+#include <gtk/gtk.h>
+
 GMainLoop *loop;
 YtvFeedFetchStrategy* st;
 
@@ -143,13 +147,40 @@ build_uris ()
         return;
 }
 
+static void
+star_test ()
+{
+        GtkWidget* win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+        
+        g_signal_connect (G_OBJECT (win), "delete_event",
+                          G_CALLBACK (gtk_main_quit), NULL);
+
+        GtkWidget* box = gtk_hbox_new (TRUE, 5);
+        gtk_container_add (GTK_CONTAINER (win), box);
+
+        gint i;
+        for (i = 0; i < 11; i++)
+        {
+                GtkWidget *star = ytv_star_new (i * 0.10);
+                gtk_widget_set_size_request (star, 24, 24);
+                gtk_container_add (GTK_CONTAINER (box), star);
+        }
+        
+        gtk_widget_show_all (win);
+}
+
 gint
 main (gint argc, gchar** argv)
 {
         g_thread_init (NULL);
-	g_type_init ();
+        /* g_type_init (); */
+        gtk_init (&argc, &argv);
 
-	create_entry ();
+        star_test ();
+        
+        gtk_main ();
+        
+	/* create_entry (); */
         
         build_uris ();
 

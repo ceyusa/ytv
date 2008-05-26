@@ -54,11 +54,11 @@ struct _YtvStar
 
 struct _YtvStarClass
 {
-        GtkDrawinAreaClass parent_class;
+        GtkDrawingAreaClass parent_class;
 };
 
 GType ytv_star_get_type (void);
-YtvStar* ytv_star_new (gfloat rank);
+GtkWidget* ytv_star_new (gfloat rank);
 
 G_END_DECLS
 
