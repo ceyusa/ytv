@@ -44,6 +44,10 @@
 #include <ytv-error.h>
 #include <ytv-base-feed.h>
 
+#include <ytv-feed-parse-strategy.h>
+#include <ytv-feed-fetch-strategy.h>
+#include <ytv-uri-builder.h>
+
 enum _YtvBaseFeedProp
 {
         PROP_O,
@@ -78,9 +82,8 @@ fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
                 goto beach;
         }           
 
-        const gchar* pmime = ytv_feed_parse_strategy_get_mime (self->parsest);
-        if (g_strrstr (mime, (const gchar*)
-                       ytv_feed_parse_strategy_get_mime (self->parsest)) != NULL)
+        if (g_strrstr
+            (mime, ytv_feed_parse_strategy_get_mime (self->parsest)) != NULL)
         {
                 feed = ytv_feed_parse_strategy_perform (self->parsest,
                                                         response,
@@ -103,7 +106,7 @@ fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
 beach:
         if (priv->cb != NULL)
         {
-                priv->cb (self, FALSE, feed, err, priv->user_data);
+                priv->cb (YTV_FEED (self), FALSE, feed, err, priv->user_data);
         }
 
         return;
