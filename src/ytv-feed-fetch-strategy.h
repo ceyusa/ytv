@@ -63,7 +63,8 @@ void ytv_feed_fetch_strategy_perform (YtvFeedFetchStrategy* self,
                                       YtvGetResponseCallback callback,
                                       gpointer user_data);
 
-gchar* ytv_feed_fetch_strategy_encode (YtvFeedFetchStrategy* self, const gchar* part);
+gchar* ytv_feed_fetch_strategy_encode (YtvFeedFetchStrategy* self,
+                                       const gchar* part);
 
 G_END_DECLS
 

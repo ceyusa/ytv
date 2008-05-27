@@ -38,6 +38,8 @@
 const gchar*
 ytv_error_get_message (GError* err)
 {
+        g_assert (err != NULL);
+        
 	return err->message;
 }
 
@@ -52,6 +54,8 @@ ytv_error_get_message (GError* err)
 gint
 ytv_error_get_code (GError* err)
 {
+        g_assert (err != NULL);
+
 	return err->code;
 }
 

@@ -79,6 +79,33 @@ ytv_feed_fetch_strategy_perform (YtvFeedFetchStrategy* self, const gchar* uri,
         return;
 }
 
+/**
+ * ytv_feed_fetch_strategy_encode:
+ * @self: (not-null): the #YtvFeedFetchStrategy implementation
+ * @part: (not-null): the string to encode
+ *
+ * This will implement the library specific implementation string encoder
+ *
+ * return value: (not-null): a new allocated encoded string. Free it after use.
+ */
+gchar*
+ytv_feed_fetch_strategy_encode (YtvFeedFetchStrategy* self,
+                                const gchar* part)
+{
+        g_assert (YTV_IS_FEED_FETCH_STRATEGY (self));
+        g_assert (part != NULL);
+
+        g_assert (YTV_FEED_FETCH_STRATEGY_GET_IFACE (self)->encode != NULL);
+
+        gchar* retval = NULL;
+        
+        retval = YTV_FEED_FETCH_STRATEGY_GET_IFACE (self)->encode (self, part);
+
+        g_assert (retval != NULL);
+        
+        return;
+}
+
 static void
 ytv_feed_fetch_strategy_base_init (gpointer g_class)
 {

@@ -21,19 +21,20 @@
 
 #include <ytv-entry.h>
 
-#include <ytv-feed-fetch-strategy.h>
 #include <ytv-soup-feed-fetch-strategy.h>
-#include <ytv-feed-parse-strategy.h>
 #include <ytv-json-feed-parse-strategy.h>
 #include <ytv-youtube-uri-builder.h>
+#include <ytv-base-feed.h>
 
 #include <ytv-rank.h>
 
 #include <gtk/gtk.h>
 
-GMainLoop *loop;
-YtvFeedFetchStrategy* st;
+/* GMainLoop *loop; */
+/* YtvFeedFetchStrategy* st; */
+YtvFeed* feed;
 
+#if 0 /* deprecated */
 static void
 create_entry ()
 {
@@ -50,7 +51,7 @@ create_entry ()
 					"description", "Muse - Invincible (Official Video)",
 					NULL);
 
-	
+
 	gchar* id = NULL;
 	g_object_get (entry, "id", &id, NULL);
 	g_print ("id = %s\n", id);
@@ -58,7 +59,9 @@ create_entry ()
 	g_object_unref (entry);
 	return;
 }
+#endif
 
+#if 0 /* deprecated */
 static void
 fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
                const gint8* response, gssize length, GError **err,
@@ -91,10 +94,12 @@ fetch_feed_cb (YtvFeedFetchStrategy* st, const gchar* mime,
         }
 
         g_main_loop_quit (loop);
-        
+
         return;
 }
+#endif
 
+#if 0 /* deprecated */
 static gboolean
 fetch_feed ()
 {
@@ -127,10 +132,12 @@ fetch_feed ()
         g_free (furi);
 
         g_object_unref (ub);
-        
+
         return FALSE;
 }
+#endif
 
+#if 0 /* deprecated */
 static void
 build_uris ()
 {
@@ -146,12 +153,14 @@ build_uris ()
 
         return;
 }
+#endif
 
+#if 0 /* deprecated */
 static void
 star_test ()
 {
         GtkWidget* win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-        
+
         g_signal_connect (G_OBJECT (win), "delete_event",
                           G_CALLBACK (gtk_main_quit), NULL);
 
@@ -165,23 +174,71 @@ star_test ()
                 gtk_widget_set_size_request (star, 24, 24);
                 gtk_container_add (GTK_CONTAINER (box), star);
         }
-        
+
         gtk_widget_show_all (win);
 }
+#endif
 
 static void
 rank_test ()
 {
         GtkWidget* win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
         gtk_widget_set_size_request (win, 400, 600);
-        
+
         g_signal_connect (G_OBJECT (win), "delete_event",
                           G_CALLBACK (gtk_main_quit), NULL);
 
         GtkWidget* rank = ytv_rank_new (3.25);
         gtk_container_add (GTK_CONTAINER (win), rank);
         gtk_widget_show_all (win);
+}
+
+static void
+feed_entry_cb (YtvFeed* feed, gboolean cancelled, YtvList* list,
+               GError **err, gpointer user_data)
+{
         
+        if (*err != NULL)
+        {
+                g_print ("%s\n", ytv_error_get_message (*err));
+                g_error_free (*err);
+
+                return;
+        }
+
+        g_return_if_fail (list != NULL);
+
+        ytv_list_foreach (list, ytv_entry_dump, NULL);
+
+        g_object_unref (list);
+
+        return;
+}
+
+static gboolean
+fetch_feed (YtvFeed* feed)
+{
+        YtvFeedFetchStrategy* fetchst = ytv_soup_feed_fetch_strategy_new ();
+        YtvFeedParseStrategy* parsest = ytv_json_feed_parse_strategy_new ();
+        YtvUriBuilder* ub = ytv_youtube_uri_builder_new ();
+
+        g_object_set (G_OBJECT (ub),
+                      "max-results", 5,
+                      "time", YTV_YOUTUBE_TIME_TODAY,
+                      NULL);
+
+        ytv_feed_set_fetch_strategy (feed, fetchst);
+        ytv_feed_set_parse_strategy (feed, parsest);
+        ytv_feed_set_uri_builder (feed, ub);
+
+        g_object_unref (fetchst);
+        g_object_unref (parsest);
+        g_object_unref (ub);
+
+        ytv_feed_standard (feed, YTV_YOUTUBE_STD_FEED_MOST_VIEWED);
+        ytv_feed_get_entries_async (feed, feed_entry_cb, NULL);
+
+        return FALSE;
 }
 
 gint
@@ -191,23 +248,27 @@ main (gint argc, gchar** argv)
         /* g_type_init (); */
         gtk_init (&argc, &argv);
 
+        YtvFeed* feed = ytv_base_feed_new ();
+        g_idle_add ((GSourceFunc) fetch_feed, feed);
+
         /* star_test (); */
         rank_test ();
-        
+
         gtk_main ();
-        
+
+        g_object_unref (feed);
+
 	/* create_entry (); */
-        
-        build_uris ();
+        /* build_uris ();   */
 
-        st = ytv_soup_feed_fetch_strategy_new ();
-        
-        loop = g_main_loop_new (NULL, TRUE);
-        g_idle_add ((GSourceFunc) fetch_feed, NULL);
-        g_main_loop_run (loop);
-	g_main_loop_unref (loop);
+/*         st = ytv_soup_feed_fetch_strategy_new (); */
 
-        g_object_unref (st);
-        
+/*         loop = g_main_loop_new (NULL, TRUE); */
+/*         g_idle_add ((GSourceFunc) fetch_feed, NULL); */
+/*         g_main_loop_run (loop); */
+/* 	g_main_loop_unref (loop); */
+
+/*         g_object_unref (st); */
+
 	return 0;
-}	
+}

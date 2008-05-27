@@ -82,6 +82,8 @@ struct _YtvBaseFeedClass
 
 GType ytv_base_feed_get_type (void);
 
+YtvFeed* ytv_base_feed_new (void);
+
 void ytv_base_feed_set_fetch_strategy (YtvFeed* self,
                                        YtvFeedFetchStrategy* st);
 YtvFeedFetchStrategy* ytv_base_feed_get_fetch_strategy (YtvFeed* self);

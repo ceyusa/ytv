@@ -188,32 +188,6 @@ done:
         return;
 }
 
-/**
- * ytv_soup_feed_fetch_strategy_perform:
- * @self: a #YtvFeedFetchStrategy instance
- * @uri: the URI to fetch
- * @callback: a #YtvGetResponseCallback to execute when the response arrives
- *
- * Performs the async fetch of a feed through HTTP using
- * libsoup.
- */
-void
-ytv_soup_feed_fetch_strategy_perform (YtvFeedFetchStrategy *self,
-                                      const gchar* uri,
-                                      YtvGetResponseCallback callback,
-                                      gpointer user_data)
-{
-        g_assert (self != NULL);
-        g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (self));
-        g_assert (uri != NULL);
-        
-	YTV_SOUP_FEED_FETCH_STRATEGY_GET_CLASS (self)->perform (self, uri,
-                                                                callback,
-                                                                user_data);
-
-	return;
-}
-
 static void
 ytv_soup_feed_fetch_strategy_perform_default (YtvFeedFetchStrategy* self,
 					      const gchar* uri,
@@ -262,10 +236,19 @@ ytv_soup_feed_fetch_strategy_perform_default (YtvFeedFetchStrategy* self,
         return;
 }
 
+static gchar*
+ytv_soup_feed_fetch_strategy_encode_default (YtvFeedFetchStrategy* self,
+                                             const gchar* part)
+{
+#define EXTRA_CHARS ";/?:@&=+$,"/* taken from RFC 2396 2.2 */
+        return soup_uri_encode (part, EXTRA_CHARS);
+}
+
 static void
 ytv_feed_fetch_strategy_init (YtvFeedFetchStrategyIface* klass)
 {
 	klass->perform = ytv_soup_feed_fetch_strategy_perform;
+        klass->encode = ytv_soup_feed_fetch_strategy_encode;
 
 	return;
 }
@@ -304,6 +287,8 @@ ytv_soup_feed_fetch_strategy_class_init (YtvSoupFeedFetchStrategyClass* klass)
 	g_klass = G_OBJECT_CLASS (klass);
 	
 	klass->perform = ytv_soup_feed_fetch_strategy_perform_default;
+        klass->encode = ytv_soup_feed_fetch_strategy_encode_default;
+        
 	g_klass->finalize = ytv_soup_feed_fetch_strategy_finalize;
 
         g_type_class_add_private (klass, sizeof (YtvSoupFeedFetchStrategyPriv));
@@ -318,6 +303,59 @@ ytv_soup_feed_fetch_strategy_init (YtvSoupFeedFetchStrategy* self)
                 YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE (self);
 
         priv->session = NULL;
+        
+	return;
+}
+
+/**
+ * ytv_soup_feed_fetch_strategy_perform:
+ * @self: a #YtvFeedFetchStrategy instance
+ * @uri: the URI to fetch
+ * @callback: a #YtvGetResponseCallback to execute when the response arrives
+ *
+ * Performs the async fetch of a feed through HTTP using
+ * libsoup.
+ */
+void
+ytv_soup_feed_fetch_strategy_perform (YtvFeedFetchStrategy* self,
+                                      const gchar* uri,
+                                      YtvGetResponseCallback callback,
+                                      gpointer user_data)
+{
+        g_assert (self != NULL);
+        g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (self));
+        g_assert (uri != NULL);
+        
+	YTV_SOUP_FEED_FETCH_STRATEGY_GET_CLASS (self)->perform (self, uri,
+                                                                callback,
+                                                                user_data);
+
+	return;
+}
+
+/**
+ * ytv_soup_feed_fetch_strategy_encode:
+ * @self: a #YtvFeedFetchStrategy instance
+ * @part: the string to encode
+ *
+ * Encode the string using the libsoup encoding method
+ *
+ * return value: a new allocated encoded string. Free it after use.
+ */
+gchar*
+ytv_soup_feed_fetch_strategy_encode (YtvFeedFetchStrategy* self,
+                                     const gchar* part)
+{
+        g_assert (self != NULL);
+        g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (self));
+        g_assert (part != NULL);
+
+        gchar* retval;
+        
+	retval = YTV_SOUP_FEED_FETCH_STRATEGY_GET_CLASS (self)->encode (self,
+                                                                        part);
+
+        g_assert (retval != NULL);
         
 	return;
 }

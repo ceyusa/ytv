@@ -44,6 +44,7 @@
 #include <ytv-list.h>
 #include <ytv-feed-fetch-strategy.h>
 #include <ytv-feed-parse-strategy.h>
+#include <ytv-uri-builder.h>
 
 /**
  * ytv_feed_get_fetch_strategy:
@@ -52,7 +53,7 @@
  * Get the strategy for receiving a feed. The return value of this method
  * must be unreferenced after use.
  *
- * returns: (caller-owns): the strategy for receiving a feed
+ * returns: (null-ok) (caller-owns): the strategy for receiving a feed
  */
 YtvFeedFetchStrategy*
 ytv_feed_get_fetch_strategy (YtvFeed* self)
@@ -63,8 +64,11 @@ ytv_feed_get_fetch_strategy (YtvFeed* self)
         g_assert (YTV_FEED_GET_IFACE (self)->get_fetch_strategy != NULL);
 
         retval = YTV_FEED_GET_IFACE (self)->get_fetch_strategy (self);
-
-        g_assert (YTV_IS_FEED_FETCH_STRATEGY (retval));
+        
+        if (retval != NULL)
+        {
+                g_assert (YTV_IS_FEED_FETCH_STRATEGY (retval));
+        }
 
         return retval;
 }
@@ -102,7 +106,7 @@ ytv_feed_set_fetch_strategy (YtvFeed* self, YtvFeedFetchStrategy* st)
  * Get the strategy for parsing a feed. The return value of this method
  * must be unreferenced after use.
  *
- * returns: (caller-owns): the strategy for parsing a feed
+ * returns: (null-ok) (caller-owns): the strategy for parsing a feed
  */
 YtvFeedParseStrategy*
 ytv_feed_get_parse_strategy (YtvFeed* self)
@@ -114,7 +118,10 @@ ytv_feed_get_parse_strategy (YtvFeed* self)
 
         retval = YTV_FEED_GET_IFACE (self)->get_parse_strategy (self);
 
-        g_assert (YTV_IS_FEED_PARSE_STRATEGY (retval));
+        if (retval != NULL)
+        {
+                g_assert (YTV_IS_FEED_PARSE_STRATEGY (retval));
+        }
 
         return retval;
 }
@@ -143,6 +150,58 @@ ytv_feed_set_parse_strategy (YtvFeed* self, YtvFeedParseStrategy* st)
         g_object_unref (G_OBJECT (test));
 
         return;
+}
+
+/**
+ * ytv_feed_set_uri_builder:
+ * @self: (not-null): a #YtvFeed instance
+ * @ub: (not-null): a #YtvUriBuilder implementaiton
+ *
+ * Set the #YtvUriBuilder for the #YtvFeed
+ */
+void
+ytv_feed_set_uri_builder (YtvFeed* self, YtvUriBuilder* ub)
+{
+        g_assert (YTV_IS_FEED (self));
+        g_assert (ub != NULL);
+        g_assert (YTV_IS_URI_BUILDER (ub));
+        g_assert (YTV_FEED_GET_IFACE (self)->set_uri_builder != NULL);
+
+        YTV_FEED_GET_IFACE (self)->set_uri_builder (self, ub);
+
+        YtvUriBuilder* test = ytv_feed_get_uri_builder (self);
+        g_assert (test);
+        g_assert (YTV_IS_URI_BUILDER (test));
+        g_assert (test == ub);
+        g_object_unref (G_OBJECT (test));
+
+        return;
+}
+
+/**
+ * ytv_feed_get_uri_builder:
+ * @self: (not-null): a #YtvFeed instance
+ *
+ * Get the assigned #YtvUriBuilder instance
+ *
+ * return value: (null-ok) (caller-owns): the assigned #YtvUriBuilder
+ */
+YtvUriBuilder*
+ytv_feed_get_uri_builder (YtvFeed* self)
+{
+        YtvUriBuilder* retval;
+
+        g_assert (YTV_IS_FEED (self));
+        g_assert (YTV_FEED_GET_IFACE (self)->get_uri_builder != NULL);
+
+        retval = YTV_FEED_GET_IFACE (self)->get_uri_builder (self);
+
+        if (retval != NULL)
+        {
+                g_assert (YTV_IS_URI_BUILDER (retval));
+        }
+
+        return retval;
 }
 
 /**
