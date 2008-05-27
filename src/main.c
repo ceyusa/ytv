@@ -210,7 +210,10 @@ feed_entry_cb (YtvFeed* feed, gboolean cancelled, YtvList* list,
 
         ytv_list_foreach (list, ytv_entry_dump, NULL);
 
+        
+        g_warning ("list ref count = %d", G_OBJECT (list)->ref_count);
         g_object_unref (list);
+        g_warning ("list ref count = %d", G_OBJECT (list)->ref_count);
 
         return;
 }
