@@ -176,7 +176,7 @@ draw (GtkWidget* self, cairo_t* cr)
 }
 
 static gboolean
-ytv_star_expose (GtkWidget* self, GdkEventExpose* event)
+ytv_star_expose_event (GtkWidget* self, GdkEventExpose* event)
 {
         cairo_t* cr;
 
@@ -193,6 +193,22 @@ ytv_star_expose (GtkWidget* self, GdkEventExpose* event)
         cairo_destroy (cr);
 
         return FALSE;
+}
+
+static void
+ytv_star_size_request (GtkWidget* widget, GtkRequisition* requisition)
+{
+        if (requisition->width < 12)
+        {
+                requisition->width = 12;
+        }
+
+        if (requisition->height < 12)
+        {
+                requisition->height = 12;
+        }
+
+        return;
 }
 
 static void
@@ -278,7 +294,8 @@ ytv_star_class_init (YtvStarClass* klass)
         object_class->get_property = ytv_star_get_property;
         object_class->finalize     = ytv_star_finalize;
         
-        widget_class->expose_event  = ytv_star_expose;
+        widget_class->expose_event = ytv_star_expose_event;
+        widget_class->size_request = ytv_star_size_request; 
         
         g_object_class_install_property
                 (object_class, PROP_RANK,

@@ -27,7 +27,7 @@
 #include <ytv-json-feed-parse-strategy.h>
 #include <ytv-youtube-uri-builder.h>
 
-#include <ytv-star.h>
+#include <ytv-rank.h>
 
 #include <gtk/gtk.h>
 
@@ -169,6 +169,21 @@ star_test ()
         gtk_widget_show_all (win);
 }
 
+static void
+rank_test ()
+{
+        GtkWidget* win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+        gtk_widget_set_size_request (win, 400, 600);
+        
+        g_signal_connect (G_OBJECT (win), "delete_event",
+                          G_CALLBACK (gtk_main_quit), NULL);
+
+        GtkWidget* rank = ytv_rank_new (3.25);
+        gtk_container_add (GTK_CONTAINER (win), rank);
+        gtk_widget_show_all (win);
+        
+}
+
 gint
 main (gint argc, gchar** argv)
 {
@@ -176,7 +191,8 @@ main (gint argc, gchar** argv)
         /* g_type_init (); */
         gtk_init (&argc, &argv);
 
-        star_test ();
+        /* star_test (); */
+        rank_test ();
         
         gtk_main ();
         

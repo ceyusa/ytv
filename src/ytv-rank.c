@@ -43,6 +43,8 @@ enum _YtvRankProperties
         PROP_RANK
 };
 
+typedef struct _YtvRankPriv YtvRankPriv;
+
 struct _YtvRankPriv
 {
         gfloat rank;
@@ -53,45 +55,65 @@ struct _YtvRankPriv
 
 G_DEFINE_TYPE (YtvRank, ytv_rank, GTK_TYPE_HBOX)
 
-static gboolean
-ytv_rank_expose (GtkWidget* self, GdkEventExpose* event)
+static void
+ytv_rank_display_stars (YtvRank* self)
 {
-        YtvRankPriv* priv = YTV_RANK_GET_PRIVATE (object);
-
-        gint integerpart = rint (priv->rank);
-        gfloat fractionpart = intergerpart - priv->rank;
-
+        YtvRankPriv* priv = YTV_RANK_GET_PRIVATE (self);
+        gfloat restrank = priv->rank;
         GtkWidget* star;
-
         gint i;
-        for (i = 0; i < integerpart; i++)
+
+        for (i = 0; i < 5; i++)
         {
-                star = ytv_star_new (1.0);
-                gtk_widget_set_size_request (star, 24, 24);
-                gtk_box_pack_start (GTK_BOX (self), star, FALSE, FALSE, 0);
+                if (restrank >= 1.0)
+                {
+                        star = ytv_star_new (1.0);
+                        restrank -= 1;
+                }
+                else if (restrank > 0.0)
+                {
+                        star = ytv_star_new (restrank);
+                        restrank = 0;
+                }
+                else if (restrank == 0)
+                {
+                        star = ytv_star_new (0.0);
+                }
+                else
+                {
+                        g_assert_not_reached ();
+                }
+
+                gtk_box_pack_start (GTK_BOX (self), star, TRUE, TRUE, 0);
+        }
+}
+
+static void
+ytv_rank_set_rank (YtvRank* self, gfloat rank)
+{
+        YtvRankPriv* priv = YTV_RANK_GET_PRIVATE (self);
+        static gboolean done = FALSE;
+
+        if (!done)
+        {
+                priv->rank = rank;
+                ytv_rank_display_stars (self);
+                g_object_notify (G_OBJECT (self), "rank");
+                done = TRUE;
         }
 
-        if (fractionpart > 0)
-        {
-                star = ytv_star_new (fractionpart);
-                gtk_widget_set_size_request (star, 24, 24);
-                gtk_box_pack_start (GTK_BOX (self), star, FALSE, FALSE, 0);
-        }
-
-        return (*GTK_WIDGET_CLASS (ytv_rank_parent_class)->expose_event)
-                (self, event);
+        return;
 }
 
 static void
 ytv_rank_set_property (GObject* object, guint prop_id,
                        const GValue* value, GParamSpec* spec)
 {
-        YtvRankPriv* priv = YTV_RANK_GET_PRIVATE (object);
-
         switch (prop_id)
         {
         case PROP_RANK:
-                priv->rank = g_value_get_float (value);
+                ytv_rank_set_rank (YTV_RANK (object),
+                                   g_value_get_float (value));
                 break;
         default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
@@ -140,13 +162,12 @@ ytv_rank_class_init (YtvRankClass* klass)
 
         object_class->set_property = ytv_rank_set_property;
         object_class->get_property = ytv_rank_get_property;
-        widget_class->expose_event = ytv_rank_expose;
-        
+
         g_object_class_install_property
                 (object_class, PROP_RANK,
                  g_param_spec_float
                  ("rank", "rank", "the area to fill", 0.0, 5.0, 0.0,
-                  G_PARAM_READWRITE));
+                  G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
         return;
 }
