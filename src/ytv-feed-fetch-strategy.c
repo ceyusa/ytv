@@ -103,7 +103,37 @@ ytv_feed_fetch_strategy_encode (YtvFeedFetchStrategy* self,
 
         g_assert (retval != NULL);
         
-        return;
+        return retval;
+}
+
+/**
+ * ytv_feed_fetch_strategy_get_date:
+ * @self: (not-null): a #YtvFeedFetchStrategy instance
+ * @data: (not-null): a date string to convert
+ *
+ * Parse a string date given normally by a web server and converts it to
+ * a time_t structure
+ *
+ * return value: the number of seconds since 00:00:00 1970/01/01 UTC
+ */
+time_t
+ytv_feed_fetch_strategy_get_date (YtvFeedFetchStrategy* self,
+                                  const gchar* datestr)
+{
+        g_assert (YTV_IS_FEED_FETCH_STRATEGY (self));
+        g_assert (datestr != NULL);
+
+        g_assert (YTV_FEED_FETCH_STRATEGY_GET_IFACE (self)->get_date != NULL);
+
+        time_t retval;
+        
+        retval =
+                YTV_FEED_FETCH_STRATEGY_GET_IFACE (self)->get_date (self,
+                                                                    datestr);
+
+        g_assert (retval != -1);
+        
+        return retval;
 }
 
 static void

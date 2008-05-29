@@ -244,11 +244,23 @@ ytv_soup_feed_fetch_strategy_encode_default (YtvFeedFetchStrategy* self,
         return soup_uri_encode (part, EXTRA_CHARS);
 }
 
+static time_t
+ytv_soup_feed_fetch_strategy_get_date_default (YtvFeedFetchStrategy* self,
+                                               const gchar* date)
+{
+        SoupDate* sdate = soup_date_new_from_string (date);
+        time_t retval = soup_date_to_time_t (sdate);
+        soup_date_free (sdate);
+
+        return retval;
+}
+
 static void
 ytv_feed_fetch_strategy_init (YtvFeedFetchStrategyIface* klass)
 {
 	klass->perform = ytv_soup_feed_fetch_strategy_perform;
         klass->encode = ytv_soup_feed_fetch_strategy_encode;
+        klass->get_date = ytv_soup_feed_fetch_strategy_get_date;
 
 	return;
 }
@@ -288,6 +300,7 @@ ytv_soup_feed_fetch_strategy_class_init (YtvSoupFeedFetchStrategyClass* klass)
 	
 	klass->perform = ytv_soup_feed_fetch_strategy_perform_default;
         klass->encode = ytv_soup_feed_fetch_strategy_encode_default;
+        klass->get_date = ytv_soup_feed_fetch_strategy_get_date_default;
         
 	g_klass->finalize = ytv_soup_feed_fetch_strategy_finalize;
 
@@ -358,6 +371,34 @@ ytv_soup_feed_fetch_strategy_encode (YtvFeedFetchStrategy* self,
         g_assert (retval != NULL);
         
 	return;
+}
+
+/**
+ * ytv_soup_feed_fetch_strategy_get_date:
+ * @self: (not-null): a #YtvFeedFetchStrategy instance
+ * @data: (not-null): a date string to convert
+ *
+ * Parse a string date given normally by a web server and converts it to
+ * a time_t structure
+ *
+ * return value: the number of seconds since 00:00:00 1970/01/01 UTC
+ */
+time_t
+ytv_soup_feed_fetch_strategy_get_date (YtvFeedFetchStrategy* self,
+                                       const gchar* date)
+{
+        g_assert (self != NULL);
+        g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (self));
+        g_assert (date != NULL);
+
+        time_t retval;
+        
+	retval = YTV_SOUP_FEED_FETCH_STRATEGY_GET_CLASS (self)->get_date (self,
+                                                                          date);
+
+        g_assert (retval != -1);
+        
+	return;        
 }
 
 /**

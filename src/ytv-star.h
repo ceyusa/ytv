@@ -57,8 +57,8 @@ struct _YtvStarClass
         GtkDrawingAreaClass parent_class;
 };
 
-GType ytv_star_get_type (void);
-GtkWidget* ytv_star_new (gfloat rank);
+GType      ytv_star_get_type (void);
+GtkWidget* ytv_star_new (gfloat percentage);
 
 G_END_DECLS
 

@@ -41,7 +41,7 @@
 enum _YtvStarProperties
 {
         PROP_0,
-        PROP_RANK
+        PROP_PERCENTAGE
 };
 
 typedef struct _YtvPoint YtvPoint;
@@ -55,7 +55,7 @@ typedef struct _YtvStarPriv YtvStarPriv;
 
 struct _YtvStarPriv
 {
-        gfloat rank;
+        gfloat percentage;
         GArray* star_points;
 };
 
@@ -82,7 +82,7 @@ calculate_star_points (GArray* star_points)
         {
                 rad = i * incr - G_PI_2;
 
-                point = g_new0 (YtvPoint, 1);
+                point = g_slice_new0 (YtvPoint);
 
                 point->x = cos (rad);
                 point->y = sin (rad);
@@ -91,7 +91,7 @@ calculate_star_points (GArray* star_points)
                 
                 rad += incr / 2;
 
-                point = g_new0 (YtvPoint, 1);
+                point = g_slice_new0 (YtvPoint);
 
                 point->x = cos (rad) / 2;
                 point->y = sin (rad) / 2;
@@ -141,14 +141,14 @@ draw (GtkWidget* self, cairo_t* cr)
         cairo_stroke_preserve (cr);
         cairo_clip (cr);
 
-        if (priv->rank != 1.0)
+        if (priv->percentage != 1.0)
         {
                 cairo_set_source_rgb (cr, 1, 1, 1);
                 cairo_rectangle (cr, -1, -1, 2, 2);
                 cairo_fill (cr);
                 cairo_set_source_rgb (cr, 1.0, 0.75, 0.25);
                 
-                num_points = 1 + rint (priv->rank / 0.1);
+                num_points = 1 + rint (priv->percentage / 0.1);
 
                 if (num_points != 1)
                 {
@@ -175,6 +175,47 @@ draw (GtkWidget* self, cairo_t* cr)
         return;
 }
 
+static void
+redraw_canvas (YtvStar* self)
+{
+        GtkWidget* widget;
+        GdkRegion* region;
+
+        widget = GTK_WIDGET (self);
+
+        if (!widget->window)
+                return;
+
+        region = gdk_drawable_get_clip_region (widget->window);
+        /* redraw the cairo canvas completly by exposing it */
+        gdk_window_invalidate_region (widget->window, region, TRUE);
+        gdk_window_process_updates (widget->window, TRUE);
+
+        gdk_region_destroy (region);
+
+        return;
+}
+
+void
+set_percentage (YtvStar* self, gfloat percentage)
+{
+        YtvStarPriv* priv = YTV_STAR_GET_PRIVATE (self);
+
+        priv->percentage = percentage;
+        redraw_canvas (self);
+        g_object_notify (G_OBJECT (self), "percentage");
+
+        return;
+}
+
+gfloat
+get_percentage (YtvStar* self)
+{
+        YtvStarPriv* priv = YTV_STAR_GET_PRIVATE (self);
+
+        return priv->percentage;
+}
+
 static gboolean
 ytv_star_expose_event (GtkWidget* self, GdkEventExpose* event)
 {
@@ -198,14 +239,14 @@ ytv_star_expose_event (GtkWidget* self, GdkEventExpose* event)
 static void
 ytv_star_size_request (GtkWidget* widget, GtkRequisition* requisition)
 {
-        if (requisition->width < 12)
+        if (requisition->width < 24)
         {
-                requisition->width = 12;
+                requisition->width = 24;
         }
 
-        if (requisition->height < 12)
+        if (requisition->height < 24)
         {
-                requisition->height = 12;
+                requisition->height = 24;
         }
 
         return;
@@ -215,12 +256,11 @@ static void
 ytv_star_set_property (GObject* object, guint prop_id,
                        const GValue* value, GParamSpec* spec)
 {
-        YtvStarPriv* priv = YTV_STAR_GET_PRIVATE (object);
 
         switch (prop_id)
         {
-        case PROP_RANK:
-                priv->rank = g_value_get_float (value);
+        case PROP_PERCENTAGE:
+                set_percentage (YTV_STAR (object), g_value_get_float (value));
                 break;
         default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
@@ -238,8 +278,8 @@ ytv_star_get_property (GObject* object, guint prop_id,
 
         switch (prop_id)
         {
-        case PROP_RANK:
-                g_value_set_float (value, priv->rank);
+        case PROP_PERCENTAGE:
+                g_value_set_float (value, get_percentage (YTV_STAR (object)));
                 break;
         default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
@@ -260,10 +300,10 @@ ytv_star_finalize (GObject* object)
         for (i = 0; i < priv->star_points->len; i++)
         {
                 point = g_array_index (priv->star_points, YtvPoint*, i);
-                g_free (point);
+                g_slice_free (YtvPoint, point);
         }
         
-        g_array_free (priv->star_points, FALSE);
+        g_array_free (priv->star_points, TRUE);
 
 	(*G_OBJECT_CLASS (ytv_star_parent_class)->finalize) (object);
 
@@ -275,7 +315,7 @@ ytv_star_init (YtvStar* self)
 {
         YtvStarPriv* priv = YTV_STAR_GET_PRIVATE (self);
 
-        priv->rank = 0;
+        priv->percentage = 0;
         priv->star_points = g_array_sized_new (FALSE, FALSE,
                                                sizeof (YtvPoint*), 12);
 
@@ -298,9 +338,10 @@ ytv_star_class_init (YtvStarClass* klass)
         widget_class->size_request = ytv_star_size_request; 
         
         g_object_class_install_property
-                (object_class, PROP_RANK,
+                (object_class, PROP_PERCENTAGE,
                  g_param_spec_float
-                 ("rank", "rank", "the area to fill", 0.0, 1.0, 0.0,
+                 ("percentage", "percentage",
+                  "the area percentage to fill", 0.0, 1.0, 0.0,
                   G_PARAM_READWRITE));
 
         return;
@@ -308,14 +349,15 @@ ytv_star_class_init (YtvStarClass* klass)
 
 /**
  * ytv_star_new:
- * @rank: The filled star percentage
+ * @percentage: The filled star percentage
  *
  * Generate a widget with an image of a filled star
  *
  * return value: a #YtvStar
  */
 GtkWidget*
-ytv_star_new (gfloat rank)
+ytv_star_new (gfloat percentage)
 {
-        return GTK_WIDGET (g_object_new (YTV_TYPE_STAR, "rank", rank, NULL));
+        return GTK_WIDGET (g_object_new (YTV_TYPE_STAR,
+                                         "percentage", percentage, NULL));
 }

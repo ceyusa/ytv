@@ -179,17 +179,32 @@ star_test ()
 }
 #endif
 
+static gboolean
+change_rank (gpointer user_data)
+{
+        gdouble rank = g_random_double_range (0, 5);
+        
+        g_debug ("changing rank to %f...", rank);
+        g_object_set (YTV_RANK (user_data), "rank", rank, NULL);
+
+        return TRUE;
+}
+
 static void
 rank_test ()
 {
         GtkWidget* win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-        gtk_widget_set_size_request (win, 400, 600);
+        /* gtk_widget_set_size_request (win, 400, 600); */
 
         g_signal_connect (G_OBJECT (win), "delete_event",
                           G_CALLBACK (gtk_main_quit), NULL);
 
-        GtkWidget* rank = ytv_rank_new (3.25);
+        GtkWidget* rank = ytv_rank_new (0.0);
+        
         gtk_container_add (GTK_CONTAINER (win), rank);
+
+        g_timeout_add_seconds (2, change_rank, rank);
+        
         gtk_widget_show_all (win);
 }
 

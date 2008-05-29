@@ -55,6 +55,7 @@ struct _YtvSoupFeedFetchStrategyClass
         void (*perform) (YtvFeedFetchStrategy* self, const gchar* uri,
                          YtvGetResponseCallback callback, gpointer user_data);
         gchar* (*encode) (YtvFeedFetchStrategy* self, const gchar* part);
+        time_t (*get_date) (YtvFeedFetchStrategy* self, const gchar* date);
 };
 
 GType ytv_soup_feed_fetch_strategy_get_type (void);
@@ -66,6 +67,8 @@ void ytv_soup_feed_fetch_strategy_perform (YtvFeedFetchStrategy *self,
                                            gpointer user_data);
 gchar* ytv_soup_feed_fetch_strategy_encode (YtvFeedFetchStrategy* self,
                                             const gchar* part);
+time_t ytv_soup_feed_fetch_strategy_get_date (YtvFeedFetchStrategy* self,
+                                              const gchar* date);
 
 G_END_DECLS
 
