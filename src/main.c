@@ -227,6 +227,8 @@ feed_entry_cb (YtvFeed* feed, gboolean cancelled, YtvList* list,
 
         g_object_unref (list);
 
+        g_print ("\n======================================================\n");
+        
         return;
 }
 
@@ -252,6 +254,18 @@ fetch_feed (YtvFeed* feed)
 
         ytv_feed_standard (feed, YTV_YOUTUBE_STD_FEED_MOST_VIEWED);
         ytv_feed_get_entries_async (feed, feed_entry_cb, NULL);
+
+        ytv_feed_user (feed, "pinkipons");
+        g_object_set (G_OBJECT (ub),
+                      "max-results", 25,
+                      NULL);
+        ytv_feed_get_entries_async (feed, feed_entry_cb, NULL);
+
+        ytv_feed_related (feed, "FOwQETKKyF0");
+        g_object_set (G_OBJECT (ub),
+                      "max-results", 10,
+                      NULL);        
+        ytv_feed_get_entries_async (feed, feed_entry_cb, NULL);        
 
         return FALSE;
 }
