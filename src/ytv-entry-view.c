@@ -47,12 +47,12 @@
 /**
  * ytv_entry_view_set_entry:
  * @self: a #YtvEntryView
- * @entry: a #YtvEntry
+ * @entry: (not-null): a #YtvEntry
  *
- * Set the entry wich view @self must display.
+ * Set the entry which view @self must display.
  */
 void
-ytv_entry_view_set_entry (YtvEntreView* self, YtvEntry* entry)
+ytv_entry_view_set_entry (YtvEntryView* self, YtvEntry* entry)
 {
         if (YTV_ENTRY_VIEW_GET_IFACE (self)->set_entry == NULL)
         {
@@ -61,7 +61,35 @@ ytv_entry_view_set_entry (YtvEntreView* self, YtvEntry* entry)
 
         YTV_ENTRY_VIEW_GET_IFACE (self)->set_entry (self, entry);
 
+        YtvEntry* validate;
+        validate = ytv_entry_view_get_entry (self, validate);
+        g_assert (validate == entry);
+
         return;
+}
+
+/**
+ * ytv_entry_view_get_entry:
+ * @self: a #YtvEntryView
+ *
+ * Get the entry which view @self must display.
+ *
+ * returns: (not-null) (caller-owns): The displayed #YtvEntry
+ */
+YtvEntry* 
+ytv_entry_view_set_entry (YtvEntryView* self)
+{
+        if (YTV_ENTRY_VIEW_GET_IFACE (self)->get_entry == NULL)
+        {
+                g_critical ("You must implement ytv_entry_view_set_view\n");
+        }
+
+        YtvEntry* retval;
+        retval = YTV_ENTRY_VIEW_GET_IFACE (self)->set_entry (self, entry);
+
+        g_assert (retval != NULL);
+
+        return retval;
 }
 
 static void

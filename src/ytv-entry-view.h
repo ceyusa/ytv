@@ -23,7 +23,6 @@
  */
 
 #include <glib-object.h>
-
 #include <ytv-shared.h>
 
 G_BEGIN_DECLS
@@ -37,16 +36,21 @@ G_BEGIN_DECLS
 #define YTV_ENTRY_VIEW_GET_IFACE(inst)                \
         (G_TYPE_INSTANCE_GET_INTERFACE ((inst), YTV_TYPE_ENTRY_VIEW, YtvEntryViewIface))
 
+typedef struct _YtvEntryView YtvEntryView;
+typedef struct _YtvEntryViewIface YtvEntryViewIface;
+
 struct _YtvEntryViewIface
 {
         GTypeInterface parent;
 
         /* Methods */
         void (*set_entry) (YtvEntryView* self, YtvEntry* entry);
+        YtvEntry* (*get_entry) (YtvEntryView* self);
 };
         
 GType ytv_entry_view_get_type (void);
 void ytv_entry_view_set_entry (YtvEntryView* self, YtvEntry* entry);
+YtvEntry* ytv_entry_view_get_entry (YtvEntryView* self);
 
 G_END_DECLS
 
