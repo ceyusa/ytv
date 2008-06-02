@@ -45,4 +45,6 @@ ytv_SOURCES = 				\
 	ytv-star.c			\
 	ytv-rank.h			\
 	ytv-rank.c			\
+	ytv-entry-view.h		\
+	ytv-entry-view.c		\
 	main.c
