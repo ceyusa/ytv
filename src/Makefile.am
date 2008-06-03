@@ -47,4 +47,6 @@ ytv_SOURCES = 				\
 	ytv-rank.c			\
 	ytv-entry-view.h		\
 	ytv-entry-view.c		\
+	ytv-gtk-entry-view.h		\
+	ytv-gtk-entry-view.c		\
 	main.c
