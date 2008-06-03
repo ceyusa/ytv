@@ -62,7 +62,7 @@ ytv_entry_view_set_entry (YtvEntryView* self, YtvEntry* entry)
         YTV_ENTRY_VIEW_GET_IFACE (self)->set_entry (self, entry);
 
         YtvEntry* validate;
-        validate = ytv_entry_view_get_entry (self, validate);
+        validate = ytv_entry_view_get_entry (self);
         g_assert (validate == entry);
 
         return;
@@ -77,7 +77,7 @@ ytv_entry_view_set_entry (YtvEntryView* self, YtvEntry* entry)
  * returns: (not-null) (caller-owns): The displayed #YtvEntry
  */
 YtvEntry* 
-ytv_entry_view_set_entry (YtvEntryView* self)
+ytv_entry_view_get_entry (YtvEntryView* self)
 {
         if (YTV_ENTRY_VIEW_GET_IFACE (self)->get_entry == NULL)
         {
@@ -85,7 +85,7 @@ ytv_entry_view_set_entry (YtvEntryView* self)
         }
 
         YtvEntry* retval;
-        retval = YTV_ENTRY_VIEW_GET_IFACE (self)->set_entry (self, entry);
+        retval = YTV_ENTRY_VIEW_GET_IFACE (self)->get_entry (self);
 
         g_assert (retval != NULL);
 
