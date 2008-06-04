@@ -1,9 +1,6 @@
 /* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 8; coding: utf-8 -*- */
 
-#ifndef _YTV_GTK_ENTRY_VIEW_H_
-#define _YTV_GTK_ENTRY_VIEW_H_
-
-/* ytv-gtk-entry-view.h - A type that defines a GTK+ GUI entry view
+/* ytv-gtk-entry-view.c - A type that defines a GTK+ GUI entry view
  * Copyright (C) 2008 Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
  *
  * This library is free software; you can redistribute it and/or
@@ -24,6 +21,8 @@
 
 #include <ytv-gtk-entry-view.h>
 
+#include <gtk/gtk.h>
+
 #include <ytv-rank.h>
 #include <ytv-entry.h>
 
@@ -36,7 +35,7 @@ enum _YtvGtkEntryViewProp
 typedef struct _YtvGtkEntryViewPriv YtvGtkEntryViewPriv;
 struct _YtvGtkEntryViewPriv
 {
-        YtvRank* rank;
+        GtkWidget* rank;
         YtvOrientation orientation;
         /* YtvText* text; */
 };
@@ -53,7 +52,7 @@ ytv_entry_view_init (YtvEntryViewIface* iface)
         return;
 }
 
-G_DEFINE_TYPE_EXTENDED (YtvGtkEntryView, ytv_gtk_entry_view, GTK_TYPE_TABLE, 0
+G_DEFINE_TYPE_EXTENDED (YtvGtkEntryView, ytv_gtk_entry_view, GTK_TYPE_TABLE, 0,
                         G_IMPLEMENT_INTERFACE (YTV_TYPE_ENTRY_VIEW,
                                                ytv_entry_view_init))
 
@@ -127,8 +126,9 @@ ytv_gtk_entry_view_set_property (GObject* object, guint prop_id,
 static void
 ytv_gtk_entry_view_dispose (GObject* object)
 {
-        (*G_OBJECT_CLASS (ytv_base_feed_parent_class)->dispose) (object);
+        (*G_OBJECT_CLASS (ytv_gtk_entry_view_parent_class)->dispose) (object);
 
+        YtvGtkEntryView* me = YTV_GTK_ENTRY_VIEW (object);
         YtvGtkEntryViewPriv* priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (object);
 
         if (priv->rank != NULL)
@@ -149,7 +149,7 @@ ytv_gtk_entry_view_class_init (YtvGtkEntryViewClass* klass)
 {
         GObjectClass* g_klass = G_OBJECT_CLASS (klass);
 
-        g_type_class_add_private (g_klass, sizeof (YtvGtkEntryViewPriv))
+        g_type_class_add_private (g_klass, sizeof (YtvGtkEntryViewPriv));
         
         g_klass->get_property = ytv_gtk_entry_view_get_property;
         g_klass->set_property = ytv_gtk_entry_view_set_property;
@@ -162,7 +162,8 @@ ytv_gtk_entry_view_class_init (YtvGtkEntryViewClass* klass)
                 (g_klass, PROP_ORIENTATION,
                  g_param_spec_enum
                  ("orientation", "Orientation", "Widget orientation",
-                  YTV_TYPE_ORIENTATION, G_PARAM_READWRITE));
+                  YTV_TYPE_ORIENTATION, YTV_ORIENTATION_HORIZONTAL,
+                  G_PARAM_READWRITE));
 
         return;
 }
@@ -249,7 +250,7 @@ ytv_gtk_entry_view_set_orientation (YtvGtkEntryView* self,
         }
         else
         {
-                g_return_if_reachead ();
+                g_return_if_reached ();
         }
 
         priv->orientation = orientation;

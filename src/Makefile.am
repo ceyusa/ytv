@@ -49,4 +49,6 @@ ytv_SOURCES = 				\
 	ytv-entry-view.c		\
 	ytv-gtk-entry-view.h		\
 	ytv-gtk-entry-view.c		\
+	ytv-thumbnail.h			\
+	ytv-thumbnail.c			\
 	main.c

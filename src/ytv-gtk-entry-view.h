@@ -22,8 +22,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <gtk/gtktable.h>
 #include <ytv-entry-view.h>
+#include <gtk/gtktable.h>
 
 G_BEGIN_DECLS
 
@@ -40,7 +40,6 @@ G_BEGIN_DECLS
         (G_TYPE_INSTANCE_GET_CLASS ((obj), YTV_TYPE_GTK_ENTRY_VIEW, YtvGtkEntryViewClass))
 
 typedef enum _YtvOrientation YtvOrientation;
-
 enum _YtvOrientation
 {
         YTV_ORIENTATION_HORIZONTAL,

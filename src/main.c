@@ -27,6 +27,7 @@
 #include <ytv-base-feed.h>
 
 #include <ytv-rank.h>
+#include <ytv-thumbnail.h>
 
 #include <gtk/gtk.h>
 
@@ -199,11 +200,16 @@ rank_test ()
         g_signal_connect (G_OBJECT (win), "delete_event",
                           G_CALLBACK (gtk_main_quit), NULL);
 
-        GtkWidget* rank = ytv_rank_new (0.0);
-        
-        gtk_container_add (GTK_CONTAINER (win), rank);
+        GtkWidget* hbox = gtk_hbox_new (FALSE, 2);
+        gtk_container_add (GTK_CONTAINER (win), hbox);
 
+        GtkWidget* rank = ytv_rank_new (0.0);
+        gtk_box_pack_end (GTK_BOX (hbox), rank, FALSE, FALSE, 0);
         g_timeout_add_seconds (2, change_rank, rank);
+
+        GtkWidget* thumb = ytv_thumbnail_new ();
+        gtk_box_pack_start (GTK_BOX (hbox), thumb, FALSE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (hbox), ytv_thumbnail_new (), FALSE, FALSE, 0);
         
         gtk_widget_show_all (win);
 }
