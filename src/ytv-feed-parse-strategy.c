@@ -65,7 +65,7 @@
  * feed or NULL
  */
 YtvList*
-ytv_feed_parse_strategy_perform (YtvFeedParseStrategy* self, const gchar* data,
+ytv_feed_parse_strategy_perform (YtvFeedParseStrategy* self, const guchar* data,
                                  gssize length, GError **err)
 {
         g_assert (YTV_IS_FEED_PARSE_STRATEGY (self));

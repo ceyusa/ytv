@@ -370,7 +370,7 @@ ytv_soup_feed_fetch_strategy_encode (YtvFeedFetchStrategy* self,
 
         g_assert (retval != NULL);
         
-	return;
+	return retval;
 }
 
 /**
@@ -398,7 +398,7 @@ ytv_soup_feed_fetch_strategy_get_date (YtvFeedFetchStrategy* self,
 
         g_assert (retval != -1);
         
-	return;        
+	return retval;        
 }
 
 /**

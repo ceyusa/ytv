@@ -24,6 +24,9 @@
 
 #include <gtk/gtkalignment.h>
 
+#include <ytv-feed-fetch-strategy.h>
+#include <ytv-uri-builder.h>
+
 G_BEGIN_DECLS
 
 #define YTV_TYPE_THUMBNAIL (ytv_thumbnail_get_type ())
@@ -62,6 +65,14 @@ struct _YtvThumbnailClass
 
 GType      ytv_thumbnail_get_type (void);
 GtkWidget* ytv_thumbnail_new (void);
+
+void ytv_thumbnail_set_fetch_strategy (YtvThumbnail* self,
+                                       YtvFeedFetchStrategy* fetcher);
+YtvFeedFetchStrategy* ytv_thumbnail_get_fetch_strategy (YtvThumbnail* self);
+void ytv_thumbnail_set_uri_builder (YtvThumbnail* self, YtvUriBuilder *ub);
+YtvUriBuilder* ytv_thumbnail_get_uri_builder (YtvThumbnail* self);
+void ytv_thumbnail_set_id (YtvThumbnail* self, const gchar* id);
+gchar* ytv_thumbnail_get_id (YtvThumbnail* self);
 
 G_END_DECLS
 

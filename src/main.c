@@ -192,6 +192,34 @@ change_rank (gpointer user_data)
 }
 
 static void
+show_thumbnail (GtkBox* box)
+{
+        gint i;
+        YtvFeedFetchStrategy* fetchst = ytv_soup_feed_fetch_strategy_new ();
+        YtvUriBuilder* ub = ytv_youtube_uri_builder_new ();
+        GtkWidget* t;
+
+        const gchar* ids[] = { "yoS-SEO8fjc", "ThedsvZUWLU", "H5mPHgyzexc" };
+
+        for (i = 0; i < G_N_ELEMENTS (ids); i++)
+        {
+                t = ytv_thumbnail_new ();
+
+                ytv_thumbnail_set_fetch_strategy (YTV_THUMBNAIL (t), fetchst);
+                ytv_thumbnail_set_uri_builder (YTV_THUMBNAIL (t), ub);
+
+                ytv_thumbnail_set_id (YTV_THUMBNAIL (t), ids[i]);
+
+                gtk_box_pack_start (box, t, FALSE, FALSE, 0);
+        }
+                
+        g_object_unref (fetchst);
+        g_object_unref (ub);
+
+        return;
+}
+
+static void
 rank_test ()
 {
         GtkWidget* win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -207,9 +235,7 @@ rank_test ()
         gtk_box_pack_end (GTK_BOX (hbox), rank, FALSE, FALSE, 0);
         g_timeout_add_seconds (2, change_rank, rank);
 
-        GtkWidget* thumb = ytv_thumbnail_new ();
-        gtk_box_pack_start (GTK_BOX (hbox), thumb, FALSE, FALSE, 0);
-        gtk_box_pack_start (GTK_BOX (hbox), ytv_thumbnail_new (), FALSE, FALSE, 0);
+        show_thumbnail (GTK_BOX (hbox));
         
         gtk_widget_show_all (win);
 }
@@ -271,7 +297,7 @@ fetch_feed (YtvFeed* feed)
         g_object_set (G_OBJECT (ub),
                       "max-results", 10,
                       NULL);        
-        ytv_feed_get_entries_async (feed, feed_entry_cb, NULL);        
+        ytv_feed_get_entries_async (feed, feed_entry_cb, NULL);
 
         return FALSE;
 }

@@ -107,9 +107,11 @@ struct _YtvYoutubeUriBuilderClass
         gchar* (*get_standard_feed) (YtvUriBuilder* self, guint type);
         gchar* (*search_feed) (YtvUriBuilder* self, const gchar* query);
         gchar* (*get_user_feed) (YtvUriBuilder* self, const gchar* user);
-        gchar* (*get_keywords_feed) (YtvUriBuilder* self, const gchar* category,
+        gchar* (*get_keywords_feed) (YtvUriBuilder* self,
+                                     const gchar* category,
                                      const gchar* keywords);
         gchar* (*get_related_feed) (YtvUriBuilder* self, const gchar* vid);
+        gchar* (*get_thumbnail) (YtvUriBuilder* self, const gchar* vid);
 };
 
 GType ytv_youtube_order_get_type (void);
@@ -118,13 +120,19 @@ GType ytv_youtube_alt_get_type (void);
 GType ytv_youtube_time_get_type (void);
 
 YtvUriBuilder* ytv_youtube_uri_builder_new (void);
-gchar* ytv_youtube_uri_builder_get_standard_feed (YtvUriBuilder* self, guint type);
-gchar* ytv_youtube_uri_builder_search_feed (YtvUriBuilder* self, const gchar* query);
-gchar* ytv_youtube_uri_builder_get_user_feed (YtvUriBuilder* self, const gchar* user);
+gchar* ytv_youtube_uri_builder_get_standard_feed (YtvUriBuilder* self,
+                                                  guint type);
+gchar* ytv_youtube_uri_builder_search_feed (YtvUriBuilder* self,
+                                            const gchar* query);
+gchar* ytv_youtube_uri_builder_get_user_feed (YtvUriBuilder* self,
+                                              const gchar* user);
 gchar* ytv_youtube_uri_builder_get_keywords_feed (YtvUriBuilder* self,
 						  const gchar* category,
 						  const gchar* keywords);
-gchar* ytv_youtube_uri_builder_get_related_feed (YtvUriBuilder* self, const gchar* vid);
+gchar* ytv_youtube_uri_builder_get_related_feed (YtvUriBuilder* self,
+                                                 const gchar* vid);
+gchar* ytv_youtube_uri_builder_get_thumbnail (YtvUriBuilder* self,
+                                              const gchar* vid);
 
 G_END_DECLS
 

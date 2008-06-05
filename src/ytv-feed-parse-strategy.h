@@ -46,7 +46,7 @@ struct _YtvFeedParseStrategyIface
 {
         GTypeInterface parent;
 
-        YtvList* (*perform) (YtvFeedParseStrategy* self, const gchar* data,
+        YtvList* (*perform) (YtvFeedParseStrategy* self, const guchar* data,
                              gssize length, GError **err);
         const gchar* (*get_mime) (YtvFeedParseStrategy* self);
 };
@@ -54,7 +54,7 @@ struct _YtvFeedParseStrategyIface
 GType ytv_feed_parse_strategy_get_type (void);
 
 YtvList* ytv_feed_parse_strategy_perform (YtvFeedParseStrategy* self,
-                                          const gchar* data, gssize length,
+                                          const guchar* data, gssize length,
                                           GError **err);
 const gchar* ytv_feed_parse_strategy_get_mime (YtvFeedParseStrategy* self);
 

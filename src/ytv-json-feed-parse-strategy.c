@@ -290,7 +290,14 @@ get_duration (JsonNode* node)
 static gfloat
 get_rating (JsonNode* node)
 {
-        g_return_val_if_fail (node != NULL, 1); /* this is in most_recent feed */
+        /* this could be possible in most_recent feed */
+        if (node == NULL)
+        {
+                return 1;
+        }
+        
+        /* g_return_val_if_fail (node != NULL, 1);  */
+        
         g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, -1);
 
         gfloat retval = -1;
@@ -540,7 +547,7 @@ parse_entry (JsonNode* node)
 
 static YtvList*
 ytv_json_feed_parse_strategy_perform_default (YtvFeedParseStrategy* self,
-                                              const gchar* data, gssize length,
+                                              const guchar* data, gssize length,
                                               GError **err)
 {
         g_return_val_if_fail (err == NULL || *err == NULL, NULL);
@@ -668,7 +675,7 @@ ytv_json_feed_parse_strategy_new (void)
  */
 YtvList*
 ytv_json_feed_parse_strategy_perform (YtvFeedParseStrategy* self,
-				      const gchar* data, gssize length,
+				      const guchar* data, gssize length,
 				      GError **err)
 {
         g_assert (self != NULL);

@@ -27,7 +27,7 @@
 enum _YtvErrorDomain
 {
 	YTV_HTTP_ERROR = 1,
-	YTV_PARSE_ERROR = 2,
+	YTV_PARSE_ERROR = 2
 };
 
 typedef enum _YtvErrorDomain YtvErrorDomain;
@@ -47,7 +47,7 @@ enum _YtvError
 	YTV_HTTP_ERROR_BAD_URI,
 
 	YTV_PARSE_ERROR_BAD_FORMAT,
-        YTV_PARSE_ERROR_BAD_MIME,
+        YTV_PARSE_ERROR_BAD_MIME
 };
 
 typedef GError YError;

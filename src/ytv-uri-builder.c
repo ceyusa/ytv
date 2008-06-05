@@ -145,7 +145,7 @@ ytv_uri_builder_get_keywords_feed (YtvUriBuilder* self, const gchar* category,
 /**
  * ytv_uri_builder_get_related_feed:
  * @self: a #YtvUriBuilder
- * @vid: (not-ok): the video id 
+ * @vid: (not-null): the entry id 
  *
  * Constructs an URI for the feed with the entries related to the @vid
  *
@@ -165,6 +165,31 @@ ytv_uri_builder_get_related_feed (YtvUriBuilder* self, const gchar* vid)
 
         return retval;
 }
+
+/**
+ * ytv_uri_builder_get_thumbnail:
+ * @self: a #YtvUriBuilder
+ * @vid: (not-null): the entry id
+ *
+ * Construct an URI for the @vid thumbnail to retrieve
+ *
+ * returns: (null-ok): (caller-owns): the URI string to the @vid thumbnail.
+ * The string must be free after user.
+ */
+gchar*
+ytv_uri_builder_get_thumbnail (YtvUriBuilder* self, const gchar* vid)
+{
+        gchar* retval;
+
+        g_assert (vid != NULL);
+        g_assert (YTV_IS_URI_BUILDER (self));
+        g_assert (YTV_URI_BUILDER_GET_IFACE (self)->get_thumbnail != NULL);
+
+        retval = YTV_URI_BUILDER_GET_IFACE (self)->get_thumbnail (self, vid);
+
+        return retval;        
+}
+ 
 
 static void
 ytv_uri_builder_base_init (gpointer g_class)
