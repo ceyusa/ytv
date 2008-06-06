@@ -1,0 +1,5 @@
+* finish the uri builder for youtube
+* validate the char encoding for url building, specially in search keywords
+* rename ytv-feed-fetcher-strategy for ytv-fetcher
+* rename ytv-feed-parser-strategy for ytv-parser
+* add signaling in fetcher as alternative for hardwired callback

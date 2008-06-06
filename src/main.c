@@ -180,14 +180,25 @@ star_test ()
 }
 #endif
 
+const gchar* ids[] = { "yoS-SEO8fjc", "ThedsvZUWLU", "H5mPHgyzexc" };
+GtkWidget* t[3];
+
 static gboolean
 change_rank (gpointer user_data)
 {
+        static gint j;
         gdouble rank = g_random_double_range (0, 5);
         
         g_debug ("changing rank to %f...", rank);
         g_object_set (YTV_RANK (user_data), "rank", rank, NULL);
 
+        gint i = g_random_int_range (0, G_N_ELEMENTS (ids));
+
+        const gchar* ids2[] = { "D92AUXhYZ0M", "icxPXZCLMLU", "l7SsjNNuN8g" };
+        j = ++j % 3;
+        g_debug ("t[%d] = %s", j, ids2[i]);
+        ytv_thumbnail_set_id (YTV_THUMBNAIL (t[j]), ids2[i]);
+        
         return TRUE;
 }
 
@@ -197,20 +208,20 @@ show_thumbnail (GtkBox* box)
         gint i;
         YtvFeedFetchStrategy* fetchst = ytv_soup_feed_fetch_strategy_new ();
         YtvUriBuilder* ub = ytv_youtube_uri_builder_new ();
-        GtkWidget* t;
+        /* GtkWidget* t; */
 
-        const gchar* ids[] = { "yoS-SEO8fjc", "ThedsvZUWLU", "H5mPHgyzexc" };
+        /* const gchar* ids[] = { "yoS-SEO8fjc", "ThedsvZUWLU", "H5mPHgyzexc" }; */
 
         for (i = 0; i < G_N_ELEMENTS (ids); i++)
         {
-                t = ytv_thumbnail_new ();
+                t[i] = ytv_thumbnail_new ();
 
-                ytv_thumbnail_set_fetch_strategy (YTV_THUMBNAIL (t), fetchst);
-                ytv_thumbnail_set_uri_builder (YTV_THUMBNAIL (t), ub);
+                ytv_thumbnail_set_fetch_strategy (YTV_THUMBNAIL (t[i]),
+                                                  fetchst);
+                ytv_thumbnail_set_uri_builder (YTV_THUMBNAIL (t[i]), ub);
+                ytv_thumbnail_set_id (YTV_THUMBNAIL (t[i]), ids[i]);
 
-                ytv_thumbnail_set_id (YTV_THUMBNAIL (t), ids[i]);
-
-                gtk_box_pack_start (box, t, FALSE, FALSE, 0);
+                gtk_box_pack_start (box, t[i], FALSE, FALSE, 0);
         }
                 
         g_object_unref (fetchst);

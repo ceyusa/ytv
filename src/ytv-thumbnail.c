@@ -70,7 +70,7 @@ on_realize (GtkWidget* widget, gpointer user_data)
         YtvThumbnailPriv* priv;
 
         g_return_if_fail (YTV_IS_THUMBNAIL (user_data));
-        
+
         me = YTV_THUMBNAIL (user_data);
         priv = YTV_THUMBNAIL_GET_PRIVATE (me);
 
@@ -96,7 +96,7 @@ on_focus_in (GtkWidget* widget, GdkEventFocus* event, gpointer user_data)
 
         me = YTV_THUMBNAIL (widget);
         priv = YTV_THUMBNAIL_GET_PRIVATE (widget);
-        
+
         if (priv->selected_color != NULL)
         {
                 gdk_color_free (priv->selected_color);
@@ -151,9 +151,9 @@ fetch_img_cb (YtvFeedFetchStrategy* st, const gchar* mime,
 
         if (err != NULL && *err != NULL)
         {
-                g_debug ("image fetching error: %s", 
+                g_debug ("image fetching error: %s",
                          ytv_error_get_message (*err));
-                
+
                 g_error_free (*err);
                 *err = NULL;
 
@@ -181,7 +181,7 @@ fetch_img_cb (YtvFeedFetchStrategy* st, const gchar* mime,
         {
                 loader = gdk_pixbuf_loader_new ();
         }
-        
+
         if (!gdk_pixbuf_loader_write (loader, (guchar*) response,
                                       (gsize) length, &error))
         {
@@ -200,12 +200,18 @@ fetch_img_cb (YtvFeedFetchStrategy* st, const gchar* mime,
                 g_error_free (error);
                 error = NULL;
         }
-        
+
         pixbuf = gdk_pixbuf_loader_get_pixbuf (loader);
 
         if (pixbuf != NULL)
         {
+                if (priv->pixbuf != NULL)
+                {
+                        g_object_unref (priv->pixbuf);
+                }
+                
                 priv->pixbuf = gdk_pixbuf_copy (pixbuf);
+                g_debug ("setting pixbuf");
                 gtk_image_set_from_pixbuf (GTK_IMAGE (self->image),
                                            priv->pixbuf);
         }
@@ -216,7 +222,7 @@ fetch_img_cb (YtvFeedFetchStrategy* st, const gchar* mime,
 
 beach:
         g_object_unref (loader); /* unref also the pixbuf */
-        
+
         return;
 }
 
@@ -225,7 +231,7 @@ fetch_image (YtvThumbnail* self)
 {
         gchar* uri;
         YtvThumbnailPriv* priv;
-        
+
         priv = YTV_THUMBNAIL_GET_PRIVATE (self);
 
         g_return_if_fail (priv->fetcher != NULL);
@@ -237,7 +243,7 @@ fetch_image (YtvThumbnail* self)
 
         ytv_feed_fetch_strategy_perform (priv->fetcher,
                                          uri, fetch_img_cb, self);
-        
+
         g_free (uri);
 
         return;
@@ -337,7 +343,7 @@ ytv_thumbnail_finalize (GObject* object)
         }
 
         (*G_OBJECT_CLASS (ytv_thumbnail_parent_class)->finalize) (object);
-        
+
         return;
 }
 
@@ -385,7 +391,7 @@ ytv_thumbnail_init (YtvThumbnail* self)
                           "realize", G_CALLBACK (on_realize), self);
         gtk_container_add (GTK_CONTAINER (self->button), self->evbox);
 
-        
+
         self->image = gtk_image_new_from_stock (GTK_STOCK_MISSING_IMAGE,
                                                 GTK_ICON_SIZE_DIALOG);
         /* self->image = gtk_image_new (); */
@@ -437,7 +443,7 @@ ytv_thumbnail_set_id (YtvThumbnail* self, const gchar* id)
         {
                 g_free (priv->eid);
         }
-        
+
         priv->eid = g_strdup (id);
 
         fetch_image (self);
@@ -446,7 +452,7 @@ ytv_thumbnail_set_id (YtvThumbnail* self, const gchar* id)
 
         return;
 }
- 
+
 /**
  * ytv_thumbnail_get_id:
  * @self: a #YtvThumbnail
