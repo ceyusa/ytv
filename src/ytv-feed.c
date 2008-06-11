@@ -83,6 +83,8 @@ ytv_feed_get_fetch_strategy (YtvFeed* self)
 void
 ytv_feed_set_fetch_strategy (YtvFeed* self, YtvFeedFetchStrategy* st)
 {
+        YtvFeedFetchStrategy* test;
+                
         g_assert (YTV_IS_FEED (self));
         g_assert (st != NULL);
         g_assert (YTV_IS_FEED_FETCH_STRATEGY (st));
@@ -90,7 +92,7 @@ ytv_feed_set_fetch_strategy (YtvFeed* self, YtvFeedFetchStrategy* st)
 
         YTV_FEED_GET_IFACE (self)->set_fetch_strategy (self, st);
 
-        YtvFeedFetchStrategy* test = ytv_feed_get_fetch_strategy (self);
+        test = ytv_feed_get_fetch_strategy (self);
         g_assert (test);
         g_assert (YTV_IS_FEED_FETCH_STRATEGY (test));
         g_assert (test == st);
@@ -136,6 +138,8 @@ ytv_feed_get_parse_strategy (YtvFeed* self)
 void
 ytv_feed_set_parse_strategy (YtvFeed* self, YtvFeedParseStrategy* st)
 {
+        YtvFeedParseStrategy* test;
+                
         g_assert (YTV_IS_FEED (self));
         g_assert (st != NULL);
         g_assert (YTV_IS_FEED_PARSE_STRATEGY (st));
@@ -143,7 +147,7 @@ ytv_feed_set_parse_strategy (YtvFeed* self, YtvFeedParseStrategy* st)
 
         YTV_FEED_GET_IFACE (self)->set_parse_strategy (self, st);
 
-        YtvFeedParseStrategy* test = ytv_feed_get_parse_strategy (self);
+        test = ytv_feed_get_parse_strategy (self);
         g_assert (test);
         g_assert (YTV_IS_FEED_PARSE_STRATEGY (test));
         g_assert (test == st);
@@ -162,6 +166,8 @@ ytv_feed_set_parse_strategy (YtvFeed* self, YtvFeedParseStrategy* st)
 void
 ytv_feed_set_uri_builder (YtvFeed* self, YtvUriBuilder* ub)
 {
+        YtvUriBuilder* test;
+        
         g_assert (YTV_IS_FEED (self));
         g_assert (ub != NULL);
         g_assert (YTV_IS_URI_BUILDER (ub));
@@ -169,7 +175,7 @@ ytv_feed_set_uri_builder (YtvFeed* self, YtvUriBuilder* ub)
 
         YTV_FEED_GET_IFACE (self)->set_uri_builder (self, ub);
 
-        YtvUriBuilder* test = ytv_feed_get_uri_builder (self);
+        test = ytv_feed_get_uri_builder (self);
         g_assert (test);
         g_assert (YTV_IS_URI_BUILDER (test));
         g_assert (test == ub);

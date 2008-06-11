@@ -29,6 +29,9 @@
 #include <ytv-rank.h>
 #include <ytv-thumbnail.h>
 
+#include <ytv-error.h>
+#include <ytv-list.h>
+
 #include <gtk/gtk.h>
 
 /* GMainLoop *loop; */
@@ -186,16 +189,18 @@ GtkWidget* t[3];
 static gboolean
 change_rank (gpointer user_data)
 {
+        gint i;
         static gint j;
         gdouble rank = g_random_double_range (0, 5);
+        const gchar* ids2[] = { "D92AUXhYZ0M", "icxPXZCLMLU", "l7SsjNNuN8g" };
         
         g_debug ("changing rank to %f...", rank);
         g_object_set (YTV_RANK (user_data), "rank", rank, NULL);
 
-        gint i = g_random_int_range (0, G_N_ELEMENTS (ids));
+        i = g_random_int_range (0, G_N_ELEMENTS (ids));
 
-        const gchar* ids2[] = { "D92AUXhYZ0M", "icxPXZCLMLU", "l7SsjNNuN8g" };
-        j = ++j % 3;
+        j++;
+        j %= 3;
         g_debug ("t[%d] = %s", j, ids2[i]);
         ytv_thumbnail_set_id (YTV_THUMBNAIL (t[j]), ids2[i]);
         
@@ -233,16 +238,20 @@ show_thumbnail (GtkBox* box)
 static void
 rank_test ()
 {
-        GtkWidget* win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+        GtkWidget* hbox;
+        GtkWidget* win;
+        GtkWidget* rank;
+
+        win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
         /* gtk_widget_set_size_request (win, 400, 600); */
 
         g_signal_connect (G_OBJECT (win), "delete_event",
                           G_CALLBACK (gtk_main_quit), NULL);
 
-        GtkWidget* hbox = gtk_hbox_new (FALSE, 2);
+        hbox = gtk_hbox_new (FALSE, 2);
         gtk_container_add (GTK_CONTAINER (win), hbox);
 
-        GtkWidget* rank = ytv_rank_new (0.0);
+        rank = ytv_rank_new (0.0);
         gtk_box_pack_end (GTK_BOX (hbox), rank, FALSE, FALSE, 0);
         g_timeout_add_seconds (2, change_rank, rank);
 
@@ -266,7 +275,7 @@ feed_entry_cb (YtvFeed* feed, gboolean cancelled, YtvList* list,
 
         g_return_if_fail (list != NULL);
 
-        ytv_list_foreach (list, ytv_entry_dump, NULL);
+        ytv_list_foreach (list, (GFunc) ytv_entry_dump, NULL);
 
         g_object_unref (list);
 
@@ -316,11 +325,13 @@ fetch_feed (YtvFeed* feed)
 gint
 main (gint argc, gchar** argv)
 {
+        YtvFeed* feed;
+        
         g_thread_init (NULL);
         /* g_type_init (); */
         gtk_init (&argc, &argv);
 
-        YtvFeed* feed = ytv_base_feed_new ();
+        feed = ytv_base_feed_new ();
         g_idle_add ((GSourceFunc) fetch_feed, feed);
 
         /* star_test (); */

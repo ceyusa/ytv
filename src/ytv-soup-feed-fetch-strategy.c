@@ -150,15 +150,18 @@ create_session (YtvSoupFeedFetchStrategy* self)
 static void
 retrieval_done (SoupSession* session, SoupMessage* message, gpointer user_data)
 {
+        YtvCbWrapper* cbw;
+        const gchar* mimetype;
+        YtvSoupFeedFetchStrategy* self;
+        YtvSoupFeedFetchStrategyPriv* priv;
+        GError *err = NULL;
+        
         g_assert (user_data != NULL);
 
-        YtvCbWrapper* cbw = (YtvCbWrapper*) user_data;
+        cbw = (YtvCbWrapper*) user_data;
 
-        YtvSoupFeedFetchStrategy* self =
-                YTV_SOUP_FEED_FETCH_STRATEGY (cbw->st);
-        YtvSoupFeedFetchStrategyPriv* priv =
-                YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE (self);
-        GError *err = NULL;
+        self = YTV_SOUP_FEED_FETCH_STRATEGY (cbw->st);
+        priv = YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE (self);
                 
         if (!SOUP_STATUS_IS_SUCCESSFUL (message->status_code))
         {
@@ -174,13 +177,15 @@ retrieval_done (SoupSession* session, SoupMessage* message, gpointer user_data)
                 goto done;
         }
 
-        const gchar* mimetype = soup_message_headers_get
-                (message->response_headers, "Content-Type");
+        mimetype = soup_message_headers_get (message->response_headers,
+                                             "Content-Type");
 
         if (cbw->cb != NULL)
         {
-                cbw->cb (cbw->st, mimetype, message->response_body->data,
-                         message->response_body->length, &err, cbw->user_data);
+                cbw->cb (cbw->st, mimetype,
+                         (const gint8*) message->response_body->data,
+                         (gsize) message->response_body->length,
+                         &err, cbw->user_data);
         }
         
 done:
@@ -190,20 +195,23 @@ done:
 
 static void
 ytv_soup_feed_fetch_strategy_perform_default (YtvFeedFetchStrategy* self,
-					      const gchar* uri,
+                                              const gchar* uri,
                                               YtvGetResponseCallback callback,
                                               gpointer user_data)
 {
+        YtvSoupFeedFetchStrategy* me;
+        YtvSoupFeedFetchStrategyPriv* priv;
+        SoupMessage* message;
+        YtvCbWrapper* cbw;
+        
         g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (self));
         
-        YtvSoupFeedFetchStrategy* me = YTV_SOUP_FEED_FETCH_STRATEGY (self);
-        YtvSoupFeedFetchStrategyPriv* priv =
-                YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE (me);
-        SoupMessage* message;
+        me   = YTV_SOUP_FEED_FETCH_STRATEGY (self);
+        priv = YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE (me);
 
         create_session (me);
 
-        YtvCbWrapper* cbw = g_slice_new (YtvCbWrapper);
+        cbw = g_slice_new (YtvCbWrapper);
         cbw->st = self;
         cbw->cb = callback;
         cbw->user_data = user_data;
@@ -258,7 +266,7 @@ ytv_soup_feed_fetch_strategy_get_date_default (YtvFeedFetchStrategy* self,
 static void
 ytv_feed_fetch_strategy_init (YtvFeedFetchStrategyIface* klass)
 {
-	klass->perform = ytv_soup_feed_fetch_strategy_perform;
+        klass->perform = ytv_soup_feed_fetch_strategy_perform;
         klass->encode = ytv_soup_feed_fetch_strategy_encode;
         klass->get_date = ytv_soup_feed_fetch_strategy_get_date;
 
@@ -273,11 +281,13 @@ G_DEFINE_TYPE_EXTENDED (YtvSoupFeedFetchStrategy, ytv_soup_feed_fetch_strategy,
 static void
 ytv_soup_feed_fetch_strategy_finalize (GObject *object)
 {
+        YtvSoupFeedFetchStrategy* self;
+        YtvSoupFeedFetchStrategyPriv* priv;
+
         g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (object));
 
-        YtvSoupFeedFetchStrategy* self = YTV_SOUP_FEED_FETCH_STRATEGY (object);
-        YtvSoupFeedFetchStrategyPriv* priv =
-                YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE (self);
+        self = YTV_SOUP_FEED_FETCH_STRATEGY (object);
+        priv = YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE (self);
 
         if (priv->session != NULL)
         {
@@ -294,30 +304,30 @@ ytv_soup_feed_fetch_strategy_finalize (GObject *object)
 static void
 ytv_soup_feed_fetch_strategy_class_init (YtvSoupFeedFetchStrategyClass* klass)
 {
-	GObjectClass *g_klass;
+        GObjectClass *object_class;
 
-	g_klass = G_OBJECT_CLASS (klass);
+        object_class = G_OBJECT_CLASS (klass);
 	
-	klass->perform = ytv_soup_feed_fetch_strategy_perform_default;
+        klass->perform = ytv_soup_feed_fetch_strategy_perform_default;
         klass->encode = ytv_soup_feed_fetch_strategy_encode_default;
         klass->get_date = ytv_soup_feed_fetch_strategy_get_date_default;
         
-	g_klass->finalize = ytv_soup_feed_fetch_strategy_finalize;
+        object_class->finalize = ytv_soup_feed_fetch_strategy_finalize;
 
         g_type_class_add_private (klass, sizeof (YtvSoupFeedFetchStrategyPriv));
         
-	return;
+        return;
 }
 
 static void
 ytv_soup_feed_fetch_strategy_init (YtvSoupFeedFetchStrategy* self)
 {
-        YtvSoupFeedFetchStrategyPriv* priv =
-                YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE (self);
+        YtvSoupFeedFetchStrategyPriv* priv;
 
+        priv = YTV_SOUP_FEED_FETCH_STRATEGY_GET_PRIVATE (self);
         priv->session = NULL;
         
-	return;
+        return;
 }
 
 /**
@@ -339,11 +349,11 @@ ytv_soup_feed_fetch_strategy_perform (YtvFeedFetchStrategy* self,
         g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (self));
         g_assert (uri != NULL);
         
-	YTV_SOUP_FEED_FETCH_STRATEGY_GET_CLASS (self)->perform (self, uri,
+        YTV_SOUP_FEED_FETCH_STRATEGY_GET_CLASS (self)->perform (self, uri,
                                                                 callback,
                                                                 user_data);
 
-	return;
+        return;
 }
 
 /**
@@ -359,18 +369,18 @@ gchar*
 ytv_soup_feed_fetch_strategy_encode (YtvFeedFetchStrategy* self,
                                      const gchar* part)
 {
+        gchar* retval;
+        
         g_assert (self != NULL);
         g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (self));
         g_assert (part != NULL);
 
-        gchar* retval;
-        
-	retval = YTV_SOUP_FEED_FETCH_STRATEGY_GET_CLASS (self)->encode (self,
+        retval = YTV_SOUP_FEED_FETCH_STRATEGY_GET_CLASS (self)->encode (self,
                                                                         part);
 
         g_assert (retval != NULL);
         
-	return retval;
+        return retval;
 }
 
 /**
@@ -387,18 +397,18 @@ time_t
 ytv_soup_feed_fetch_strategy_get_date (YtvFeedFetchStrategy* self,
                                        const gchar* date)
 {
+        time_t retval;
+        
         g_assert (self != NULL);
         g_assert (YTV_IS_SOUP_FEED_FETCH_STRATEGY (self));
         g_assert (date != NULL);
 
-        time_t retval;
-        
-	retval = YTV_SOUP_FEED_FETCH_STRATEGY_GET_CLASS (self)->get_date (self,
+        retval = YTV_SOUP_FEED_FETCH_STRATEGY_GET_CLASS (self)->get_date (self,
                                                                           date);
 
         g_assert (retval != -1);
         
-	return retval;        
+        return retval;        
 }
 
 /**
@@ -413,8 +423,9 @@ ytv_soup_feed_fetch_strategy_get_date (YtvFeedFetchStrategy* self,
 YtvFeedFetchStrategy*
 ytv_soup_feed_fetch_strategy_new (void)
 {
-	YtvSoupFeedFetchStrategy* self = g_object_new
-		(YTV_TYPE_SOUP_FEED_FETCH_STRATEGY, NULL);
+        YtvSoupFeedFetchStrategy* self;
 
-	return YTV_FEED_FETCH_STRATEGY (self);
+        self = g_object_new (YTV_TYPE_SOUP_FEED_FETCH_STRATEGY, NULL);
+
+        return YTV_FEED_FETCH_STRATEGY (self);
 }

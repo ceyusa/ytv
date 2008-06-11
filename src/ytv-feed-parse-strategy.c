@@ -68,11 +68,12 @@ YtvList*
 ytv_feed_parse_strategy_perform (YtvFeedParseStrategy* self, const guchar* data,
                                  gssize length, GError **err)
 {
+        YtvList* l;
+
         g_assert (YTV_IS_FEED_PARSE_STRATEGY (self));
         g_assert (data != NULL);
         g_assert (YTV_FEED_PARSE_STRATEGY_GET_IFACE (self)->perform != NULL);
 
-        YtvList* l;
         l = YTV_FEED_PARSE_STRATEGY_GET_IFACE (self)->perform (self, data,
                                                                length, err);
 
@@ -96,10 +97,11 @@ ytv_feed_parse_strategy_perform (YtvFeedParseStrategy* self, const guchar* data,
 const gchar*
 ytv_feed_parse_strategy_get_mime (YtvFeedParseStrategy* self)
 {
+        const gchar* mime = NULL;
+
         g_assert (YTV_IS_FEED_PARSE_STRATEGY (self));
         g_assert (YTV_FEED_PARSE_STRATEGY_GET_IFACE (self)->get_mime != NULL);
 
-        const gchar* mime = NULL;
         mime = YTV_FEED_PARSE_STRATEGY_GET_IFACE (self)->get_mime (self);
 
         g_assert (mime != NULL);

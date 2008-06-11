@@ -92,13 +92,13 @@ gchar*
 ytv_feed_fetch_strategy_encode (YtvFeedFetchStrategy* self,
                                 const gchar* part)
 {
+        gchar* retval;
+        
         g_assert (YTV_IS_FEED_FETCH_STRATEGY (self));
         g_assert (part != NULL);
 
         g_assert (YTV_FEED_FETCH_STRATEGY_GET_IFACE (self)->encode != NULL);
 
-        gchar* retval = NULL;
-        
         retval = YTV_FEED_FETCH_STRATEGY_GET_IFACE (self)->encode (self, part);
 
         g_assert (retval != NULL);
@@ -120,13 +120,13 @@ time_t
 ytv_feed_fetch_strategy_get_date (YtvFeedFetchStrategy* self,
                                   const gchar* datestr)
 {
+        time_t retval;
+        
         g_assert (YTV_IS_FEED_FETCH_STRATEGY (self));
         g_assert (datestr != NULL);
 
         g_assert (YTV_FEED_FETCH_STRATEGY_GET_IFACE (self)->get_date != NULL);
 
-        time_t retval;
-        
         retval =
                 YTV_FEED_FETCH_STRATEGY_GET_IFACE (self)->get_date (self,
                                                                     datestr);

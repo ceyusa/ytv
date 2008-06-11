@@ -59,10 +59,12 @@ G_DEFINE_TYPE_EXTENDED (YtvGtkEntryView, ytv_gtk_entry_view, GTK_TYPE_TABLE, 0,
 static void
 ytv_gtk_entry_view_set_entry_default (YtvEntryView* self, YtvEntry* entry)
 {
+        YtvGtkEntryView* me;
+        
         g_return_if_fail (YTV_IS_GTK_ENTRY_VIEW (self));
         g_return_if_fail (entry != NULL);
 
-        YtvGtkEntryView* me = YTV_GTK_ENTRY_VIEW (self);
+        me = YTV_GTK_ENTRY_VIEW (self);
 
         if (me->entry != NULL)
         {
@@ -79,9 +81,11 @@ ytv_gtk_entry_view_set_entry_default (YtvEntryView* self, YtvEntry* entry)
 static YtvEntry*
 ytv_gtk_entry_view_get_entry_default (YtvEntryView* self)
 {
+        YtvGtkEntryView* me;
+                
         g_return_if_fail (YTV_IS_GTK_ENTRY_VIEW (self));
 
-        YtvGtkEntryView* me = YTV_GTK_ENTRY_VIEW (self);
+        me = YTV_GTK_ENTRY_VIEW (self);
 
         return g_object_ref (me->entry);
 }
@@ -90,7 +94,9 @@ static void
 ytv_gtk_entry_view_get_property (GObject* object, guint prop_id,
                                  GValue* value, GParamSpec* spec)
 {
-        YtvGtkEntryViewPriv* priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (object);
+        YtvGtkEntryViewPriv* priv;
+
+        priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (object);
 
         switch (prop_id)
         {
@@ -98,8 +104,8 @@ ytv_gtk_entry_view_get_property (GObject* object, guint prop_id,
                 g_value_set_enum (value, priv->orientation);
                 break;
         default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
-		break;                
+                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
+                break;                
         }
 
         return;
@@ -116,8 +122,8 @@ ytv_gtk_entry_view_set_property (GObject* object, guint prop_id,
                                                     g_value_get_enum (value));
                 break;
         default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
-		break;                
+                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
+                break;                
         }
 
         return;
@@ -126,10 +132,13 @@ ytv_gtk_entry_view_set_property (GObject* object, guint prop_id,
 static void
 ytv_gtk_entry_view_dispose (GObject* object)
 {
+        YtvGtkEntryView* me;
+        YtvGtkEntryViewPriv* priv;
+        
         (*G_OBJECT_CLASS (ytv_gtk_entry_view_parent_class)->dispose) (object);
 
-        YtvGtkEntryView* me = YTV_GTK_ENTRY_VIEW (object);
-        YtvGtkEntryViewPriv* priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (object);
+        me = YTV_GTK_ENTRY_VIEW (object);
+        priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (object);
 
         if (priv->rank != NULL)
         {
@@ -147,19 +156,21 @@ ytv_gtk_entry_view_dispose (GObject* object)
 static void
 ytv_gtk_entry_view_class_init (YtvGtkEntryViewClass* klass)
 {
-        GObjectClass* g_klass = G_OBJECT_CLASS (klass);
+        GObjectClass* object_class;
 
-        g_type_class_add_private (g_klass, sizeof (YtvGtkEntryViewPriv));
+        object_class = G_OBJECT_CLASS (klass);
+
+        g_type_class_add_private (object_class, sizeof (YtvGtkEntryViewPriv));
         
-        g_klass->get_property = ytv_gtk_entry_view_get_property;
-        g_klass->set_property = ytv_gtk_entry_view_set_property;
-        g_klass->dispose      = ytv_gtk_entry_view_dispose;
+        object_class->get_property = ytv_gtk_entry_view_get_property;
+        object_class->set_property = ytv_gtk_entry_view_set_property;
+        object_class->dispose      = ytv_gtk_entry_view_dispose;
 
         klass->set_entry = ytv_gtk_entry_view_set_entry_default;
         klass->get_entry = ytv_gtk_entry_view_get_entry_default;
 
         g_object_class_install_property
-                (g_klass, PROP_ORIENTATION,
+                (object_class, PROP_ORIENTATION,
                  g_param_spec_enum
                  ("orientation", "Orientation", "Widget orientation",
                   YTV_TYPE_ORIENTATION, YTV_ORIENTATION_HORIZONTAL,
@@ -171,7 +182,9 @@ ytv_gtk_entry_view_class_init (YtvGtkEntryViewClass* klass)
 static void
 ytv_gtk_entry_view_init (YtvGtkEntryView* self)
 {
-        YtvGtkEntryViewPriv* priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (self);
+        YtvGtkEntryViewPriv* priv;
+
+        priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (self);
 
         priv->rank = ytv_rank_new (0);
         priv->orientation = YTV_ORIENTATION_VERTICAL;
@@ -230,9 +243,11 @@ void
 ytv_gtk_entry_view_set_orientation (YtvGtkEntryView* self,
                                     YtvOrientation orientation)
 {
+        YtvGtkEntryViewPriv* priv;
+        
         g_return_if_fail (self != NULL);
         
-        YtvGtkEntryViewPriv* priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (self);
+        priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (self);
 
         if (orientation == priv->orientation)
         {
@@ -271,9 +286,10 @@ ytv_gtk_entry_view_set_orientation (YtvGtkEntryView* self,
 YtvOrientation
 ytv_gtk_entry_view_get_orientation (YtvGtkEntryView* self)
 {
+        YtvOrientation orientation;
+
         g_return_if_fail (self != NULL);
 
-        YtvOrientation orientation;
         g_object_get (G_OBJECT (self), "orientation", &orientation, NULL);
 
         return orientation;

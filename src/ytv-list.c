@@ -96,8 +96,10 @@ ytv_list_get_length (YtvList *self)
 void
 ytv_list_prepend (YtvList *self, GObject* item)
 {
+        gint length;
+        
         g_assert (YTV_IS_LIST (self));
-        gint length = ytv_list_get_length (self);
+        length = ytv_list_get_length (self);
         g_assert (item);
         g_assert (G_IS_OBJECT (item));
         g_assert (YTV_LIST_GET_IFACE (self)->prepend_func != NULL);
@@ -144,8 +146,10 @@ ytv_list_prepend (YtvList *self, GObject* item)
 void 
 ytv_list_append (YtvList *self, GObject* item)
 {
+        gint length;
+
         g_assert (YTV_IS_LIST (self));
-        gint length = ytv_list_get_length (self);
+        length = ytv_list_get_length (self);
         g_assert (item);
         g_assert (G_IS_OBJECT (item));
         g_assert (YTV_LIST_GET_IFACE (self)->append_func != NULL);
@@ -213,8 +217,10 @@ ytv_list_append (YtvList *self, GObject* item)
 void 
 ytv_list_remove (YtvList *self, GObject* item)
 {
+        gint nl, length;
+        
         g_assert (YTV_IS_LIST (self));
-        gint nl, length = ytv_list_get_length (self);
+        length = ytv_list_get_length (self);
         g_assert (item);
         g_assert (G_IS_OBJECT (item));
         g_assert (YTV_LIST_GET_IFACE (self)->remove_func != NULL);
@@ -276,7 +282,7 @@ ytv_list_remove (YtvList *self, GObject* item)
 YtvIterator* 
 ytv_list_create_iterator (YtvList *self)
 {
-        YtvIterator *retval = NULL;
+        YtvIterator *retval;
 
         g_assert (YTV_IS_LIST (self));
         g_assert (YTV_LIST_GET_IFACE (self)->create_iterator_func != NULL);
@@ -354,7 +360,7 @@ ytv_list_foreach (YtvList *self, GFunc func, gpointer user_data)
 YtvList*
 ytv_list_copy (YtvList *self)
 {
-        YtvList *retval = NULL;
+        YtvList *retval;
 
         g_assert (YTV_IS_LIST (self));
         g_assert (YTV_LIST_GET_IFACE (self)->copy_func != NULL);
