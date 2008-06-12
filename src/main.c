@@ -46,6 +46,7 @@ struct _App
         YtvEntryView* entryview[ENTRYNUM];
         YtvFeed* feed;
         gint start_idx;
+        gboolean done;
 };
 
 static void
@@ -57,7 +58,9 @@ feed_entry_cb (YtvFeed* feed, gboolean cancelled, YtvList* list,
         
         if (*err != NULL)
         {
-                g_warning ("%s", ytv_error_get_message (*err));
+                app->done = TRUE;
+                
+                g_debug ("%s", ytv_error_get_message (*err));
                 g_error_free (*err);
 
                 return;
@@ -102,13 +105,13 @@ app_fetch_feed (App* app)
         g_object_unref (ub);
         app->start_idx += ENTRYNUM;
         
-        /* ytv_feed_standard (app->feed, YTV_YOUTUBE_STD_FEED_MOST_VIEWED); */
+        ytv_feed_standard (app->feed, YTV_YOUTUBE_STD_FEED_MOST_VIEWED); 
         /* ytv_feed_user (app->feed, "pinkipons"); */
-        ytv_feed_related (app->feed, "FOwQETKKyF0");
+        /* ytv_feed_related (app->feed, "FOwQETKKyF0"); */
 
         ytv_feed_get_entries_async (app->feed, feed_entry_cb, app);
 
-        return TRUE;
+        return !app->done;
 }
 
 App*
@@ -125,7 +128,8 @@ app_new (void)
         app->win = NULL;
         app->start_idx = 0;
         app->feed = ytv_base_feed_new ();
-
+        app->done = FALSE;
+        
         fetchst = ytv_soup_feed_fetch_strategy_new ();
         parsest = ytv_json_feed_parse_strategy_new ();
         ub = ytv_youtube_uri_builder_new ();

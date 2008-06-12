@@ -1,8 +1,10 @@
+/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 8; coding: utf-8 -*- */
+
 #ifndef _YTV_ERROR_H_
 #define _YTV_ERROR_H_
 
 /* ytv-error.h
- * Copyright (C) 2008 Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
+ * Copyright (C) 2008 VÃ­ctor Manuel JÃ¡quez Leal <vjaquez@igalia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,8 +28,8 @@
 
 enum _YtvErrorDomain
 {
-	YTV_HTTP_ERROR = 1,
-	YTV_PARSE_ERROR = 2
+        YTV_HTTP_ERROR = 1,
+        YTV_PARSE_ERROR = 2
 };
 
 typedef enum _YtvErrorDomain YtvErrorDomain;
@@ -41,12 +43,12 @@ typedef enum _YtvErrorDomain YtvErrorDomain;
  */
 enum _YtvError
 {
-	YTV_NO_ERROR,
+        YTV_NO_ERROR,
 
-	YTV_HTTP_ERROR_CONNECTION,
-	YTV_HTTP_ERROR_BAD_URI,
+        YTV_HTTP_ERROR_CONNECTION,
+        YTV_HTTP_ERROR_BAD_URI,
 
-	YTV_PARSE_ERROR_BAD_FORMAT,
+        YTV_PARSE_ERROR_BAD_FORMAT,
         YTV_PARSE_ERROR_BAD_MIME
 };
 
