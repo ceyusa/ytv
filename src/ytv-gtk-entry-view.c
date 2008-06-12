@@ -75,20 +75,14 @@ create_tag_table (void)
         gtk_text_tag_table_add (table, tag);
         g_object_unref (tag);
 
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "b",
-                                          "weight", PANGO_SCALE_LARGE,
+        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "big",
+                                          "scale", PANGO_SCALE_LARGE,
                                           "size", FONTSIZE, NULL));
         gtk_text_tag_table_add (table, tag);
         g_object_unref (tag);
 
         tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "b",
                                           "weight", PANGO_WEIGHT_BOLD,
-                                          "size", FONTSIZE, NULL));
-        gtk_text_tag_table_add (table, tag);
-        g_object_unref (tag);
-
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "big",
-                                          "scale", PANGO_SCALE_LARGE,
                                           "size", FONTSIZE, NULL));
         gtk_text_tag_table_add (table, tag);
         g_object_unref (tag);
@@ -278,12 +272,6 @@ ytv_gtk_entry_view_dispose (GObject* object)
         {
                 g_object_unref (priv->tagtable);
                 priv->tagtable = NULL;
-        }
-
-        if (priv->thumb != NULL)
-        {
-                g_object_unref (priv->thumb);
-                priv->thumb = NULL;
         }
 
         if (me->entry != NULL)
@@ -481,6 +469,13 @@ ytv_gtk_entry_view_set_uri_builder (YtvGtkEntryView* self,
         }
 
         return;        
+}
+
+YtvEntryView*
+ytv_gtk_entry_view_new (YtvOrientation orientation)
+{
+        return YTV_ENTRY_VIEW (g_object_new (YTV_TYPE_GTK_ENTRY_VIEW,
+                                             "orientation", orientation, NULL));
 }
 
 /**

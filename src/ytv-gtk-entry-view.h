@@ -76,6 +76,8 @@ GType ytv_orientation_get_type (void);
 
 GType ytv_gtk_entry_view_get_type (void);
 
+YtvEntryView* ytv_gtk_entry_view_new (YtvOrientation orientation);
+
 void ytv_gtk_entry_view_set_entry (YtvEntryView* self, YtvEntry* entry);
 YtvEntry* ytv_gtk_entry_view_get_entry (YtvEntryView* self);
 

@@ -140,6 +140,17 @@ fetch_img_cb (YtvFeedFetchStrategy* st, const gchar* mime,
         GdkPixbufLoader* loader = NULL;
         GdkPixbuf* pixbuf = NULL;
 
+        if (err != NULL && *err != NULL)
+        {
+                g_debug ("image fetching error: %s",
+                         ytv_error_get_message (*err));
+
+                g_error_free (*err);
+                *err = NULL;
+
+                return;
+        }
+
         g_return_if_fail (YTV_IS_THUMBNAIL (user_data));
 
         self = YTV_THUMBNAIL (user_data);
@@ -211,7 +222,6 @@ fetch_img_cb (YtvFeedFetchStrategy* st, const gchar* mime,
                 }
                 
                 priv->pixbuf = gdk_pixbuf_copy (pixbuf);
-                g_debug ("setting pixbuf");
                 gtk_image_set_from_pixbuf (GTK_IMAGE (self->image),
                                            priv->pixbuf);
         }

@@ -129,8 +129,7 @@ ytv_simple_list_iterator_get_current (YtvIterator* self)
         lpriv = YTV_SIMPLE_LIST_GET_PRIVATE (me->model);
 
         g_mutex_lock (lpriv->iterator_lock);
-        retval = (G_UNLIKELY (me->current)) ?
-                YTV_SIMPLE_LIST (me->current->data) : NULL;
+        retval = (G_UNLIKELY (me->current)) ? me->current->data : NULL;
         g_mutex_unlock (lpriv->iterator_lock);
 
         if (retval)
