@@ -23,7 +23,6 @@
 
 #include <gtk/gtk.h>
 
-#include <ytv-rank.h>
 #include <ytv-thumbnail.h>
 
 #include <ytv-entry.h>
@@ -40,7 +39,6 @@ struct _YtvGtkEntryViewPriv
         YtvOrientation orientation;
         /* YtvText* text; */
         GtkWidget* thumb;
-        GtkTextTagTable* tagtable;
 };
 
 #define FONTSIZE 10 * PANGO_SCALE
@@ -60,82 +58,6 @@ ytv_entry_view_init (YtvEntryViewIface* iface)
 G_DEFINE_TYPE_EXTENDED (YtvGtkEntryView, ytv_gtk_entry_view, GTK_TYPE_TABLE, 0,
                         G_IMPLEMENT_INTERFACE (YTV_TYPE_ENTRY_VIEW,
                                                ytv_entry_view_init))
-
-/* Create a GtkTextTagTable which will be shared by all the TextViews */
-static GtkTextTagTable*
-create_tag_table (void)
-{
-        GtkTextTagTable* table;
-        GtkTextTag* tag;
-
-        table = gtk_text_tag_table_new ();
-
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "p",
-                                          "size", FONTSIZE, NULL));
-        gtk_text_tag_table_add (table, tag);
-        g_object_unref (tag);
-
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "big",
-                                          "scale", PANGO_SCALE_LARGE,
-                                          "size", FONTSIZE, NULL));
-        gtk_text_tag_table_add (table, tag);
-        g_object_unref (tag);
-
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "b",
-                                          "weight", PANGO_WEIGHT_BOLD,
-                                          "size", FONTSIZE, NULL));
-        gtk_text_tag_table_add (table, tag);
-        g_object_unref (tag);
-
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "i",
-                                          "style", PANGO_STYLE_ITALIC,
-                                          "size", FONTSIZE, NULL));
-        gtk_text_tag_table_add (table, tag);
-        g_object_unref (tag);
-
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "gray",
-                                          "foreground", "darkgray",
-                                          "size", FONTSIZE, NULL));
-        gtk_text_tag_table_add (table, tag);
-        g_object_unref (tag);
-
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "red",
-                                          "foreground", "darkred",
-                                          "size", FONTSIZE, NULL));
-        gtk_text_tag_table_add (table, tag);
-        g_object_unref (tag);
-
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "blue",
-                                          "foreground", "blue",
-                                          "size", FONTSIZE, NULL));
-        gtk_text_tag_table_add (table, tag);
-        g_object_unref (tag);
-
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "link",
-                                          "underline", PANGO_UNDERLINE_SINGLE,
-                                          "size", FONTSIZE, NULL));
-        gtk_text_tag_table_add (table, tag);
-        g_object_unref (tag);
-        
-        return table;
-}
-
-static GtkTextTagTable*
-get_tag_table (void)
-{
-        static GtkTextTagTable* table = NULL;
-
-        if (table == NULL)
-        {
-                table = create_tag_table ();
-        }
-        else
-        {
-                g_object_ref (G_OBJECT (table));
-        }
-
-        return table;
-}
 
 static void
 resize (YtvGtkEntryView* self)
@@ -268,12 +190,6 @@ ytv_gtk_entry_view_dispose (GObject* object)
         me = YTV_GTK_ENTRY_VIEW (object);
         priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (object);
 
-        if (priv->tagtable != NULL)
-        {
-                g_object_unref (priv->tagtable);
-                priv->tagtable = NULL;
-        }
-
         if (me->entry != NULL)
         {
                 g_object_unref (me->entry);
@@ -317,7 +233,6 @@ ytv_gtk_entry_view_init (YtvGtkEntryView* self)
         priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (self);
 
         priv->orientation = YTV_ORIENTATION_VERTICAL;
-        priv->tagtable    = get_tag_table ();
         priv->thumb       = ytv_thumbnail_new ();
 
         self->entry = NULL;
