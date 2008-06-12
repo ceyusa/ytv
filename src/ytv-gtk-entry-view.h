@@ -39,12 +39,13 @@ G_BEGIN_DECLS
 #define YTV_GTK_ENTRY_VIEW_GET_CLASS(obj)                \
         (G_TYPE_INSTANCE_GET_CLASS ((obj), YTV_TYPE_GTK_ENTRY_VIEW, YtvGtkEntryViewClass))
 
-typedef enum _YtvOrientation YtvOrientation;
 enum _YtvOrientation
 {
         YTV_ORIENTATION_HORIZONTAL,
         YTV_ORIENTATION_VERTICAL
 };
+
+typedef enum _YtvOrientation YtvOrientation;
 
 #define YTV_TYPE_ORIENTATION (ytv_orientation_get_type ())
 
@@ -60,13 +61,13 @@ struct _YtvGtkEntryView
 {
         GtkTable parent;
 
-        YtvEntry* entry;        
+        YtvEntry* entry;
 };
 
 struct _YtvGtkEntryViewClass
 {
         GtkTableClass parent_class;
-        
+
         void (*set_entry) (YtvEntryView* self, YtvEntry* entry);
         YtvEntry* (*get_entry) (YtvEntryView* self);
 };
@@ -81,6 +82,11 @@ YtvEntry* ytv_gtk_entry_view_get_entry (YtvEntryView* self);
 void ytv_gtk_entry_view_set_orientation (YtvGtkEntryView* self,
                                          YtvOrientation orientation);
 YtvOrientation ytv_gtk_entry_view_get_orientation (YtvGtkEntryView* self);
+
+void ytv_gtk_entry_view_set_fetch_strategy (YtvGtkEntryView* self,
+                                            YtvFeedFetchStrategy* st);
+void ytv_gtk_entry_view_set_uri_builder (YtvGtkEntryView* self,
+                                         YtvUriBuilder* ub);
 
 G_END_DECLS
 

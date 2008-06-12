@@ -262,9 +262,9 @@ ytv_thumbnail_set_property (GObject* object, guint prop_id,
                 ytv_thumbnail_set_id (YTV_THUMBNAIL (object),
                                       g_value_get_string (value));
                 break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
-		break;
+        default:
+                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
+                break;
         }
 
         return;
@@ -278,14 +278,14 @@ ytv_thumbnail_get_property (GObject* object, guint prop_id,
         priv = YTV_THUMBNAIL_GET_PRIVATE (object);
 
         switch (prop_id)
-	{
-	case PROP_ID:
-		g_value_set_string (value, priv->eid);
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
-		break;
-	}
+        {
+        case PROP_ID:
+                g_value_set_string (value, priv->eid);
+                break;
+        default:
+                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
+                break;
+        }
 
 	return;
 }
@@ -361,10 +361,10 @@ ytv_thumbnail_class_init (YtvThumbnailClass* klass)
         object_class->finalize     = ytv_thumbnail_finalize;
 
         g_object_class_install_property
-		(object_class, PROP_ID,
-		 g_param_spec_string
-		 ("id", "vid", "Video identificator string", NULL,
-		  G_PARAM_READWRITE));
+                (object_class, PROP_ID,
+                 g_param_spec_string
+                 ("id", "vid", "Video identificator string", NULL,
+                  G_PARAM_READWRITE));
 
         return;
 }
@@ -491,8 +491,13 @@ ytv_thumbnail_set_fetch_strategy (YtvThumbnail* self,
 
         priv = YTV_THUMBNAIL_GET_PRIVATE (self);
 
-        priv->fetcher = g_object_ref (fetcher);
+        if (priv->fetcher != NULL)
+        {
+                g_object_unref (priv->fetcher);
+        }
 
+        priv->fetcher = g_object_ref (fetcher);
+        
         return;
 }
 
@@ -537,6 +542,11 @@ ytv_thumbnail_set_uri_builder (YtvThumbnail* self, YtvUriBuilder *ub)
         g_return_if_fail (YTV_IS_URI_BUILDER (ub));
 
         priv = YTV_THUMBNAIL_GET_PRIVATE (self);
+
+        if (priv->ub != NULL)
+        {
+                g_object_unref (priv->ub);
+        }
 
         priv->ub = g_object_ref (ub);
 
