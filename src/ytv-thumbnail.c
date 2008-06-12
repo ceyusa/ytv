@@ -160,17 +160,6 @@ fetch_img_cb (YtvFeedFetchStrategy* st, const gchar* mime,
         loader = NULL;
         pixbuf = NULL;
 
-        if (err != NULL && *err != NULL)
-        {
-                g_debug ("image fetching error: %s",
-                         ytv_error_get_message (*err));
-
-                g_error_free (*err);
-                *err = NULL;
-
-                return;
-        }
-
         if (length == 0)
         {
                 g_debug ("zero sized image");
