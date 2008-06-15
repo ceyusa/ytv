@@ -59,6 +59,7 @@ struct _YtvRankClass
 
 GType ytv_rank_get_type (void);
 GtkWidget* ytv_rank_new (gfloat rank);
+void ytv_rank_set_rank (YtvRank*self, gfloat rank);
 
 G_END_DECLS
 

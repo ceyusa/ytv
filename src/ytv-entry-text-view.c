@@ -35,7 +35,8 @@ typedef struct _YtvEntryTextViewPriv YtvEntryTextViewPriv;
 struct _YtvEntryTextViewPriv
 {
         GtkTextTagTable* tagtable;
-        YtvEntry *entry;
+        YtvEntry* entry;
+        GtkWidget* rating;
 };
 
 #define FONTSIZE 10 * PANGO_SCALE
@@ -127,6 +128,8 @@ update_widget (YtvEntryTextView* self)
         YtvEntryTextViewPriv* priv;
         GtkTextBuffer* buffer;
         GtkTextIter iter;
+        GtkTextChildAnchor* anchor;
+        GtkWidget* rank;
 
         gchar* title;
         gint duration;
@@ -216,9 +219,8 @@ update_widget (YtvEntryTextView* self)
         g_object_get (G_OBJECT (priv->entry), "rating", &rating, NULL);
 
         {
-                GtkTextChildAnchor* anchor;
-                GtkWidget* rank;
-
+                /* gchar* label; */
+                
                 anchor = gtk_text_buffer_create_child_anchor (buffer, &iter);
                 
                 if (rating < 0)
@@ -226,16 +228,24 @@ update_widget (YtvEntryTextView* self)
                         rating = 0;
                 }
 
-                rank = ytv_rank_new (rating);
 
-                gtk_text_view_add_child_at_anchor (GTK_TEXT_VIEW (self),
-                                                   rank, anchor);
-
-                gtk_widget_show (rank);
-          }
+                /* rank = GTK_WIDGET (g_object_new (YTV_TYPE_RANK, NULL)); */
+                /* g_object_set (G_OBJECT (priv->rating), "rank", rating, NULL); */
+/*                 label = g_strdup_printf ("%02f", rating); */
+/*                 rank = gtk_button_new_with_label (label); */
+/*                 g_free (label); */
+        }
         
         gtk_text_view_set_buffer (GTK_TEXT_VIEW (self), buffer);
 
+        gtk_text_view_add_child_at_anchor (GTK_TEXT_VIEW (self), 
+                                           g_object_ref (priv->rating), anchor);
+
+        g_print ("rating refcount = %d\n", G_OBJECT (priv->rating)->ref_count);
+
+        g_object_set (G_OBJECT (priv->rating), "rank", rating, NULL);
+        /* gtk_widget_show (rank); */
+        
         g_object_unref (buffer);
 
         return;
@@ -332,6 +342,7 @@ ytv_entry_text_view_init (YtvEntryTextView* self)
 
         priv->tagtable = get_tag_table ();
         priv->entry = NULL;
+        priv->rating = ytv_rank_new (0.0);
 
         g_object_set (G_OBJECT (self),
                       "editable", FALSE, "cursor-visible", FALSE,

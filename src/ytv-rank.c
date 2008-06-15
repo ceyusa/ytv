@@ -59,10 +59,13 @@ G_DEFINE_TYPE (YtvRank, ytv_rank, GTK_TYPE_HBOX)
 static void
 draw (YtvRank* self)
 {
-        YtvRankPriv* priv = YTV_RANK_GET_PRIVATE (self);
-        gfloat restrank = priv->rank;
+        YtvRankPriv* priv;
+        gfloat restrank;
         gint i;
 
+        priv = YTV_RANK_GET_PRIVATE (self);
+        restrank = priv->rank;
+        
         for (i = 0; i < 5; i++)
         {
                 if (priv->stars[i] == NULL)
@@ -96,18 +99,7 @@ draw (YtvRank* self)
         return;
 }
 
-static void
-set_rank (YtvRank* self, gfloat rank)
-{
-        YtvRankPriv* priv = YTV_RANK_GET_PRIVATE (self);
-
-        priv->rank = rank;
-        draw (self);
-        g_object_notify (G_OBJECT (self), "rank");
-
-        return;
-}
-
+#if 0
 static gboolean
 ytv_rank_expose_event (GtkWidget* self, GdkEventExpose* event)
 {
@@ -115,6 +107,7 @@ ytv_rank_expose_event (GtkWidget* self, GdkEventExpose* event)
         
         return FALSE;
 }
+#endif
 
 static void
 ytv_rank_set_property (GObject* object, guint prop_id,
@@ -123,11 +116,12 @@ ytv_rank_set_property (GObject* object, guint prop_id,
         switch (prop_id)
         {
         case PROP_RANK:
-                set_rank (YTV_RANK (object), g_value_get_float (value));
+                ytv_rank_set_rank (YTV_RANK (object),
+                                   g_value_get_float (value));
                 break;
         default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
-		break;
+                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
+                break;
         }
 
         return;
@@ -137,7 +131,9 @@ static void
 ytv_rank_get_property (GObject* object, guint prop_id,
                        GValue* value, GParamSpec* spec)
 {
-        YtvRankPriv* priv = YTV_RANK_GET_PRIVATE (object);
+        YtvRankPriv* priv;
+
+        priv = YTV_RANK_GET_PRIVATE (object);
 
         switch (prop_id)
         {
@@ -145,8 +141,8 @@ ytv_rank_get_property (GObject* object, guint prop_id,
                 g_value_set_float (value, priv->rank);
                 break;
         default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
-		break;
+                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
+                break;
         }
 
         return;
@@ -155,11 +151,13 @@ ytv_rank_get_property (GObject* object, guint prop_id,
 static void
 ytv_rank_init (YtvRank* self)
 {
-        YtvRankPriv* priv = YTV_RANK_GET_PRIVATE (self);
+        YtvRankPriv* priv;
+        gint i;
+
+        priv = YTV_RANK_GET_PRIVATE (self);
 
         priv->rank = 0;
 
-        gint i;
         for (i = 0; i < 6; i++)
         {
                 priv->stars[i] = NULL;
@@ -171,9 +169,12 @@ ytv_rank_init (YtvRank* self)
 static void
 ytv_rank_class_init (YtvRankClass* klass)
 {
-        GObjectClass* object_class = G_OBJECT_CLASS (klass);
-        GtkWidgetClass* widget_class = GTK_WIDGET_CLASS (klass);
+        GObjectClass* object_class;
+        GtkWidgetClass* widget_class;
 
+        object_class = G_OBJECT_CLASS (klass);
+        widget_class = GTK_WIDGET_CLASS (klass);
+        
         g_type_class_add_private (object_class, sizeof (YtvRankPriv));
 
         object_class->set_property = ytv_rank_set_property;
@@ -202,4 +203,23 @@ GtkWidget*
 ytv_rank_new (gfloat rank)
 {
         return GTK_WIDGET (g_object_new (YTV_TYPE_RANK, "rank", rank, NULL));
+}
+
+/**
+ * ytv_rank_set_rank:
+ * @self: a #YtvRank
+ * rank: the rank to draw
+ *
+ * Redraw the widget with a new rank
+ */
+void
+ytv_rank_set_rank (YtvRank* self, gfloat rank)
+{
+        YtvRankPriv* priv = YTV_RANK_GET_PRIVATE (self);
+
+        priv->rank = rank;
+        draw (self);
+        g_object_notify (G_OBJECT (self), "rank");
+
+        return;
 }
