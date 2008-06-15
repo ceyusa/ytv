@@ -24,6 +24,7 @@
 #include <gtk/gtk.h>
 
 #include <ytv-thumbnail.h>
+#include <ytv-entry-text-view.h>
 
 #include <ytv-entry.h>
 
@@ -37,11 +38,9 @@ typedef struct _YtvGtkEntryViewPriv YtvGtkEntryViewPriv;
 struct _YtvGtkEntryViewPriv
 {
         YtvOrientation orientation;
-        /* YtvText* text; */
+        GtkWidget* text;
         GtkWidget* thumb;
 };
-
-#define FONTSIZE 10 * PANGO_SCALE
 
 #define YTV_GTK_ENTRY_VIEW_GET_PRIVATE(obj) \
         (G_TYPE_INSTANCE_GET_PRIVATE ((obj), YTV_TYPE_GTK_ENTRY_VIEW, YtvGtkEntryViewPriv))
@@ -70,16 +69,20 @@ resize (YtvGtkEntryView* self)
         if (priv->orientation == YTV_ORIENTATION_VERTICAL)
         {
                 gtk_table_resize (GTK_TABLE (self), 1, 2);
+                gtk_table_attach_defaults (GTK_TABLE (self), priv->text,
+                                           0, 1, 1, 2);
         }
         else if (priv->orientation == YTV_ORIENTATION_HORIZONTAL)
         {
                 gtk_table_resize (GTK_TABLE (self), 2, 1);
+                gtk_table_attach_defaults (GTK_TABLE (self), priv->text,
+                                           1, 2, 0, 1);
         }
         else
         {
                 g_return_if_reached ();
         }
-
+        
         return;
 }
 
@@ -100,7 +103,9 @@ update_widget (YtvGtkEntryView* self)
                 g_object_set (G_OBJECT (priv->thumb), "id", id, NULL);
                 g_free (id);
         }
-                
+
+        g_object_set (G_OBJECT (priv->text), "entry", self->entry, NULL);
+        
         return;
 }
         
@@ -234,6 +239,7 @@ ytv_gtk_entry_view_init (YtvGtkEntryView* self)
 
         priv->orientation = YTV_ORIENTATION_VERTICAL;
         priv->thumb       = ytv_thumbnail_new ();
+        priv->text        = ytv_entry_text_view_new ();
 
         self->entry = NULL;
 

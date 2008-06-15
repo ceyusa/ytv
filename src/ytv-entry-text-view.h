@@ -23,10 +23,11 @@
  */
 
 #include <gtk/gtktextview.h>
+#include <ytv-entry.h>
 
 G_BEGIN_DECLS
 
-#define YTV_TYPE_ENTRY_TEXT_VIEW (ytv_entry_text_vew_get_type ())
+#define YTV_TYPE_ENTRY_TEXT_VIEW (ytv_entry_text_view_get_type ())
 #define YTV_ENTRY_TEXT_VIEW(obj) \
         (G_TYPE_CHECK_INSTANCE_CAST ((obj), YTV_TYPE_ENTRY_TEXT_VIEW, YtvEntryTextView))
 #define YTV_ENTRY_TEXT_VIEW_CLASS(klass) \
@@ -56,7 +57,10 @@ struct _YtvEntryTextViewClass
         GtkTextViewClass parent_class;
 };
 
-GType ytv_entry_text_vew_get_type (void);
+GType ytv_entry_text_view_get_type (void);
+
+GtkWidget* ytv_entry_text_view_new (void);
+void ytv_entry_text_view_set_entry (YtvEntryTextView* self, YtvEntry* entry);
 
 G_END_DECLS
 
