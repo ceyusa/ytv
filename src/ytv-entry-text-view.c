@@ -238,12 +238,12 @@ update_widget (YtvEntryTextView* self)
         
         gtk_text_view_set_buffer (GTK_TEXT_VIEW (self), buffer);
 
-        gtk_text_view_add_child_at_anchor (GTK_TEXT_VIEW (self), 
-                                           g_object_ref (priv->rating), anchor);
+/*         gtk_text_view_add_child_at_anchor (GTK_TEXT_VIEW (self),  */
+/*                                            g_object_ref (priv->rating), anchor); */
 
-        g_print ("rating refcount = %d\n", G_OBJECT (priv->rating)->ref_count);
+/*         g_print ("rating refcount = %d\n", G_OBJECT (priv->rating)->ref_count); */
 
-        g_object_set (G_OBJECT (priv->rating), "rank", rating, NULL);
+/*         g_object_set (G_OBJECT (priv->rating), "rank", rating, NULL); */
         /* gtk_widget_show (rank); */
         
         g_object_unref (buffer);
@@ -293,6 +293,8 @@ static void
 ytv_entry_text_view_dispose (GObject* object)
 {
         YtvEntryTextViewPriv* priv;
+
+        (*G_OBJECT_CLASS (ytv_entry_text_view_parent_class)->dispose) (object);
 
         priv = YTV_ENTRY_TEXT_VIEW_GET_PRIVATE (object);
 
@@ -367,6 +369,11 @@ ytv_entry_text_view_set_entry (YtvEntryTextView* self, YtvEntry* entry)
         g_return_if_fail (entry != NULL);
 
         priv = YTV_ENTRY_TEXT_VIEW_GET_PRIVATE (self);
+
+        if (priv->entry != NULL)
+        {
+                g_object_unref (priv->entry);
+        }
 
         priv->entry = g_object_ref (entry);
 

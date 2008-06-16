@@ -70,7 +70,7 @@ feed_entry_cb (YtvFeed* feed, gboolean cancelled, YtvList* list,
         g_return_if_fail (list != NULL);
         
         app = (App*) user_data;
-        
+
         iter = ytv_list_create_iterator (list);
         while (!ytv_iterator_is_done (iter))
         {
@@ -147,7 +147,9 @@ app_new (void)
         for (i = 0; i < ENTRYNUM; i++)
         {
                 app->entryview[i] =
-                        ytv_gtk_entry_view_new (YTV_ORIENTATION_VERTICAL);
+                        ytv_gtk_entry_view_new (YTV_ORIENTATION_HORIZONTAL);
+                        /* ytv_gtk_entry_view_new (YTV_ORIENTATION_VERTICAL); */
+                        
                 ytv_gtk_entry_view_set_fetch_strategy
                         (YTV_GTK_ENTRY_VIEW (app->entryview[i]), fetchst);
                 ytv_gtk_entry_view_set_uri_builder

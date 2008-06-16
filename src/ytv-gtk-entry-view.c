@@ -24,6 +24,7 @@
 #include <gtk/gtk.h>
 
 #include <ytv-thumbnail.h>
+#include <ytv-rank.h>
 #include <ytv-entry-text-view.h>
 
 #include <ytv-entry.h>
@@ -40,6 +41,7 @@ struct _YtvGtkEntryViewPriv
         YtvOrientation orientation;
         GtkWidget* text;
         GtkWidget* thumb;
+        GtkWidget* rating;
 };
 
 #define YTV_GTK_ENTRY_VIEW_GET_PRIVATE(obj) \
@@ -62,27 +64,32 @@ static void
 resize (YtvGtkEntryView* self)
 {
         YtvGtkEntryViewPriv* priv;
+        GtkWidget* box;
 
         priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (self);
- 
+
+        box = gtk_vbox_new (FALSE, 0);
         /** TODO **/
         if (priv->orientation == YTV_ORIENTATION_VERTICAL)
         {
                 gtk_table_resize (GTK_TABLE (self), 1, 2);
-                gtk_table_attach_defaults (GTK_TABLE (self), priv->text,
+                gtk_table_attach_defaults (GTK_TABLE (self), box,
                                            0, 1, 1, 2);
         }
         else if (priv->orientation == YTV_ORIENTATION_HORIZONTAL)
         {
                 gtk_table_resize (GTK_TABLE (self), 2, 1);
-                gtk_table_attach_defaults (GTK_TABLE (self), priv->text,
+                gtk_table_attach_defaults (GTK_TABLE (self), box,
                                            1, 2, 0, 1);
         }
         else
         {
                 g_return_if_reached ();
         }
-        
+
+        gtk_box_pack_start (GTK_BOX (box), priv->rating, FALSE, TRUE, 0);
+        gtk_box_pack_end (GTK_BOX (box), priv->text, TRUE, TRUE, 0);
+
         return;
 }
 
@@ -91,7 +98,8 @@ update_widget (YtvGtkEntryView* self)
 {
         YtvGtkEntryViewPriv* priv;
         gchar* id;
-        
+        gfloat rating;
+
         g_return_if_fail (self->entry != NULL);
 
         priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (self);
@@ -104,11 +112,24 @@ update_widget (YtvGtkEntryView* self)
                 g_free (id);
         }
 
-        g_object_set (G_OBJECT (priv->text), "entry", self->entry, NULL);
-        
+        g_object_get (G_OBJECT (self->entry), "rating", &rating, NULL);
+
+        {
+                if (rating < 0)
+                {
+                        rating = 0;
+                }
+
+                g_object_set (G_OBJECT (priv->rating), "rank", rating, NULL);
+        }
+
+        /* g_object_set (G_OBJECT (priv->text), "entry", self->entry, NULL); */
+        ytv_entry_text_view_set_entry (YTV_ENTRY_TEXT_VIEW (priv->text),
+                                       self->entry);
+
         return;
 }
-        
+
 static void
 ytv_gtk_entry_view_set_entry_default (YtvEntryView* self, YtvEntry* entry)
 {
@@ -224,7 +245,7 @@ ytv_gtk_entry_view_class_init (YtvGtkEntryViewClass* klass)
                 (object_class, PROP_ORIENTATION,
                  g_param_spec_enum
                  ("orientation", "Orientation", "Widget orientation",
-                  YTV_TYPE_ORIENTATION, YTV_ORIENTATION_HORIZONTAL,
+                  YTV_TYPE_ORIENTATION, YTV_ORIENTATION_UNDEF,
                   G_PARAM_READWRITE));
 
         return;
@@ -237,14 +258,23 @@ ytv_gtk_entry_view_init (YtvGtkEntryView* self)
 
         priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (self);
 
-        priv->orientation = YTV_ORIENTATION_VERTICAL;
+        priv->orientation = YTV_ORIENTATION_UNDEF;
         priv->thumb       = ytv_thumbnail_new ();
         priv->text        = ytv_entry_text_view_new ();
+        priv->rating      = ytv_rank_new (0.0);
 
         self->entry = NULL;
 
-        resize (self);
-        gtk_table_attach_defaults (GTK_TABLE (self), priv->thumb, 0, 1, 0, 1);
+        gtk_widget_set_size_request (priv->rating, 18, 18);
+
+        g_object_set (G_OBJECT (self),
+                      "column-spacing", 0,
+                      "row-spacing", 0,
+                      "homogeneous", FALSE,
+                      "n-columns", 1,
+                      "n-rows", 1, NULL);
+        gtk_table_attach (GTK_TABLE (self), priv->thumb, 0, 1, 0, 1,
+                          GTK_SHRINK, GTK_SHRINK, 0, 0);
 
         return;
 }
@@ -312,7 +342,7 @@ ytv_gtk_entry_view_set_orientation (YtvGtkEntryView* self,
         priv->orientation = orientation;
 
         resize (self);
-        
+
         g_object_notify (G_OBJECT (self), "orientation");
 
         return;
@@ -389,7 +419,7 @@ ytv_gtk_entry_view_set_uri_builder (YtvGtkEntryView* self,
                 ytv_thumbnail_set_uri_builder (YTV_THUMBNAIL (priv->thumb), ub);
         }
 
-        return;        
+        return;
 }
 
 YtvEntryView*
@@ -414,6 +444,8 @@ ytv_orientation_get_type (void)
         if (G_UNLIKELY (type == 0))
         {
                 static const GEnumValue values[] = {
+                        { YTV_ORIENTATION_UNDEF,
+                          "YTV_ORIENTATION_UNDEF", "undef" },
                         { YTV_ORIENTATION_HORIZONTAL,
                           "YTV_ORIENTATION_HORIZONTAL", "horizontal" },
                         { YTV_ORIENTATION_VERTICAL,

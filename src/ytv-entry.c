@@ -322,7 +322,7 @@ ytv_entry_class_init (YtvEntryClass* klass)
         g_type_class_add_private (object_class, sizeof (YtvEntryPriv));
         object_class->set_property = ytv_entry_set_property;
         object_class->get_property = ytv_entry_get_property;
-        object_class->finalize = ytv_entry_finalize;
+        object_class->finalize     = ytv_entry_finalize;
 
         g_object_class_install_property
                 (object_class, PROP_ID,

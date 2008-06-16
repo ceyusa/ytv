@@ -54,6 +54,8 @@
 void
 ytv_entry_view_set_entry (YtvEntryView* self, YtvEntry* entry)
 {
+        YtvEntry* validate;
+
         if (YTV_ENTRY_VIEW_GET_IFACE (self)->set_entry == NULL)
         {
                 g_critical ("You must implement ytv_entry_view_set_view\n");
@@ -61,9 +63,9 @@ ytv_entry_view_set_entry (YtvEntryView* self, YtvEntry* entry)
 
         YTV_ENTRY_VIEW_GET_IFACE (self)->set_entry (self, entry);
 
-        YtvEntry* validate;
         validate = ytv_entry_view_get_entry (self);
         g_assert (validate == entry);
+        g_object_unref (validate);
 
         return;
 }
@@ -79,12 +81,13 @@ ytv_entry_view_set_entry (YtvEntryView* self, YtvEntry* entry)
 YtvEntry* 
 ytv_entry_view_get_entry (YtvEntryView* self)
 {
+        YtvEntry* retval;
+
         if (YTV_ENTRY_VIEW_GET_IFACE (self)->get_entry == NULL)
         {
                 g_critical ("You must implement ytv_entry_view_set_view\n");
         }
 
-        YtvEntry* retval;
         retval = YTV_ENTRY_VIEW_GET_IFACE (self)->get_entry (self);
 
         g_assert (retval != NULL);
