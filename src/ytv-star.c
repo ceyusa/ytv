@@ -67,14 +67,14 @@ G_DEFINE_TYPE (YtvStar, ytv_star, GTK_TYPE_DRAWING_AREA)
 static void
 calculate_star_points (GArray* star_points)
 {
+        gint i;
+        gfloat incr, rad;
+        YtvPoint* point;
+
         if (star_points->len > 0)
         {
                 return;
         }
-
-        gint i;
-        gfloat incr, rad;
-        YtvPoint* point;
 
         incr = -2 * G_PI / 5;
 
@@ -105,16 +105,17 @@ calculate_star_points (GArray* star_points)
 static void
 draw (GtkWidget* self, cairo_t* cr)
 {
-        YtvStarPriv* priv = YTV_STAR_GET_PRIVATE (self);
+        YtvStarPriv* priv;
+        gdouble width, height, side;
+        YtvPoint* point;
+        gint i, num_points;
+
+        priv = YTV_STAR_GET_PRIVATE (self);
 
         if (priv->star_points->len == 0)
         {
                 calculate_star_points (priv->star_points);
         }
-
-        gdouble width, height, side;
-        YtvPoint* point;
-        gint i, num_points;
 
         width = self->allocation.width;
         height = self->allocation.height;
@@ -263,8 +264,8 @@ ytv_star_set_property (GObject* object, guint prop_id,
                 set_percentage (YTV_STAR (object), g_value_get_float (value));
                 break;
         default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
-		break;
+                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
+                break;
         }
 
         return;
@@ -274,16 +275,14 @@ static void
 ytv_star_get_property (GObject* object, guint prop_id,
                        GValue* value, GParamSpec* spec)
 {
-        YtvStarPriv* priv = YTV_STAR_GET_PRIVATE (object);
-
         switch (prop_id)
         {
         case PROP_PERCENTAGE:
                 g_value_set_float (value, get_percentage (YTV_STAR (object)));
                 break;
         default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
-		break;
+                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
+                break;
         }
 
         return;
@@ -292,10 +291,11 @@ ytv_star_get_property (GObject* object, guint prop_id,
 static void
 ytv_star_finalize (GObject* object)
 {
-        YtvStarPriv* priv = YTV_STAR_GET_PRIVATE (object);
-
+        YtvStarPriv* priv;
         gint i;
         YtvPoint* point;
+
+        priv = YTV_STAR_GET_PRIVATE (object);
 
         for (i = 0; i < priv->star_points->len; i++)
         {
