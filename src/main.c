@@ -38,6 +38,18 @@
 
 #define ENTRYNUM 5
 
+static gboolean horizontal = TRUE;
+static gboolean vertical = FALSE;
+        
+static const GOptionEntry entries[] =
+{
+        { "horizontal", 'h', 0, G_OPTION_ARG_NONE, &horizontal,
+          "horizontal layout (default", NULL },
+        { "vertical", 'v', 0, G_OPTION_ARG_NONE, &vertical,
+          "vertical layout", NULL },
+        { NULL }
+};
+
 typedef struct _App App;
 struct _App
 {
@@ -47,6 +59,7 @@ struct _App
         YtvFeed* feed;
         gint start_idx;
         gboolean done;
+        YtvOrientation orientation;
 };
 
 static void
@@ -129,6 +142,7 @@ app_new (void)
         app->start_idx = 0;
         app->feed = ytv_base_feed_new ();
         app->done = FALSE;
+        app->orientation = YTV_ORIENTATION_HORIZONTAL;
         
         fetchst = ytv_soup_feed_fetch_strategy_new ();
         parsest = ytv_json_feed_parse_strategy_new ();
@@ -146,9 +160,7 @@ app_new (void)
 
         for (i = 0; i < ENTRYNUM; i++)
         {
-                app->entryview[i] =
-                        ytv_gtk_entry_view_new (YTV_ORIENTATION_HORIZONTAL);
-                        /* ytv_gtk_entry_view_new (YTV_ORIENTATION_VERTICAL); */
+                app->entryview[i] = ytv_gtk_entry_view_new (app->orientation);
                         
                 ytv_gtk_entry_view_set_fetch_strategy
                         (YTV_GTK_ENTRY_VIEW (app->entryview[i]), fetchst);
@@ -179,7 +191,7 @@ app_free (App* app)
 void
 app_create_ui (App* app)
 {
-        GtkWidget* hbox;
+        GtkWidget* box;
         gint i;
 
         app->win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -188,12 +200,20 @@ app_create_ui (App* app)
         g_signal_connect (G_OBJECT (app->win), "delete_event",
                           G_CALLBACK (gtk_main_quit), NULL);
 
-        hbox = gtk_hbox_new (FALSE, 2);
-        gtk_container_add (GTK_CONTAINER (app->win), hbox);
+        if (app->orientation == YTV_ORIENTATION_HORIZONTAL)
+        {
+                box = gtk_hbox_new (FALSE, 2);
+        }
+        else
+        {
+                box = gtk_vbox_new (FALSE, 2);
+        }
+        
+        gtk_container_add (GTK_CONTAINER (app->win), box);
 
         for (i = 0; i < ENTRYNUM; i++)
         {
-                gtk_box_pack_start (GTK_BOX (hbox),
+                gtk_box_pack_start (GTK_BOX (box),
                                     GTK_WIDGET (app->entryview[i]),
                                     FALSE, FALSE, 0);
         }
@@ -203,6 +223,34 @@ app_create_ui (App* app)
         return;
 }
 
+static gboolean
+parse_options (App* app, gint* argc, gchar*** argv)
+{
+        GError* error = NULL;
+        GOptionContext* context;
+        
+        context = g_option_context_new ("- YouTube Viewer");
+        g_option_context_add_main_entries (context, entries, NULL);
+        g_option_context_add_group (context, gtk_get_option_group (TRUE));
+
+        if (!g_option_context_parse (context, argc, argv, &error))
+        {
+                g_print ("option parsing failed: %s\n", error->message);
+                return FALSE;
+        }
+
+        if (horizontal == TRUE)
+        {
+                app->orientation = YTV_ORIENTATION_HORIZONTAL;
+        }
+        else if (vertical == TRUE)
+        {
+                app->orientation = YTV_ORIENTATION_VERTICAL;
+        }
+        
+        return TRUE;
+}
+
 gint
 main (gint argc, gchar** argv)
 {
@@ -210,13 +258,20 @@ main (gint argc, gchar** argv)
         
         g_thread_init (NULL);
         gtk_init (&argc, &argv);
-        
+
         app = app_new ();
+
+        if (!parse_options (app, &argc, &argv))
+        {
+                goto beach;
+        }
+        
         app_create_ui (app);
         g_timeout_add_seconds (5, (GSourceFunc) app_fetch_feed, app);
 
         gtk_main ();
 
+beach:
         app_free (app);
         
         return 0;
