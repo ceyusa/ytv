@@ -24,6 +24,7 @@
 #include <gtk/gtk.h>
 
 #include <ytv-rank.h>
+#include <ytv-star.h>
 
 enum _YtvEntryTextViewProp
 {
@@ -229,8 +230,11 @@ update_widget (YtvEntryTextView* self)
                 }
 
 
-                /* rank = GTK_WIDGET (g_object_new (YTV_TYPE_RANK, NULL)); */
-                /* g_object_set (G_OBJECT (priv->rating), "rank", rating, NULL); */
+                /* rank = GTK_WIDGET (g_object_new (YTV_TYPE_RANK, NULL));  */
+                rank = ytv_rank_new (rating);
+
+/*                 rank = ytv_star_new (0.5); */
+                
 /*                 label = g_strdup_printf ("%02f", rating); */
 /*                 rank = gtk_button_new_with_label (label); */
 /*                 g_free (label); */
@@ -238,13 +242,15 @@ update_widget (YtvEntryTextView* self)
         
         gtk_text_view_set_buffer (GTK_TEXT_VIEW (self), buffer);
 
-/*         gtk_text_view_add_child_at_anchor (GTK_TEXT_VIEW (self),  */
-/*                                            g_object_ref (priv->rating), anchor); */
+        gtk_text_view_add_child_at_anchor (GTK_TEXT_VIEW (self),
+                                           rank, anchor);
 
-/*         g_print ("rating refcount = %d\n", G_OBJECT (priv->rating)->ref_count); */
+        /* g_print ("rating refcount = %d\n", G_OBJECT (priv->rating)->ref_count); */
 
-/*         g_object_set (G_OBJECT (priv->rating), "rank", rating, NULL); */
-        /* gtk_widget_show (rank); */
+
+        gtk_widget_show (rank);
+
+        /* g_object_set (G_OBJECT (priv->rating), "rank", rating, NULL); */
         
         g_object_unref (buffer);
 
@@ -344,7 +350,8 @@ ytv_entry_text_view_init (YtvEntryTextView* self)
 
         priv->tagtable = get_tag_table ();
         priv->entry = NULL;
-        priv->rating = ytv_rank_new (0.0);
+        priv->rating = GTK_WIDGET (g_object_new (YTV_TYPE_RANK, NULL));
+        /* ytv_rank_new (0.0); */
 
         g_object_set (G_OBJECT (self),
                       "editable", FALSE, "cursor-visible", FALSE,
