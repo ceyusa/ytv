@@ -107,11 +107,15 @@ uri_escape (gchar **uri)
 static gchar*
 orderby_param (YtvYoutubeUriBuilder* self)
 {
-        g_return_val_if_fail (YTV_IS_YOUTUBE_URI_BUILDER (self), NULL);
-        YtvYoutubeUriBuilderPriv* priv =
-                YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (self);
+        YtvYoutubeUriBuilderPriv* priv;
+        const gchar* orderby;
+        gchar* retval;
 
-        gchar* orderby;
+        retval = NULL;
+        
+        g_return_val_if_fail (YTV_IS_YOUTUBE_URI_BUILDER (self), NULL);
+        
+        priv = YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (self);
 
         switch (priv->orderby)
         {
@@ -132,7 +136,6 @@ orderby_param (YtvYoutubeUriBuilder* self)
                 return NULL;
         }
 
-        gchar* retval = NULL;
         retval = g_strdup_printf ("orderby=%s", orderby);
         return retval;
 }
@@ -140,14 +143,16 @@ orderby_param (YtvYoutubeUriBuilder* self)
 static gchar*
 start_index_param (YtvYoutubeUriBuilder* self)
 {
+        YtvYoutubeUriBuilderPriv* priv;
+        gchar* retval = NULL;
+        
         g_return_val_if_fail (YTV_IS_YOUTUBE_URI_BUILDER (self), NULL);
-        YtvYoutubeUriBuilderPriv* priv =
-                YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (self);
+
+        priv = YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (self);
 
         if (priv->start_index == 0)
                 return NULL; /* no explicity declared */
 
-        gchar* retval = NULL;
         retval = g_strdup_printf ("start-index=%d", priv->start_index);
         return retval;
 }
@@ -155,14 +160,16 @@ start_index_param (YtvYoutubeUriBuilder* self)
 static gchar*
 max_results_param (YtvYoutubeUriBuilder* self)
 {
+        YtvYoutubeUriBuilderPriv* priv;
+        gchar* retval = NULL;
+        
         g_return_val_if_fail (YTV_IS_YOUTUBE_URI_BUILDER (self), NULL);
-        YtvYoutubeUriBuilderPriv* priv =
-                YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (self);
+
+        priv = YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (self);
 
         if (priv->max_results == 25)
                 return NULL; /* default value  */
 
-        gchar* retval = NULL;
         retval = g_strdup_printf ("max-results=%d", priv->max_results);
         return retval;
 }
@@ -170,11 +177,12 @@ max_results_param (YtvYoutubeUriBuilder* self)
 static gchar*
 author_param (YtvYoutubeUriBuilder* self)
 {
-        g_return_val_if_fail (YTV_IS_YOUTUBE_URI_BUILDER (self), NULL);
-        YtvYoutubeUriBuilderPriv* priv =
-                YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (self);
-
+        YtvYoutubeUriBuilderPriv* priv;
         gchar *retval = NULL;
+
+        g_return_val_if_fail (YTV_IS_YOUTUBE_URI_BUILDER (self), NULL);
+
+        priv = YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (self);
 
         if (priv->author != NULL)
         {
@@ -187,11 +195,13 @@ author_param (YtvYoutubeUriBuilder* self)
 static gchar*
 alt_param (YtvYoutubeUriBuilder* self)
 {
-        g_return_val_if_fail (YTV_IS_YOUTUBE_URI_BUILDER (self), NULL);
-        YtvYoutubeUriBuilderPriv* priv =
-                YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (self);
+        YtvYoutubeUriBuilderPriv* priv;
+        const gchar* alt;
+        gchar* retval = NULL;
 
-        gchar* alt = NULL;
+        g_return_val_if_fail (YTV_IS_YOUTUBE_URI_BUILDER (self), NULL);
+
+        priv = YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (self);
 
         switch (priv->alt)
         {
@@ -211,7 +221,6 @@ alt_param (YtvYoutubeUriBuilder* self)
                 return NULL;
         }
 
-        gchar* retval = NULL;
         retval = g_strdup_printf ("alt=%s", alt);
         return retval;
 }
@@ -219,11 +228,13 @@ alt_param (YtvYoutubeUriBuilder* self)
 static gchar*
 time_param (YtvYoutubeUriBuilder* self)
 {
-        g_return_val_if_fail (YTV_IS_YOUTUBE_URI_BUILDER (self), NULL);
-        YtvYoutubeUriBuilderPriv*
-                priv = YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (self);
+        YtvYoutubeUriBuilderPriv* priv;
+        const gchar* time;
+        gchar* retval = NULL;
 
-        gchar* time = NULL;
+        g_return_val_if_fail (YTV_IS_YOUTUBE_URI_BUILDER (self), NULL);
+        
+        priv = YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (self);
 
         switch (priv->time)
         {
@@ -243,7 +254,6 @@ time_param (YtvYoutubeUriBuilder* self)
                 return NULL;
         }
 
-        gchar* retval = NULL;
         retval = g_strdup_printf ("time=%s", time);
         return retval;
 }
@@ -251,9 +261,9 @@ time_param (YtvYoutubeUriBuilder* self)
 static gchar*
 all_params (YtvYoutubeUriBuilder* self, gboolean time)
 {
-        g_return_val_if_fail (YTV_IS_YOUTUBE_URI_BUILDER (self), NULL);
-        YtvYoutubeUriBuilderPriv*
-                priv = YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (self);
+        YtvYoutubeUriBuilderPriv* priv;
+        gchar *param, *retval = NULL;
+        gint i;
 
         SetParam setparams[] = {
                 orderby_param,
@@ -264,9 +274,11 @@ all_params (YtvYoutubeUriBuilder* self, gboolean time)
                 time_param,
                 NULL
         };
+        
+        g_return_val_if_fail (YTV_IS_YOUTUBE_URI_BUILDER (self), NULL);
 
-        gchar *param, *retval = NULL;
-        gint i;
+        priv = YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (self);
+
         for (i = 0; setparams[i] != NULL; i++)
         {
                 if (setparams[i] == time_param && time == FALSE)
@@ -280,7 +292,7 @@ all_params (YtvYoutubeUriBuilder* self, gboolean time)
                         if (retval != NULL)
                         {
                                 gchar* tmp;
-                                tmp = g_strconcat (retval, "&", param);
+                                tmp = g_strconcat (retval, "&", param, NULL);
                                 g_free (retval);
                                 retval = tmp;
                         }
@@ -299,8 +311,10 @@ static gchar*
 ytv_youtube_uri_builder_get_standard_feed_default (YtvUriBuilder* self,
                                                    guint type)
 {
-        gchar* feedtype = NULL;
-
+        const gchar* feedtype;
+        gchar* retval;
+        gchar* params;
+        
         switch (type)
         {
         case YTV_YOUTUBE_STD_FEED_TOP_RATED:
@@ -335,9 +349,9 @@ ytv_youtube_uri_builder_get_standard_feed_default (YtvUriBuilder* self,
                 return NULL;
         }
 
-        gchar* retval = g_strconcat (BASEURL, "standardfeeds/", feedtype, NULL);
+        retval = g_strconcat (BASEURL, "standardfeeds/", feedtype, NULL);
 
-        gchar* params = all_params (YTV_YOUTUBE_URI_BUILDER (self), TRUE);
+        params = all_params (YTV_YOUTUBE_URI_BUILDER (self), TRUE);
         if (params != NULL)
         {
                 gchar* tmp = g_strconcat (retval, "?", params, NULL);
@@ -345,7 +359,6 @@ ytv_youtube_uri_builder_get_standard_feed_default (YtvUriBuilder* self,
                 retval = tmp;
                 g_free (params);
         }
-
 
         return retval;
 }
@@ -355,8 +368,11 @@ ytv_youtube_uri_builder_search_feed_default (YtvUriBuilder* self,
                                              const gchar* query)
 {
         /* @todo */
+        gchar* retval;
+        gchar* params;
         gchar *c;
         gchar *q = g_strdup (query);
+        
         for (c = q; c; c++)
         {
                 if (*c == '+')
@@ -369,11 +385,11 @@ ytv_youtube_uri_builder_search_feed_default (YtvUriBuilder* self,
                 }
         }
 
-        gchar* retval = g_strconcat (BASEURL, "videos?vq=", q, NULL);
+        retval = g_strconcat (BASEURL, "videos?vq=", q, NULL);
 
         g_free (q);
 
-        gchar* params = all_params (YTV_YOUTUBE_URI_BUILDER (self), TRUE);
+        params = all_params (YTV_YOUTUBE_URI_BUILDER (self), TRUE);
         if (params != NULL)
         {
                 gchar* tmp = g_strconcat (retval, "&", params, NULL);
@@ -389,10 +405,12 @@ static gchar*
 ytv_youtube_uri_builder_get_user_feed_default (YtvUriBuilder* self,
                                                const gchar* user)
 {
-        gchar* retval = g_strconcat (BASEURL,
-                                     "users/",  user, "/uploads", NULL);
+        gchar* retval;
+        gchar* params;
 
-        gchar* params = all_params (YTV_YOUTUBE_URI_BUILDER (self), FALSE);
+        retval = g_strconcat (BASEURL, "users/",  user, "/uploads", NULL);
+        params = all_params (YTV_YOUTUBE_URI_BUILDER (self), FALSE);
+        
         if (params != NULL)
         {
                 gchar* tmp = g_strconcat (retval, "?", params, NULL);
@@ -417,10 +435,12 @@ gchar*
 ytv_youtube_uri_builder_get_related_feed_default (YtvUriBuilder* self,
                                                   const gchar* vid)
 {
-        gchar* retval = g_strconcat (BASEURL,
-                                     "videos/",  vid, "/related", NULL);
+        gchar* retval;
+        gchar* params;
 
-        gchar* params = all_params (YTV_YOUTUBE_URI_BUILDER (self), FALSE);
+        retval = g_strconcat (BASEURL, "videos/",  vid, "/related", NULL);
+        params = all_params (YTV_YOUTUBE_URI_BUILDER (self), FALSE);
+        
         if (params != NULL)
         {
                 gchar* tmp = g_strconcat (retval, "?", params, NULL);
@@ -462,9 +482,11 @@ static void
 ytv_youtube_uri_builder_set_property (GObject* object, guint prop_id,
                                       const GValue* value, GParamSpec* spec)
 {
+        YtvYoutubeUriBuilderPriv* priv;
+        
         g_return_if_fail (YTV_IS_YOUTUBE_URI_BUILDER (object));
-        YtvYoutubeUriBuilderPriv* priv =
-                YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (object);
+        
+        priv = YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (object);
 
         switch (prop_id)
         {
@@ -506,9 +528,11 @@ static void
 ytv_youtube_uri_builder_get_property (GObject* object, guint prop_id,
                                       GValue* value, GParamSpec* spec)
 {
+        YtvYoutubeUriBuilderPriv* priv;
+        
         g_return_if_fail (YTV_IS_YOUTUBE_URI_BUILDER (object));
-        YtvYoutubeUriBuilderPriv* priv =
-                YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (object);
+
+        priv = YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (object);
 
         switch (prop_id)
         {
@@ -541,9 +565,11 @@ ytv_youtube_uri_builder_get_property (GObject* object, guint prop_id,
 static void
 ytv_youtube_uri_builder_finalize (GObject* object)
 {
+        YtvYoutubeUriBuilderPriv* priv;
+        
         g_return_if_fail (YTV_IS_YOUTUBE_URI_BUILDER (object));
-        YtvYoutubeUriBuilderPriv* priv =
-                YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (object);
+        
+        priv = YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (object);
 
         if (priv->author != NULL)
         {
@@ -625,8 +651,9 @@ ytv_youtube_uri_builder_class_init (YtvYoutubeUriBuilderClass* klass)
 static void
 ytv_youtube_uri_builder_init (YtvYoutubeUriBuilder* self)
 {
-        YtvYoutubeUriBuilderPriv* priv =
-                YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (self);
+        YtvYoutubeUriBuilderPriv* priv;
+
+        priv = YTV_YOUTUBE_URI_BUILDER_GET_PRIVATE (self);
 
         priv->orderby     = YTV_YOUTUBE_ORDER_RELEVANCE;
         priv->start_index = 0;
@@ -652,8 +679,9 @@ ytv_youtube_uri_builder_init (YtvYoutubeUriBuilder* self)
 YtvUriBuilder*
 ytv_youtube_uri_builder_new (void)
 {
-        YtvYoutubeUriBuilder* self = g_object_new
-                (YTV_TYPE_YOUTUBE_URI_BUILDER, NULL);
+        YtvYoutubeUriBuilder* self;
+
+        self = g_object_new (YTV_TYPE_YOUTUBE_URI_BUILDER, NULL);
 
         return YTV_URI_BUILDER (self);
 }
