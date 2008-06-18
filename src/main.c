@@ -38,7 +38,7 @@
 
 #define ENTRYNUM 5
 
-static gboolean horizontal = TRUE;
+static gboolean horizontal = FALSE;
 static gboolean vertical = FALSE;
         
 static const GOptionEntry entries[] =
@@ -130,7 +130,6 @@ app_fetch_feed (App* app)
 App*
 app_new (void)
 {
-        gint i;
         App* app;
         YtvFeedFetchStrategy* fetchst;
         YtvFeedParseStrategy* parsest; 
@@ -157,16 +156,6 @@ app_new (void)
         ytv_feed_set_fetch_strategy (app->feed, fetchst);
         ytv_feed_set_parse_strategy (app->feed, parsest);
         ytv_feed_set_uri_builder (app->feed, ub);
-
-        for (i = 0; i < ENTRYNUM; i++)
-        {
-                app->entryview[i] = ytv_gtk_entry_view_new (app->orientation);
-                        
-                ytv_gtk_entry_view_set_fetch_strategy
-                        (YTV_GTK_ENTRY_VIEW (app->entryview[i]), fetchst);
-                ytv_gtk_entry_view_set_uri_builder
-                        (YTV_GTK_ENTRY_VIEW (app->entryview[i]), ub);
-        }                
 
         g_object_unref (fetchst);
         g_object_unref (parsest);
@@ -213,6 +202,30 @@ app_create_ui (App* app)
 
         for (i = 0; i < ENTRYNUM; i++)
         {
+                YtvFeedFetchStrategy* fetchst;
+                YtvUriBuilder* ub;
+                
+                if (app->orientation == YTV_ORIENTATION_HORIZONTAL)
+                {
+                        app->entryview[i] = ytv_gtk_entry_view_new
+                                (YTV_ORIENTATION_VERTICAL);
+                }
+                else
+                {
+                        app->entryview[i] = ytv_gtk_entry_view_new
+                                (YTV_ORIENTATION_HORIZONTAL);
+                }
+                        
+                fetchst = ytv_feed_get_fetch_strategy (app->feed);
+                ytv_gtk_entry_view_set_fetch_strategy
+                        (YTV_GTK_ENTRY_VIEW (app->entryview[i]), fetchst);
+                g_object_unref (fetchst);
+
+                ub = ytv_feed_get_uri_builder (app->feed);
+                ytv_gtk_entry_view_set_uri_builder
+                        (YTV_GTK_ENTRY_VIEW (app->entryview[i]), ub);
+                g_object_unref (ub);
+
                 gtk_box_pack_start (GTK_BOX (box),
                                     GTK_WIDGET (app->entryview[i]),
                                     FALSE, FALSE, 0);
