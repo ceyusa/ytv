@@ -3,3 +3,4 @@
 * rename ytv-feed-fetcher-strategy for ytv-fetcher
 * rename ytv-feed-parser-strategy for ytv-parser
 * add signaling in fetcher as alternative for hardwired callback
+* check for strfmon in configure.ac

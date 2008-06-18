@@ -19,6 +19,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <monetary.h>
+
 #include <ytv-entry-text-view.h>
 
 #include <gtk/gtk.h>
@@ -66,9 +68,11 @@ create_tag_table (void)
         gtk_text_tag_table_add (table, tag);
         g_object_unref (tag);
 
+/*         tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "b", */
+/*                                           "weight", PANGO_WEIGHT_BOLD, */
+/*                                           "size", FONTSIZE, NULL)); */
         tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "b",
-                                          "weight", PANGO_WEIGHT_BOLD,
-                                          "size", FONTSIZE, NULL));
+                                          "size", 10 * PANGO_SCALE, NULL));
         gtk_text_tag_table_add (table, tag);
         g_object_unref (tag);
 
@@ -249,7 +253,11 @@ update_widget (YtvEntryTextView* self)
         g_object_get (G_OBJECT (priv->entry), "views", &views, NULL);
 
         {
-                gchar* v = g_strdup_printf ("%d views", views);
+                gchar nv[BUFSIZ];
+                gchar* v;
+
+                strfmon (nv, BUFSIZ - 1, "%!.0n", (gdouble) views);
+                v = g_strdup_printf ("%s views", nv);
 
                 gtk_text_buffer_insert_with_tags_by_name (buffer, &iter,
                                                           (const gchar*) v,

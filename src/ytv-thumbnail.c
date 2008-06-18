@@ -210,7 +210,9 @@ fetch_img_cb (YtvFeedFetchStrategy* st, const gchar* mime,
                         g_object_unref (priv->pixbuf);
                 }
                 
-                priv->pixbuf = gdk_pixbuf_copy (pixbuf);
+                priv->pixbuf = gdk_pixbuf_scale_simple (pixbuf, 130, 97,
+                                                        GDK_INTERP_BILINEAR);
+
                 gtk_image_set_from_pixbuf (GTK_IMAGE (self->image),
                                            priv->pixbuf);
         }
@@ -236,6 +238,11 @@ fetch_image (YtvThumbnail* self)
         g_return_if_fail (priv->fetcher != NULL);
         g_return_if_fail (priv->ub != NULL);
         g_return_if_fail (priv->eid != NULL);
+
+        gtk_image_set_from_stock (GTK_IMAGE (self->image),
+                                  GTK_STOCK_MISSING_IMAGE,
+                                  GTK_ICON_SIZE_DIALOG);
+        gtk_widget_set_size_request (self->image, 136, 103); /* 130+6x97+6 */
 
         uri = ytv_uri_builder_get_thumbnail (priv->ub, priv->eid);
         g_return_if_fail (uri != NULL);
@@ -377,6 +384,7 @@ ytv_thumbnail_init (YtvThumbnail* self)
         g_object_set (G_OBJECT (self), "xalign", 0.5, NULL);
 
         self->button = gtk_button_new ();
+
         gtk_button_set_relief (GTK_BUTTON (self->button), GTK_RELIEF_NONE);
         g_signal_connect_swapped (G_OBJECT (self->button), "focus-in-event",
                                   G_CALLBACK (on_focus_in), self);
@@ -390,11 +398,9 @@ ytv_thumbnail_init (YtvThumbnail* self)
                           "realize", G_CALLBACK (on_realize), self);
         gtk_container_add (GTK_CONTAINER (self->button), self->evbox);
 
-
-        self->image = gtk_image_new_from_stock (GTK_STOCK_MISSING_IMAGE,
-                                                GTK_ICON_SIZE_DIALOG);
-        /* self->image = gtk_image_new (); */
+        self->image = gtk_image_new ();
         g_object_set (G_OBJECT (self->image), "xpad", 6, "ypad", 6, NULL);
+
         gtk_container_add (GTK_CONTAINER (self->evbox), self->image);
 
         priv->selected_color = NULL;

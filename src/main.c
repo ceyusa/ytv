@@ -191,11 +191,11 @@ app_create_ui (App* app)
 
         if (app->orientation == YTV_ORIENTATION_HORIZONTAL)
         {
-                box = gtk_hbox_new (FALSE, 2);
+                box = gtk_hbox_new (FALSE, 0);
         }
         else
         {
-                box = gtk_vbox_new (FALSE, 2);
+                box = gtk_vbox_new (FALSE, 0);
         }
         
         gtk_container_add (GTK_CONTAINER (app->win), box);
@@ -228,7 +228,7 @@ app_create_ui (App* app)
 
                 gtk_box_pack_start (GTK_BOX (box),
                                     GTK_WIDGET (app->entryview[i]),
-                                    FALSE, FALSE, 0);
+                                    TRUE, TRUE, 0);
         }
 
         gtk_widget_show_all (app->win);
