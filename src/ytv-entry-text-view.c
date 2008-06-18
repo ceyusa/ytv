@@ -37,10 +37,9 @@ struct _YtvEntryTextViewPriv
 {
         GtkTextTagTable* tagtable;
         YtvEntry* entry;
-        GtkWidget* rating;
 };
 
-#define FONTSIZE 10 * PANGO_SCALE
+#define FONTSIZE 8 * PANGO_SCALE
 
 #define YTV_ENTRY_TEXT_VIEW_GET_PRIVATE(obj) \
         (G_TYPE_INSTANCE_GET_PRIVATE ((obj), YTV_TYPE_ENTRY_TEXT_VIEW, YtvEntryTextViewPriv))
@@ -377,8 +376,6 @@ ytv_entry_text_view_init (YtvEntryTextView* self)
 
         priv->tagtable = get_tag_table ();
         priv->entry = NULL;
-        /* priv->rating = GTK_WIDGET (g_object_new (YTV_TYPE_RANK, NULL)); */
-        /* ytv_rank_new (0.0); */
 
         g_object_set (G_OBJECT (self),
                       "editable", FALSE, "cursor-visible", FALSE,
