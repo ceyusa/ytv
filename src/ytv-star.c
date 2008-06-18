@@ -305,7 +305,7 @@ ytv_star_finalize (GObject* object)
         
         g_array_free (priv->star_points, TRUE);
 
-	(*G_OBJECT_CLASS (ytv_star_parent_class)->finalize) (object);
+        (*G_OBJECT_CLASS (ytv_star_parent_class)->finalize) (object);
 
         return;
 }
