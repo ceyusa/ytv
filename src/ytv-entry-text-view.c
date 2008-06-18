@@ -123,6 +123,54 @@ get_tag_table (void)
         return table;
 }
 
+static GtkWidget*
+get_rating_widget (gfloat rating)
+{
+        gint i;
+        gfloat restrank;
+        GtkWidget* retval;
+        GdkColor white;
+        
+        restrank = rating;
+        
+        retval = gtk_hbox_new (FALSE, 0);
+
+        if (gdk_color_parse ("white", &white))
+        {
+                gtk_widget_modify_bg (retval, GTK_STATE_NORMAL, &white);
+        }
+        
+        for (i = 0; i < 5; i++)
+        {
+                GtkWidget* star;
+                
+                if (restrank >= 1.0)
+                {
+                        star = ytv_star_new (1.0);
+                        restrank -= 1;
+                }
+                else if (restrank > 0.0)
+                {
+                        star = ytv_star_new (restrank);
+                        restrank = 0.0;
+                }
+                else if (restrank == 0.0)
+                {
+                        star = ytv_star_new (0.0);
+                }
+                else
+                {
+                        g_assert_not_reached ();
+                }
+                
+                gtk_widget_set_size_request (star, 18, 18);
+                gtk_widget_modify_bg (star, GTK_STATE_NORMAL, &white);
+                gtk_box_pack_start (GTK_BOX (retval), star, FALSE, FALSE, 0);
+        }
+
+        return retval;
+}
+
 static void
 update_widget (YtvEntryTextView* self)
 {
@@ -140,6 +188,7 @@ update_widget (YtvEntryTextView* self)
         
         priv = YTV_ENTRY_TEXT_VIEW_GET_PRIVATE (self);
         buffer = gtk_text_buffer_new (priv->tagtable);
+        gtk_text_view_set_buffer (GTK_TEXT_VIEW (self), buffer);
 
         /* remove current GtkTextBuffer */
         g_object_set (G_OBJECT (buffer), "text", "", NULL);
@@ -181,9 +230,7 @@ update_widget (YtvEntryTextView* self)
                 gtk_text_buffer_insert_with_tags_by_name (buffer, &iter,
                                                           (const gchar*) dur,
                                                           -1, "p", NULL);
-                gtk_text_buffer_insert_with_tags_by_name (buffer, &iter,
-                                                          "\n",
-                                                          -1, "p", NULL);
+                gtk_text_buffer_insert (buffer, &iter, " ", -1);
                 g_free (dur);
         }
 
@@ -195,9 +242,7 @@ update_widget (YtvEntryTextView* self)
                 gtk_text_buffer_insert_with_tags_by_name (buffer, &iter,
                                                           (const gchar*) author,
                                                           -1, "red", "i", NULL);
-                gtk_text_buffer_insert_with_tags_by_name (buffer, &iter,
-                                                          "\n",
-                                                          -1, "red", "i", NULL);
+                gtk_text_buffer_insert (buffer, &iter, "\n", -1);
                 g_free (author);
         }
 
@@ -210,18 +255,14 @@ update_widget (YtvEntryTextView* self)
                 gtk_text_buffer_insert_with_tags_by_name (buffer, &iter,
                                                           (const gchar*) v,
                                                           -1, "gray", NULL);
-                gtk_text_buffer_insert_with_tags_by_name (buffer, &iter,
-                                                          "\n",
-                                                          -1, "gray", NULL);
+                gtk_text_buffer_insert (buffer, &iter, "\n", -1);
                 g_free (v);
         }
 
-        /* rank */
+        /* rating */
         g_object_get (G_OBJECT (priv->entry), "rating", &rating, NULL);
 
         {
-                /* gchar* label; */
-                
                 anchor = gtk_text_buffer_create_child_anchor (buffer, &iter);
                 
                 if (rating < 0)
@@ -229,28 +270,14 @@ update_widget (YtvEntryTextView* self)
                         rating = 0;
                 }
 
-
-                /* rank = GTK_WIDGET (g_object_new (YTV_TYPE_RANK, NULL));  */
-                rank = ytv_rank_new (rating);
-
-/*                 rank = ytv_star_new (0.5); */
+                rank = get_rating_widget (rating);
                 
-/*                 label = g_strdup_printf ("%02f", rating); */
-/*                 rank = gtk_button_new_with_label (label); */
-/*                 g_free (label); */
+                gtk_text_view_add_child_at_anchor (GTK_TEXT_VIEW (self),
+                                                   rank, anchor);
+
+                gtk_widget_show_all (rank);
+                
         }
-        
-        gtk_text_view_set_buffer (GTK_TEXT_VIEW (self), buffer);
-
-        gtk_text_view_add_child_at_anchor (GTK_TEXT_VIEW (self),
-                                           rank, anchor);
-
-        /* g_print ("rating refcount = %d\n", G_OBJECT (priv->rating)->ref_count); */
-
-
-        gtk_widget_show (rank);
-
-        /* g_object_set (G_OBJECT (priv->rating), "rank", rating, NULL); */
         
         g_object_unref (buffer);
 
@@ -350,7 +377,7 @@ ytv_entry_text_view_init (YtvEntryTextView* self)
 
         priv->tagtable = get_tag_table ();
         priv->entry = NULL;
-        priv->rating = GTK_WIDGET (g_object_new (YTV_TYPE_RANK, NULL));
+        /* priv->rating = GTK_WIDGET (g_object_new (YTV_TYPE_RANK, NULL)); */
         /* ytv_rank_new (0.0); */
 
         g_object_set (G_OBJECT (self),

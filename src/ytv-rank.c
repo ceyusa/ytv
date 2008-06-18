@@ -68,7 +68,14 @@ fill_stars (YtvRank* self)
         
         for (i = 0; i < 5; i++)
         {
-                g_return_if_fail (YTV_IS_STAR (priv->stars[i]));
+                /* g_return_if_fail (YTV_IS_STAR (priv->stars[i])); */
+
+                if (priv->stars[i] == NULL)
+                {
+                        priv->stars[i] = g_object_new (YTV_TYPE_STAR, NULL);
+                        gtk_box_pack_start (GTK_BOX (self), priv->stars[i],
+                                            FALSE, FALSE, 0);
+                }
                 
                 if (restrank >= 1.0)
                 {
@@ -143,11 +150,17 @@ ytv_rank_init (YtvRank* self)
 
         priv->rank = 0;
 
+        g_object_set (G_OBJECT (self), "homogeneous", TRUE, "spacing", 0, NULL);
+
         for (i = 0; i < 6; i++)
         {
+#if 0 /* segfault !! */        
                 priv->stars[i] = g_object_new (YTV_TYPE_STAR, NULL);
                 gtk_box_pack_start (GTK_BOX (self), priv->stars[i],
                                     TRUE, TRUE, 0);
+#else
+                priv->stars[i] = 0;
+#endif
         }
 
         return;
