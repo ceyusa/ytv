@@ -71,6 +71,7 @@ struct _YtvGtkEntryViewClass
 
         void (*set_entry) (YtvEntryView* self, YtvEntry* entry);
         YtvEntry* (*get_entry) (YtvEntryView* self);
+        void (*clean) (YtvEntryView* self);
 };
 
 GType ytv_orientation_get_type (void);
@@ -81,6 +82,7 @@ YtvEntryView* ytv_gtk_entry_view_new (YtvOrientation orientation);
 
 void ytv_gtk_entry_view_set_entry (YtvEntryView* self, YtvEntry* entry);
 YtvEntry* ytv_gtk_entry_view_get_entry (YtvEntryView* self);
+void ytv_gtk_entry_view_clean (YtvEntryView* self);
 
 void ytv_gtk_entry_view_set_orientation (YtvGtkEntryView* self,
                                          YtvOrientation orientation);

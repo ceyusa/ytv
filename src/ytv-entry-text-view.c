@@ -263,7 +263,7 @@ update_widget (YtvEntryTextView* self)
                 gtk_text_buffer_insert_with_tags_by_name (buffer, &iter,
                                                           (const gchar*) v,
                                                           -1, "gray", NULL);
-                /* gtk_text_buffer_insert (buffer, &iter, "\n", -1); */
+                gtk_text_buffer_insert (buffer, &iter, "\n", -1);
                 g_free (v);
         }
 
@@ -408,12 +408,24 @@ ytv_entry_text_view_init (YtvEntryTextView* self)
         return;
 }
 
+/**
+ * ytv_entry_text_view_new:
+ *
+ * Create a new widget for show entry data
+ */
 GtkWidget*
 ytv_entry_text_view_new (void)
 {
         return GTK_WIDGET (g_object_new (YTV_TYPE_ENTRY_TEXT_VIEW, NULL));
 }
 
+/**
+ * ytv_entry_text_view_set_entry:
+ * @self: A #YtvEntryTextView
+ * @entry: A #YtvEntry
+ *
+ * Set the entry to display in the widget
+ */
 void
 ytv_entry_text_view_set_entry (YtvEntryTextView* self, YtvEntry* entry)
 {
@@ -426,6 +438,7 @@ ytv_entry_text_view_set_entry (YtvEntryTextView* self, YtvEntry* entry)
         if (priv->entry != NULL)
         {
                 g_object_unref (priv->entry);
+                priv->entry = NULL;
         }
 
         priv->entry = g_object_ref (entry);
@@ -433,6 +446,33 @@ ytv_entry_text_view_set_entry (YtvEntryTextView* self, YtvEntry* entry)
         update_widget (self);
 
         g_object_notify (G_OBJECT (self), "entry");
+
+        return;
+}
+
+/**
+ * ytv_entry_text_view_clean:
+ * @self: a #YtvEntryTextView
+ *
+ * Clean the widget data.
+ */
+void
+ytv_entry_text_view_clean (YtvEntryTextView* self)
+{
+        YtvEntryTextViewPriv* priv;
+        GtkTextBuffer* buffer;
+
+        priv = YTV_ENTRY_TEXT_VIEW_GET_PRIVATE (self);
+
+        if (priv->entry != NULL)
+        {
+                g_object_unref (priv->entry);
+                priv->entry = NULL;
+        }
+
+        buffer = gtk_text_buffer_new (priv->tagtable);
+        g_object_set (G_OBJECT (buffer), "text", "", NULL);
+        gtk_text_view_set_buffer (GTK_TEXT_VIEW (self), buffer);
 
         return;
 }

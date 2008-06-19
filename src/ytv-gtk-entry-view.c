@@ -51,6 +51,7 @@ ytv_entry_view_init (YtvEntryViewIface* iface)
 {
         iface->set_entry = ytv_gtk_entry_view_set_entry;
         iface->get_entry = ytv_gtk_entry_view_get_entry;
+        iface->clean     = ytv_gtk_entry_view_clean;
 
         return;
 }
@@ -149,6 +150,20 @@ ytv_gtk_entry_view_get_entry_default (YtvEntryView* self)
 }
 
 static void
+ytv_gtk_entry_view_clean_default (YtvEntryView* self)
+{
+        YtvGtkEntryViewPriv* priv;
+
+        g_return_if_fail (YTV_IS_GTK_ENTRY_VIEW (self));
+        priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (self);
+
+        ytv_thumbnail_clean (YTV_THUMBNAIL (priv->thumb));
+        ytv_entry_text_view_clean (YTV_ENTRY_TEXT_VIEW (priv->text));
+
+        return;
+}
+
+static void
 ytv_gtk_entry_view_get_property (GObject* object, guint prop_id,
                                  GValue* value, GParamSpec* spec)
 {
@@ -222,6 +237,7 @@ ytv_gtk_entry_view_class_init (YtvGtkEntryViewClass* klass)
 
         klass->set_entry = ytv_gtk_entry_view_set_entry_default;
         klass->get_entry = ytv_gtk_entry_view_get_entry_default;
+        klass->clean     = ytv_gtk_entry_view_clean_default;
 
         g_object_class_install_property
                 (object_class, PROP_ORIENTATION,
@@ -252,9 +268,10 @@ ytv_gtk_entry_view_init (YtvGtkEntryView* self)
                       "homogeneous", FALSE,
                       "n-columns", 1,
                       "n-rows", 1, NULL);
+        
         gtk_table_attach (GTK_TABLE (self), priv->thumb, 0, 1, 0, 1,
                           GTK_SHRINK, GTK_SHRINK, 0, 0);
-
+        
         return;
 }
 
@@ -294,6 +311,23 @@ ytv_gtk_entry_view_get_entry (YtvEntryView* self)
 
         return YTV_GTK_ENTRY_VIEW_GET_CLASS (self)->get_entry (self);
 }
+
+/**
+ * ytv_gtk_entry_view_clean:
+ * @self: a #YtvEntryView
+ *
+ * Removes the entry data from the view
+ */
+void
+ytv_gtk_entry_view_clean (YtvEntryView* self)
+{
+        g_assert (YTV_IS_ENTRY_VIEW (self));
+
+        YTV_GTK_ENTRY_VIEW_GET_CLASS (self)->clean (self);
+
+        return;
+}
+  
 
 /**
  * ytv_gtk_entry_view_set_orientation:

@@ -46,7 +46,7 @@ struct _YtvEntryViewIface
         /* Methods */
         void (*set_entry) (YtvEntryView* self, YtvEntry* entry);
         YtvEntry* (*get_entry) (YtvEntryView* self);
-        void* (*clean) (YtvEntryView* self);
+        void (*clean) (YtvEntryView* self);
 };
         
 GType ytv_entry_view_get_type (void);

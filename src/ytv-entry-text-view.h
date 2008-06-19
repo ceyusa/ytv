@@ -61,6 +61,7 @@ GType ytv_entry_text_view_get_type (void);
 
 GtkWidget* ytv_entry_text_view_new (void);
 void ytv_entry_text_view_set_entry (YtvEntryTextView* self, YtvEntry* entry);
+void ytv_entry_text_view_clean (YtvEntryTextView* self);
 
 G_END_DECLS
 

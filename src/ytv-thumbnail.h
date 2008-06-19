@@ -73,6 +73,7 @@ void ytv_thumbnail_set_uri_builder (YtvThumbnail* self, YtvUriBuilder *ub);
 YtvUriBuilder* ytv_thumbnail_get_uri_builder (YtvThumbnail* self);
 void ytv_thumbnail_set_id (YtvThumbnail* self, const gchar* id);
 gchar* ytv_thumbnail_get_id (YtvThumbnail* self);
+void ytv_thumbnail_clean (YtvThumbnail* self);
 
 G_END_DECLS
 

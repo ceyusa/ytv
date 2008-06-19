@@ -68,20 +68,20 @@ on_realize (GtkWidget* widget, gpointer user_data)
 {
         YtvThumbnail* me;
         YtvThumbnailPriv* priv;
+        GtkStyle* style;
 
         g_return_if_fail (YTV_IS_THUMBNAIL (user_data));
 
         me = YTV_THUMBNAIL (user_data);
         priv = YTV_THUMBNAIL_GET_PRIVATE (me);
 
-        if (priv->normal_color != NULL)
+        if (priv->normal_color == NULL)
         {
-                GtkStyle* style;
-                style = gtk_widget_get_style (widget);
+                style = gtk_widget_get_style (me->evbox);
                 priv->normal_color =
-                        gdk_color_copy (&style->fg [GTK_STATE_NORMAL]);
+                        gdk_color_copy (&style->bg [GTK_STATE_NORMAL]);
         }
-
+        
         return;
 }
 
@@ -104,7 +104,7 @@ on_focus_in (GtkWidget* widget, GdkEventFocus* event, gpointer user_data)
         }
 
         style = gtk_widget_get_style (GTK_WIDGET (me->evbox));
-        priv->selected_color = gdk_color_copy (&style->fg [GTK_STATE_SELECTED]);
+        priv->selected_color = gdk_color_copy (&style->bg [GTK_STATE_SELECTED]);
 
         gtk_widget_modify_bg (GTK_WIDGET (me->evbox),
                               GTK_STATE_NORMAL, priv->selected_color);
@@ -123,8 +123,11 @@ on_focus_out (GtkWidget* widget, GdkEventFocus* event, gpointer user_data)
         me = YTV_THUMBNAIL (widget);
         priv = YTV_THUMBNAIL_GET_PRIVATE (me);
 
-        gtk_widget_modify_bg (GTK_WIDGET (me->evbox),
-                              GTK_STATE_NORMAL, priv->normal_color);
+        if (priv->normal_color != NULL)
+        {
+                gtk_widget_modify_bg (GTK_WIDGET (me->evbox),
+                                      GTK_STATE_NORMAL, priv->normal_color);
+        }
 
         return FALSE;
 }
@@ -381,10 +384,9 @@ ytv_thumbnail_init (YtvThumbnail* self)
         YtvThumbnailPriv* priv;
         priv = YTV_THUMBNAIL_GET_PRIVATE (self);
 
-        g_object_set (G_OBJECT (self), "xalign", 0.5, NULL);
+        g_object_set (G_OBJECT (self), "xalign", 0.5, "yalign", 0.0, NULL);
 
-        self->button = gtk_button_new ();
-
+        self->button = gtk_button_new ();        
         gtk_button_set_relief (GTK_BUTTON (self->button), GTK_RELIEF_NONE);
         g_signal_connect_swapped (G_OBJECT (self->button), "focus-in-event",
                                   G_CALLBACK (on_focus_in), self);
@@ -581,4 +583,20 @@ ytv_thumbnail_get_uri_builder (YtvThumbnail* self)
         }
 
         return NULL;
+}
+
+/**
+ * ytv_thumbnail_clean:
+ * @self: a #YtvThumbnail
+ *
+ * Removes the image
+ */
+void
+ytv_thumbnail_clean (YtvThumbnail* self)
+{
+        g_return_if_fail (YTV_IS_THUMBNAIL (self));
+
+        gtk_image_clear (GTK_IMAGE (self->image));
+
+        return;
 }

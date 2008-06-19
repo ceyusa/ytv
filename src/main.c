@@ -95,7 +95,23 @@ create_entry_view (YtvFeed* feed, YtvOrientation orientation)
 }
 
 static void
-show_entry (App* app, YtvEntry* entry)
+clean_entry_view (App* app)
+{
+        gint i;
+
+        for (i = 0; i < ENTRYNUM; i++)
+        {
+                if (app->entryview[i] != NULL)
+                {
+                        ytv_entry_view_clean (YTV_ENTRY_VIEW (app->entryview[i]));
+                }
+        }
+
+        return;
+}
+
+static void
+show_entry_view (App* app, YtvEntry* entry)
 {
         static gint idx = 0;
 
@@ -126,12 +142,28 @@ feed_entry_cb (YtvFeed* feed, gboolean cancelled, YtvList* list,
         if (*err != NULL)
         {
                 app->done = TRUE;
-                
+
                 g_debug ("%s", ytv_error_get_message (*err));
+
+                if (ytv_error_get_code (*err) == YTV_PARSE_ERROR_BAD_FORMAT)
+                {
+                        gtk_widget_set_sensitive (app->next, FALSE);
+                }
+                else
+                {
+                        GtkWidget* dialog;
+                        
+                        dialog =gtk_message_dialog_new (NULL,
+                                                        GTK_DIALOG_MODAL,
+                                                        GTK_MESSAGE_ERROR,
+                                                        GTK_BUTTONS_OK,
+                                                        ytv_error_get_message (*err));
+                        gtk_dialog_run (GTK_DIALOG (dialog));
+                        gtk_widget_destroy (dialog);
+                }
+                
                 g_error_free (*err);
 
-                gtk_widget_set_sensitive (app->next, FALSE);
-                
                 return;
         }
 
@@ -147,7 +179,7 @@ feed_entry_cb (YtvFeed* feed, gboolean cancelled, YtvList* list,
                 
                 entry = YTV_ENTRY (ytv_iterator_get_current (iter));
 
-                show_entry (app, entry);
+                show_entry_view (app, entry);
                 
                 g_object_unref (entry);
                 ytv_iterator_next (iter);
@@ -163,6 +195,8 @@ static gboolean
 app_fetch_feed (App* app)
 {
         g_return_val_if_fail (app != NULL, FALSE);
+
+        clean_entry_view (app);
         
         ytv_feed_standard (app->feed, YTV_YOUTUBE_STD_FEED_MOST_VIEWED); 
         /* ytv_feed_user (app->feed, "pinkipons"); */

@@ -56,6 +56,9 @@ ytv_entry_view_set_entry (YtvEntryView* self, YtvEntry* entry)
 {
         YtvEntry* validate;
 
+        g_assert (YTV_IS_ENTRY_VIEW (self));
+        g_assert (YTV_IS_ENTRY (entry));
+        
         if (YTV_ENTRY_VIEW_GET_IFACE (self)->set_entry == NULL)
         {
                 g_critical ("You must implement ytv_entry_view_set_view\n");
@@ -83,6 +86,8 @@ ytv_entry_view_get_entry (YtvEntryView* self)
 {
         YtvEntry* retval;
 
+        g_assert (YTV_IS_ENTRY_VIEW (self));
+
         if (YTV_ENTRY_VIEW_GET_IFACE (self)->get_entry == NULL)
         {
                 g_critical ("You must implement ytv_entry_view_set_view\n");
@@ -93,6 +98,27 @@ ytv_entry_view_get_entry (YtvEntryView* self)
         g_assert (retval != NULL);
 
         return retval;
+}
+
+/**
+ * ytv_entry_view_clean:
+ * @self: a #YtvEntry
+ *
+ * Removes the entry data from the view.
+ */
+void
+ytv_entry_view_clean (YtvEntryView* self)
+{
+        g_assert (YTV_IS_ENTRY_VIEW (self));
+
+        if (YTV_ENTRY_VIEW_GET_IFACE (self)->clean == NULL)
+        {
+                g_critical ("You must implement ytv_entry_view_clean\n");
+        }
+
+        YTV_ENTRY_VIEW_GET_IFACE (self)->clean (self);
+
+        return;
 }
 
 static void

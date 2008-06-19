@@ -1,5 +1,7 @@
+/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 8; coding: utf-8 -*- */
+
 /* ytv-error.c
- * Copyright (C) 2008 Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
+ * Copyright (C) 2008 VÃ­ctor Manuel JÃ¡quez Leal <vjaquez@igalia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -40,7 +42,7 @@ ytv_error_get_message (GError* err)
 {
         g_assert (err != NULL);
         
-	return err->message;
+        return err->message;
 }
 
 /**
@@ -56,7 +58,7 @@ ytv_error_get_code (GError* err)
 {
         g_assert (err != NULL);
 
-	return err->code;
+        return err->code;
 }
 
 /**
@@ -69,18 +71,18 @@ ytv_error_get_code (GError* err)
 GType
 ytv_error_domain_get_type (void)
 {
-	static GType type = 0;
+        static GType type = 0;
+  
+        if (type == 0)
+        {
+                static const GEnumValue values[] = {
+                        { 0, NULL, NULL }
+                };
 
-	if (type == 0)
-	{
-		static const GEnumValue values[] = {
-			{ 0, NULL, NULL }
-		};
+                type = g_enum_register_static ("YtvErrorDomain", values);
+        }
 
-		type = g_enum_register_static ("YtvErrorDomain", values);
-	}
-
-	return type;
+        return type;
 }
 
 /**
@@ -93,16 +95,16 @@ ytv_error_domain_get_type (void)
 GType
 ytv_error_get_type (void)
 {
-	static GType type = 0;
+        static GType type = 0;
 
-	if (type == 0)
-	{
-		static const GEnumValue values[] = {
-			{ 0, NULL, NULL }
-		};
+        if (type == 0)
+        {
+                static const GEnumValue values[] = {
+                        { 0, NULL, NULL }
+                };
 
-		type = g_enum_register_static ("YtvError", values);
-	}
+                type = g_enum_register_static ("YtvError", values);
+        }
 
-	return type;
+        return type;
 }
