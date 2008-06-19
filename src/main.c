@@ -54,13 +54,65 @@ typedef struct _App App;
 struct _App
 {
         GtkWidget* win;
-        
-        YtvEntryView* entryview[ENTRYNUM];
+        GtkWidget* box;
+        GtkWidget* entryview[ENTRYNUM];
         YtvFeed* feed;
         gint start_idx;
         gboolean done;
         YtvOrientation orientation;
 };
+
+static GtkWidget*
+create_entry_view (YtvFeed* feed, YtvOrientation orientation)
+{
+        YtvFeedFetchStrategy* fetchst;
+        YtvUriBuilder* ub;
+        YtvEntryView* view;
+        
+        if (orientation == YTV_ORIENTATION_HORIZONTAL)
+        {
+                view = ytv_gtk_entry_view_new (YTV_ORIENTATION_VERTICAL);
+        } 
+        else
+        {
+                view = ytv_gtk_entry_view_new (YTV_ORIENTATION_HORIZONTAL);
+        }
+                        
+        fetchst = ytv_feed_get_fetch_strategy (feed);
+        ytv_gtk_entry_view_set_fetch_strategy (YTV_GTK_ENTRY_VIEW (view),
+                                               fetchst);
+        g_object_unref (fetchst);
+
+        ub = ytv_feed_get_uri_builder (feed);
+        ytv_gtk_entry_view_set_uri_builder (YTV_GTK_ENTRY_VIEW (view), ub);
+        g_object_unref (ub);
+
+        gtk_widget_show_all (GTK_WIDGET (view));
+        
+        return GTK_WIDGET (view);
+}
+
+static void
+show_entry (App* app, YtvEntry* entry)
+{
+        static gint idx = 0;
+
+        idx %= ENTRYNUM;
+
+        if (app->entryview[idx] == NULL) /* create view */
+        {
+                app->entryview[idx] = create_entry_view (app->feed,
+                                                         app->orientation);
+                gtk_box_pack_start (GTK_BOX (app->box), app->entryview[idx],
+                                    TRUE, TRUE, 0);
+        }
+
+        ytv_entry_view_set_entry (YTV_ENTRY_VIEW (app->entryview[idx]), entry);
+
+        idx++;
+
+        return;
+}
 
 static void
 feed_entry_cb (YtvFeed* feed, gboolean cancelled, YtvList* list,
@@ -88,13 +140,10 @@ feed_entry_cb (YtvFeed* feed, gboolean cancelled, YtvList* list,
         while (!ytv_iterator_is_done (iter))
         {
                 YtvEntry* entry;
-                static gint idx = 0;
                 
                 entry = YTV_ENTRY (ytv_iterator_get_current (iter));
 
-                idx %= ENTRYNUM;
-                ytv_entry_view_set_entry (app->entryview[idx], entry);
-                idx++;
+                show_entry (app, entry);
                 
                 g_object_unref (entry);
                 ytv_iterator_next (iter);
@@ -130,6 +179,7 @@ app_fetch_feed (App* app)
 App*
 app_new (void)
 {
+        gint i;
         App* app;
         YtvFeedFetchStrategy* fetchst;
         YtvFeedParseStrategy* parsest; 
@@ -142,6 +192,11 @@ app_new (void)
         app->feed = ytv_base_feed_new ();
         app->done = FALSE;
         app->orientation = YTV_ORIENTATION_HORIZONTAL;
+
+        for (i = 0; i < ENTRYNUM; i++)
+        {
+                app->entryview[i] = NULL;
+        }
         
         fetchst = ytv_soup_feed_fetch_strategy_new ();
         parsest = ytv_json_feed_parse_strategy_new ();
@@ -181,10 +236,12 @@ void
 app_create_ui (App* app)
 {
         GtkWidget* box;
-        gint i;
+        GtkWidget* prev;
+        GtkWidget* next;
 
         app->win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
         /* gtk_widget_set_size_request (win, 400, 600); */
+        gtk_window_set_title (GTK_WINDOW (app->win), "YouTube Viewer");
 
         g_signal_connect (G_OBJECT (app->win), "delete_event",
                           G_CALLBACK (gtk_main_quit), NULL);
@@ -192,44 +249,23 @@ app_create_ui (App* app)
         if (app->orientation == YTV_ORIENTATION_HORIZONTAL)
         {
                 box = gtk_hbox_new (FALSE, 0);
+                app->box = gtk_hbox_new (FALSE, 0);
+                prev = gtk_button_new_from_stock (GTK_STOCK_GO_BACK);
+                next = gtk_button_new_from_stock (GTK_STOCK_GO_FORWARD);
         }
         else
         {
                 box = gtk_vbox_new (FALSE, 0);
+                app->box = gtk_vbox_new (FALSE, 0);
+                prev = gtk_button_new_from_stock (GTK_STOCK_GO_UP);
+                next = gtk_button_new_from_stock (GTK_STOCK_GO_DOWN);
         }
+
+        gtk_box_pack_start (GTK_BOX (box), prev, TRUE, TRUE, 2);
+        gtk_box_pack_start (GTK_BOX (box), app->box, TRUE, TRUE, 0);
+        gtk_box_pack_end (GTK_BOX (box), next, TRUE, TRUE, 2);
         
         gtk_container_add (GTK_CONTAINER (app->win), box);
-
-        for (i = 0; i < ENTRYNUM; i++)
-        {
-                YtvFeedFetchStrategy* fetchst;
-                YtvUriBuilder* ub;
-                
-                if (app->orientation == YTV_ORIENTATION_HORIZONTAL)
-                {
-                        app->entryview[i] = ytv_gtk_entry_view_new
-                                (YTV_ORIENTATION_VERTICAL);
-                }
-                else
-                {
-                        app->entryview[i] = ytv_gtk_entry_view_new
-                                (YTV_ORIENTATION_HORIZONTAL);
-                }
-                        
-                fetchst = ytv_feed_get_fetch_strategy (app->feed);
-                ytv_gtk_entry_view_set_fetch_strategy
-                        (YTV_GTK_ENTRY_VIEW (app->entryview[i]), fetchst);
-                g_object_unref (fetchst);
-
-                ub = ytv_feed_get_uri_builder (app->feed);
-                ytv_gtk_entry_view_set_uri_builder
-                        (YTV_GTK_ENTRY_VIEW (app->entryview[i]), ub);
-                g_object_unref (ub);
-
-                gtk_box_pack_start (GTK_BOX (box),
-                                    GTK_WIDGET (app->entryview[i]),
-                                    TRUE, TRUE, 0);
-        }
 
         gtk_widget_show_all (app->win);
 
