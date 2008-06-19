@@ -368,26 +368,37 @@ ytv_youtube_uri_builder_search_feed_default (YtvUriBuilder* self,
                                              const gchar* query)
 {
         /* @todo */
+        GRegex* regex;
         gchar* retval;
         gchar* params;
-        gchar *c;
-        gchar *q = g_strdup (query);
-        
-        for (c = q; c; c++)
+        gchar *p;
+        gchar *q = g_strstrip (g_strdup (query));
+
+        regex = g_regex_new ("\\s+", 0, 0, NULL);
+
+        if (regex != NULL)
         {
-                if (*c == '+')
+                p = g_regex_replace (regex, q, -1, 0, "+", 0, NULL);
+
+                if (p == NULL)
                 {
-                        /* should change it for his encoded value */
+                        p = q;
                 }
-                else if (g_ascii_isspace (*c))
+                else
                 {
-                        *c = '+';
+                        g_free (q);
                 }
+
+                g_regex_unref (regex);
         }
+        else
+        {
+                p = q; /* good luck my friend */
+        }
+        
+        retval = g_strconcat (BASEURL, "videos?vq=", p, NULL);
 
-        retval = g_strconcat (BASEURL, "videos?vq=", q, NULL);
-
-        g_free (q);
+        g_free (p);
 
         params = all_params (YTV_YOUTUBE_URI_BUILDER (self), TRUE);
         if (params != NULL)

@@ -249,7 +249,7 @@ ytv_soup_feed_fetch_strategy_encode_default (YtvFeedFetchStrategy* self,
                                              const gchar* part)
 {
 #define EXTRA_CHARS ";/?:@&=+$,"/* taken from RFC 2396 2.2 */
-        return soup_uri_encode (part, EXTRA_CHARS);
+        return soup_uri_encode (part, NULL);
 }
 
 static time_t

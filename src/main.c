@@ -198,9 +198,10 @@ app_fetch_feed (App* app)
 
         clean_entry_view (app);
         
-        ytv_feed_standard (app->feed, YTV_YOUTUBE_STD_FEED_MOST_VIEWED); 
+        /* ytv_feed_standard (app->feed, YTV_YOUTUBE_STD_FEED_MOST_VIEWED);  */
         /* ytv_feed_user (app->feed, "pinkipons"); */
         /* ytv_feed_related (app->feed, "FOwQETKKyF0"); */
+        ytv_feed_search (app->feed, "café tacvba");
 
         ytv_feed_get_entries_async (app->feed, feed_entry_cb, app);
 
