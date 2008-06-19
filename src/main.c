@@ -260,6 +260,8 @@ parse_options (App* app, gint* argc, gchar*** argv)
         {
                 app->orientation = YTV_ORIENTATION_VERTICAL;
         }
+
+        g_option_context_free (context);
         
         return TRUE;
 }

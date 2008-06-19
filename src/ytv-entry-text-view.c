@@ -58,7 +58,7 @@ create_tag_table (void)
         table = gtk_text_tag_table_new ();
 
         tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "p",
-                                          "size", FONTSIZE, NULL));
+                                          "size", 7 * PANGO_SCALE, NULL));
         gtk_text_tag_table_add (table, tag);
         g_object_unref (tag);
 
@@ -188,6 +188,7 @@ update_widget (YtvEntryTextView* self)
         gchar* author;
         gint views;
         gfloat rating;
+        gchar* category;
         
         priv = YTV_ENTRY_TEXT_VIEW_GET_PRIVATE (self);
         buffer = gtk_text_buffer_new (priv->tagtable);
@@ -262,7 +263,7 @@ update_widget (YtvEntryTextView* self)
                 gtk_text_buffer_insert_with_tags_by_name (buffer, &iter,
                                                           (const gchar*) v,
                                                           -1, "gray", NULL);
-                gtk_text_buffer_insert (buffer, &iter, "\n", -1);
+                /* gtk_text_buffer_insert (buffer, &iter, "\n", -1); */
                 g_free (v);
         }
 
@@ -284,6 +285,19 @@ update_widget (YtvEntryTextView* self)
 
                 gtk_widget_show_all (rank);
                 
+        }
+
+        /* category */
+
+        g_object_get (G_OBJECT (priv->entry), "category", &category, NULL);
+
+        if (category != NULL)
+        {
+                gtk_text_buffer_insert (buffer, &iter, "\n", -1);
+                gtk_text_buffer_insert_with_tags_by_name
+                        (buffer, &iter, (const gchar*) category, -1,
+                         "blue", "p", NULL);
+                g_free (category);                
         }
         
         g_object_unref (buffer);
