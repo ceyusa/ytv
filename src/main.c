@@ -55,6 +55,8 @@ struct _App
 {
         GtkWidget* win;
         GtkWidget* box;
+        GtkWidget* next;
+        GtkWidget* prev;
         GtkWidget* entryview[ENTRYNUM];
         YtvFeed* feed;
         gint start_idx;
@@ -128,6 +130,8 @@ feed_entry_cb (YtvFeed* feed, gboolean cancelled, YtvList* list,
                 g_debug ("%s", ytv_error_get_message (*err));
                 g_error_free (*err);
 
+                gtk_widget_set_sensitive (app->next, FALSE);
+                
                 return;
         }
 
@@ -158,14 +162,7 @@ feed_entry_cb (YtvFeed* feed, gboolean cancelled, YtvList* list,
 static gboolean
 app_fetch_feed (App* app)
 {
-        YtvUriBuilder* ub;
-        
         g_return_val_if_fail (app != NULL, FALSE);
-
-        ub = ytv_feed_get_uri_builder (app->feed);
-        g_object_set (G_OBJECT (ub), "start-index", app->start_idx, NULL);
-        g_object_unref (ub);
-        app->start_idx += ENTRYNUM;
         
         ytv_feed_standard (app->feed, YTV_YOUTUBE_STD_FEED_MOST_VIEWED); 
         /* ytv_feed_user (app->feed, "pinkipons"); */
@@ -173,10 +170,34 @@ app_fetch_feed (App* app)
 
         ytv_feed_get_entries_async (app->feed, feed_entry_cb, app);
 
-        return !app->done;
+        gtk_widget_set_sensitive (app->prev, app->start_idx > 0);
+        gtk_widget_set_sensitive (app->next, TRUE);
+
+        return FALSE;
 }
 
-App*
+static void
+change_page_cb (GtkWidget *widget, gpointer user_data)
+{
+        App* app;
+        YtvUriBuilder* ub;
+        
+        g_return_if_fail (user_data != NULL);
+        
+        app = (App*) user_data;
+
+        app->start_idx += (widget == app->prev) ? -ENTRYNUM : ENTRYNUM;
+
+        ub = ytv_feed_get_uri_builder (app->feed);
+        g_object_set (G_OBJECT (ub), "start-index", app->start_idx, NULL);
+        g_object_unref (ub);
+
+        g_idle_add ((GSourceFunc) app_fetch_feed, (gpointer) app);
+
+        return;
+}
+
+static App*
 app_new (void)
 {
         gint i;
@@ -219,7 +240,7 @@ app_new (void)
         return app;
 }
 
-void
+static void
 app_free (App* app)
 {
         g_return_if_fail (app != NULL);
@@ -232,12 +253,12 @@ app_free (App* app)
         g_slice_free (App, app);
 }
 
-void
+static void
 app_create_ui (App* app)
 {
         GtkWidget* box;
-        GtkWidget* prev;
-        GtkWidget* next;
+        GtkWidget* imgprev;
+        GtkWidget* imgnext;
 
         app->win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
         /* gtk_widget_set_size_request (win, 400, 600); */
@@ -250,25 +271,40 @@ app_create_ui (App* app)
         {
                 box = gtk_hbox_new (FALSE, 0);
                 app->box = gtk_hbox_new (FALSE, 0);
-                prev = gtk_button_new_from_stock (GTK_STOCK_GO_BACK);
-                next = gtk_button_new_from_stock (GTK_STOCK_GO_FORWARD);
+
+                imgprev = gtk_image_new_from_stock (GTK_STOCK_GO_BACK,
+                                                    GTK_ICON_SIZE_MENU);
+                imgnext = gtk_image_new_from_stock (GTK_STOCK_GO_FORWARD,
+                                                    GTK_ICON_SIZE_MENU);
         }
         else
         {
                 box = gtk_vbox_new (FALSE, 0);
                 app->box = gtk_vbox_new (FALSE, 0);
-                prev = gtk_button_new_from_stock (GTK_STOCK_GO_UP);
-                next = gtk_button_new_from_stock (GTK_STOCK_GO_DOWN);
+                imgprev = gtk_image_new_from_stock (GTK_STOCK_GO_UP,
+                                                    GTK_ICON_SIZE_MENU);
+                imgnext = gtk_image_new_from_stock (GTK_STOCK_GO_DOWN,
+                                                    GTK_ICON_SIZE_MENU);
         }
 
-        gtk_box_pack_start (GTK_BOX (box), prev, TRUE, TRUE, 2);
+        app->prev = gtk_button_new ();
+        gtk_container_add (GTK_CONTAINER (app->prev), imgprev);
+        g_signal_connect (app->prev, "clicked",
+                          G_CALLBACK (change_page_cb), app);
+        
+        app->next = gtk_button_new ();
+        gtk_container_add (GTK_CONTAINER (app->next), imgnext);
+        g_signal_connect (app->next, "clicked",
+                          G_CALLBACK (change_page_cb), app);
+
+        gtk_box_pack_start (GTK_BOX (box), app->prev, FALSE, TRUE, 2);
         gtk_box_pack_start (GTK_BOX (box), app->box, TRUE, TRUE, 0);
-        gtk_box_pack_end (GTK_BOX (box), next, TRUE, TRUE, 2);
+        gtk_box_pack_end (GTK_BOX (box), app->next, FALSE, TRUE, 2);
         
         gtk_container_add (GTK_CONTAINER (app->win), box);
 
         gtk_widget_show_all (app->win);
-
+        
         return;
 }
 
@@ -318,8 +354,9 @@ main (gint argc, gchar** argv)
         }
         
         app_create_ui (app);
-        g_timeout_add_seconds (5, (GSourceFunc) app_fetch_feed, app);
-
+        /* g_timeout_add_seconds (5, (GSourceFunc) app_fetch_feed, app); */
+        g_idle_add ((GSourceFunc) app_fetch_feed, (gpointer) app);
+        
         gtk_main ();
 
 beach:
