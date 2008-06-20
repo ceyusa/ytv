@@ -25,7 +25,6 @@
 
 #include <gtk/gtk.h>
 
-#include <ytv-rank.h>
 #include <ytv-star.h>
 
 enum _YtvEntryTextViewProp
@@ -39,9 +38,14 @@ struct _YtvEntryTextViewPriv
 {
         GtkTextTagTable* tagtable;
         YtvEntry* entry;
+        GdkCursor* handcursor;
+        GdkCursor* dfltcursor;
+        gboolean hovering_over_link;
 };
 
-#define FONTSIZE 8 * PANGO_SCALE
+#define FONTSIZE_LARGE  10 * PANGO_SCALE
+#define FONTSIZE_MEDIUM  8 * PANGO_SCALE
+#define FONTSIZE_SMALL   7 * PANGO_SCALE
 
 #define YTV_ENTRY_TEXT_VIEW_GET_PRIVATE(obj) \
         (G_TYPE_INSTANCE_GET_PRIVATE ((obj), YTV_TYPE_ENTRY_TEXT_VIEW, YtvEntryTextViewPriv))
@@ -57,52 +61,47 @@ create_tag_table (void)
 
         table = gtk_text_tag_table_new ();
 
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "p",
-                                          "size", 7 * PANGO_SCALE, NULL));
+        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG,
+                                          "name", "duration",
+                                          "size", FONTSIZE_SMALL, NULL));
         gtk_text_tag_table_add (table, tag);
         g_object_unref (tag);
 
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "big",
-                                          "scale", PANGO_SCALE_LARGE,
-                                          "size", FONTSIZE, NULL));
-        gtk_text_tag_table_add (table, tag);
-        g_object_unref (tag);
+/*         tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "big", */
+/*                                           "scale", PANGO_SCALE_LARGE, */
+/*                                           "size", FONTSIZE_MEDIUM, NULL)); */
+/*         gtk_text_tag_table_add (table, tag); */
+/*         g_object_unref (tag); */
 
 /*         tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "b", */
 /*                                           "weight", PANGO_WEIGHT_BOLD, */
 /*                                           "size", FONTSIZE, NULL)); */
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "b",
-                                          "size", 10 * PANGO_SCALE, NULL));
+        
+        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG,
+                                          "name", "title",
+                                          "size", FONTSIZE_LARGE, NULL));
         gtk_text_tag_table_add (table, tag);
         g_object_unref (tag);
 
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "i",
+        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG,
+                                          "name", "author",
                                           "style", PANGO_STYLE_ITALIC,
-                                          "size", FONTSIZE, NULL));
-        gtk_text_tag_table_add (table, tag);
-        g_object_unref (tag);
-
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "gray",
-                                          "foreground", "darkgray",
-                                          "size", FONTSIZE, NULL));
-        gtk_text_tag_table_add (table, tag);
-        g_object_unref (tag);
-
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "red",
                                           "foreground", "darkred",
-                                          "size", FONTSIZE, NULL));
+                                          "size", FONTSIZE_MEDIUM, NULL));
         gtk_text_tag_table_add (table, tag);
         g_object_unref (tag);
 
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "blue",
+        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG,
+                                          "name", "views",
+                                          "foreground", "darkgray",
+                                          "size", FONTSIZE_MEDIUM, NULL));
+        gtk_text_tag_table_add (table, tag);
+        g_object_unref (tag);
+
+        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG,
+                                          "name", "category",
                                           "foreground", "blue",
-                                          "size", FONTSIZE, NULL));
-        gtk_text_tag_table_add (table, tag);
-        g_object_unref (tag);
-
-        tag = GTK_TEXT_TAG (g_object_new (GTK_TYPE_TEXT_TAG, "name", "link",
-                                          "underline", PANGO_UNDERLINE_SINGLE,
-                                          "size", FONTSIZE, NULL));
+                                          "size", FONTSIZE_MEDIUM, NULL));
         gtk_text_tag_table_add (table, tag);
         g_object_unref (tag);
         
@@ -124,6 +123,115 @@ get_tag_table (void)
         }
 
         return table;
+}
+
+static GdkCursor*
+get_cursor (GdkCursorType type)
+{
+        static GdkCursor* hand = NULL;
+        static GdkCursor* dftl = NULL;
+        GdkCursor* cursor;
+
+        if (type == GDK_HAND2)
+        {
+                cursor = hand;
+        }
+        else if (type == GDK_XTERM)
+        {
+                cursor = dftl;
+        }
+        else
+        {
+                return NULL;
+        }
+               
+        if (cursor == NULL)
+        {
+                cursor = gdk_cursor_new (type);
+        }
+        else
+        {
+                gdk_cursor_ref (cursor);
+        }
+
+        return cursor;
+}       
+
+/* Looks at all tags covering the position (x, y) in the text view,
+ * and if one of them is a link, change the cursor to the "hands" cursor
+ * typically used by web browsers.
+ */
+static void
+set_cursor_if_appropriate (YtvEntryTextView* self, gint x, gint y)
+{
+        YtvEntryTextViewPriv* priv;
+        GSList *tags = NULL, *tagp = NULL;
+        GtkTextBuffer* buffer;
+        GtkTextIter iter;
+        GtkTextView* text_view;
+        gboolean hovering = FALSE;
+
+        priv = YTV_ENTRY_TEXT_VIEW_GET_PRIVATE (self);
+        
+        text_view = GTK_TEXT_VIEW (self);
+        buffer = gtk_text_view_get_buffer (text_view);
+        gtk_text_view_get_iter_at_location (text_view, &iter, x, y);
+
+        tags = gtk_text_iter_get_tags (&iter);
+        for (tagp = tags;  tagp != NULL;  tagp = tagp->next)
+        {
+                hovering = (g_object_get_data (G_OBJECT (tagp->data), "class")
+                            != NULL);
+
+                if (hovering == TRUE)
+                {
+                        break;
+                }
+        }
+
+        if (hovering != priv->hovering_over_link)
+        {
+                priv->hovering_over_link = hovering;
+
+                if (priv->hovering_over_link == TRUE)
+                {
+                        gdk_window_set_cursor
+                                (gtk_text_view_get_window
+                                 (text_view, GTK_TEXT_WINDOW_TEXT),
+                                 priv->handcursor);
+                }
+                else
+                {
+                        gdk_window_set_cursor
+                                (gtk_text_view_get_window
+                                 (text_view, GTK_TEXT_WINDOW_TEXT),
+                                 priv->dfltcursor);
+                }
+        }
+
+        if (tags != NULL)
+        {
+                g_slist_free (tags);
+        }
+
+        return;
+}
+
+
+static gboolean 
+motion_notify_event (GtkWidget* view, GdkEventMotion* event)
+{
+        gint x, y;
+
+        gtk_text_view_window_to_buffer_coords (GTK_TEXT_VIEW (view),
+                                               GTK_TEXT_WINDOW_WIDGET,
+                                               event->x, event->y, &x, &y);
+
+        set_cursor_if_appropriate (YTV_ENTRY_TEXT_VIEW (view), x, y);
+
+        gdk_window_get_pointer (view->window, NULL, NULL, NULL);
+        
+        return FALSE;
 }
 
 static GtkWidget*
@@ -175,6 +283,45 @@ get_rating_widget (gfloat rating)
 }
 
 static void
+insert_link (GtkTextBuffer* buffer, GtkTextIter* iter, const gchar* text,
+             const gchar* class, const gchar* param, const gchar* tagname)
+{
+        GtkTextTag* linktag;
+        GtkTextTag* extratag = NULL;
+        GtkTextTagTable* tagtable = gtk_text_buffer_get_tag_table (buffer);
+
+        if (text == NULL)
+        {
+                return;
+        }
+        
+        if (tagname != NULL)
+        {
+                extratag = gtk_text_tag_table_lookup (tagtable, tagname);
+        }
+
+        linktag = gtk_text_buffer_create_tag
+                (buffer, NULL, "underline", PANGO_UNDERLINE_SINGLE, NULL);
+
+        if (class != NULL)
+        {
+                g_object_set_data_full (G_OBJECT (linktag),
+                                        "class", g_strdup (class), g_free);
+        }
+
+        if (param != NULL)
+        {
+                g_object_set_data_full (G_OBJECT (linktag),
+                                        "param", g_strdup (param), g_free);
+        }
+        
+        gtk_text_buffer_insert_with_tags (buffer, iter, text, -1,
+                                          extratag, linktag, NULL);
+
+        return;
+}
+
+static void
 update_widget (YtvEntryTextView* self)
 {
         YtvEntryTextViewPriv* priv;
@@ -189,6 +336,7 @@ update_widget (YtvEntryTextView* self)
         gint views;
         gfloat rating;
         gchar* category;
+        gchar* id;
         
         priv = YTV_ENTRY_TEXT_VIEW_GET_PRIVATE (self);
         buffer = gtk_text_buffer_new (priv->tagtable);
@@ -198,17 +346,16 @@ update_widget (YtvEntryTextView* self)
         g_object_set (G_OBJECT (buffer), "text", "", NULL);
         gtk_text_buffer_get_iter_at_offset (buffer, &iter, 0);
 
+        /* id */
+        g_object_get (G_OBJECT (priv->entry), "id", &id, NULL);
+        
         /* title */
         g_object_get (G_OBJECT (priv->entry), "title", &title, NULL);
 
         if (title != NULL)
         {
-                gtk_text_buffer_insert_with_tags_by_name (buffer, &iter,
-                                                          (const gchar*) title,
-                                                          -1, "b", NULL);
-                gtk_text_buffer_insert_with_tags_by_name (buffer, &iter,
-                                                          "\n",
-                                                          -1, "b", NULL);
+                insert_link (buffer, &iter, title, "info", id, "title");
+                gtk_text_buffer_insert (buffer, &iter, "\n", -1);
                 g_free (title);
         }
 
@@ -231,9 +378,8 @@ update_widget (YtvEntryTextView* self)
                         g_free (tmp);
                 }
                 
-                gtk_text_buffer_insert_with_tags_by_name (buffer, &iter,
-                                                          (const gchar*) dur,
-                                                          -1, "p", NULL);
+                gtk_text_buffer_insert_with_tags_by_name
+                        (buffer, &iter, dur, -1, "duration", NULL);
                 gtk_text_buffer_insert (buffer, &iter, " ", -1);
                 g_free (dur);
         }
@@ -243,10 +389,10 @@ update_widget (YtvEntryTextView* self)
 
         if (author != NULL)
         {
-                gtk_text_buffer_insert_with_tags_by_name (buffer, &iter,
-                                                          (const gchar*) author,
-                                                          -1, "red", "i", NULL);
+                insert_link (buffer, &iter, author,
+                             "author", author, "author");
                 gtk_text_buffer_insert (buffer, &iter, "\n", -1);
+
                 g_free (author);
         }
 
@@ -260,11 +406,21 @@ update_widget (YtvEntryTextView* self)
                 strfmon (nv, BUFSIZ - 1, "%!.0n", (gdouble) views);
                 v = g_strdup_printf ("%s views", nv);
 
-                gtk_text_buffer_insert_with_tags_by_name (buffer, &iter,
-                                                          (const gchar*) v,
-                                                          -1, "gray", NULL);
-                gtk_text_buffer_insert (buffer, &iter, "\n", -1);
+                gtk_text_buffer_insert_with_tags_by_name
+                        (buffer, &iter, v, -1, "views", NULL);
+                gtk_text_buffer_insert (buffer, &iter, " ", -1);
                 g_free (v);
+        }
+
+        /* category */
+        g_object_get (G_OBJECT (priv->entry), "category", &category, NULL);
+
+        if (category != NULL)
+        {
+                insert_link (buffer, &iter, category,
+                             "category", category, "category");
+                gtk_text_buffer_insert (buffer, &iter, "\n", -1);
+                g_free (category);                
         }
 
         /* rating */
@@ -287,19 +443,7 @@ update_widget (YtvEntryTextView* self)
                 
         }
 
-        /* category */
-
-        g_object_get (G_OBJECT (priv->entry), "category", &category, NULL);
-
-        if (category != NULL)
-        {
-                gtk_text_buffer_insert (buffer, &iter, "\n", -1);
-                gtk_text_buffer_insert_with_tags_by_name
-                        (buffer, &iter, (const gchar*) category, -1,
-                         "blue", "p", NULL);
-                g_free (category);                
-        }
-        
+        g_free (id);
         g_object_unref (buffer);
 
         return;
@@ -364,6 +508,18 @@ ytv_entry_text_view_dispose (GObject* object)
                 priv->entry = NULL;
         }
 
+        if (priv->handcursor != NULL)
+        {
+                gdk_cursor_unref (priv->handcursor);
+                priv->handcursor = NULL;
+        }
+
+        if (priv->dfltcursor != NULL)
+        {
+                gdk_cursor_unref (priv->dfltcursor);
+                priv->dfltcursor = NULL;
+        }
+
         return;
 }
 
@@ -396,14 +552,20 @@ ytv_entry_text_view_init (YtvEntryTextView* self)
 
         priv = YTV_ENTRY_TEXT_VIEW_GET_PRIVATE (self);
 
-        priv->tagtable = get_tag_table ();
-        priv->entry = NULL;
+        priv->tagtable   = get_tag_table ();
+        priv->entry      = NULL;
+        priv->handcursor = get_cursor (GDK_HAND2);
+        priv->dfltcursor = get_cursor (GDK_XTERM);
+        priv->hovering_over_link = FALSE;
 
         g_object_set (G_OBJECT (self),
                       "editable", FALSE, "cursor-visible", FALSE,
                       "can-focus", FALSE, "wrap-mode", GTK_WRAP_WORD,
                       "left-margin", 6, "right-margin", 6,
                       "pixels-above-lines", 6,  NULL);
+
+        g_signal_connect (G_OBJECT (self), "motion-notify-event",
+                          G_CALLBACK (motion_notify_event), NULL);
         
         return;
 }

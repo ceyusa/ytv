@@ -388,6 +388,7 @@ ytv_thumbnail_init (YtvThumbnail* self)
 
         self->button = gtk_button_new ();        
         gtk_button_set_relief (GTK_BUTTON (self->button), GTK_RELIEF_NONE);
+        GTK_WIDGET_UNSET_FLAGS(self->button, GTK_CAN_FOCUS);
         g_signal_connect_swapped (G_OBJECT (self->button), "focus-in-event",
                                   G_CALLBACK (on_focus_in), self);
         g_signal_connect_swapped (G_OBJECT (self->button), "focus-out-event",
