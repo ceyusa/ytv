@@ -339,7 +339,8 @@ get_rating (JsonNode* node)
         /* this could be possible in most_recent feed */
         if (node == NULL)
         {
-                return 1;
+                g_debug ("no rating registered");
+                return 0;
         }
         
         /* g_return_val_if_fail (node != NULL, 1);  */
@@ -400,8 +401,14 @@ get_views (JsonNode* node)
         JsonObject* obj;
         gint retval;
         const gchar* views;
+
+        if (node == NULL)
+        {
+                g_debug ("no views registered");
+                return 0;
+        }
         
-        g_return_val_if_fail (node != NULL, -1);
+        /* g_return_val_if_fail (node != NULL, -1); */
         g_return_val_if_fail (JSON_NODE_TYPE (node) == JSON_NODE_OBJECT, -1);
 
         obj = json_node_get_object (node);
@@ -595,7 +602,7 @@ parse_entry (JsonNode* node)
                 );
 
         if (id != NULL && authors != NULL && title != NULL && duration > 0 &&
-            rating > -1 && published != NULL && views > 0 &&
+            rating > -1 && published != NULL && views >= 0 &&
             category != NULL && tags != NULL && description != NULL)
         {
                 entry = g_object_new (YTV_TYPE_ENTRY,

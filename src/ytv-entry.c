@@ -146,7 +146,7 @@ ytv_entry_set_property (GObject* object, guint prop_id,
                 gfloat rating;
                 g_return_if_fail (priv->rating == -1);
                 rating = g_value_get_float (value);
-                g_return_if_fail (rating >= 1);
+                g_return_if_fail (rating >= 0);
                 priv->rating = rating;
                 g_object_notify (object, "rating");
                 break;
@@ -352,7 +352,7 @@ ytv_entry_class_init (YtvEntryClass* klass)
                 (object_class, PROP_RATING,
                  g_param_spec_float
                  ("rating", "rating", "Average user rating for the video",
-                  1.0, 5.0, 1.0, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+                  0.0, 5.0, 0.0, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
         g_object_class_install_property
                 (object_class, PROP_PUBLISHED,

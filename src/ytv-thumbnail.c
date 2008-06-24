@@ -245,8 +245,8 @@ fetch_image (YtvThumbnail* self)
         gtk_image_set_from_stock (GTK_IMAGE (self->image),
                                   GTK_STOCK_MISSING_IMAGE,
                                   GTK_ICON_SIZE_DIALOG);
-        gtk_widget_set_size_request (self->image, 136, 103); /* 130+6x97+6 */
-
+        /* gtk_widget_set_size_request (self->image, 136, 103); */ /* 130+6x97+6 */
+        
         uri = ytv_uri_builder_get_thumbnail (priv->ub, priv->eid);
         g_return_if_fail (uri != NULL);
 
@@ -388,7 +388,6 @@ ytv_thumbnail_init (YtvThumbnail* self)
 
         self->button = gtk_button_new ();        
         gtk_button_set_relief (GTK_BUTTON (self->button), GTK_RELIEF_NONE);
-        GTK_WIDGET_UNSET_FLAGS(self->button, GTK_CAN_FOCUS);
         g_signal_connect_swapped (G_OBJECT (self->button), "focus-in-event",
                                   G_CALLBACK (on_focus_in), self);
         g_signal_connect_swapped (G_OBJECT (self->button), "focus-out-event",
