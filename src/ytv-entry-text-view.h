@@ -55,6 +55,10 @@ struct _YtvEntryTextView
 struct _YtvEntryTextViewClass
 {
         GtkTextViewClass parent_class;
+
+        /* signals */
+        void (*link_clicked) (YtvEntryTextView* self,
+                              const gchar* class, const gchar* param);
 };
 
 GType ytv_entry_text_view_get_type (void);

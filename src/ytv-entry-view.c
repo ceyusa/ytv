@@ -46,6 +46,8 @@
 #include <ytv-feed-fetch-strategy.h>
 #include <ytv-uri-builder.h>
 
+#include <ytv-marshal.h>
+
 /**
  * ytv_entry_view_set_entry:
  * @self: a #YtvEntryView

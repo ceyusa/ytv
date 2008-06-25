@@ -10,6 +10,7 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 AC_HEADER_STDC
+AC_PATH_PROG([GLIB_GENMARSHAL], [glib-genmarshal])
 
 AM_MAINTAINER_MODE
 
@@ -27,7 +28,7 @@ PKG_CHECK_MODULES([GOBJECT], [$gobject_modules])
 dnl #####################################
 dnl ### glib marshalls generator      ###
 dnl #####################################
-GLIB_GENMARSHAL=`pkg-config --variable=glib_genmarshal glib-2.0`
+GLIB_GENMARSHAL=`$PKG_CONFIG --variable=glib_genmarshal glib-2.0`
 AC_SUBST(GLIB_GENMARSHAL)
 
 dnl #####################################

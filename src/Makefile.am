@@ -60,15 +60,15 @@ ytv_SOURCES = 				\
 BUILT_SOURCES=ytv-marshal.c ytv-marshal.h
 
 ytv-marshal.h: ytv-marshal.list
-	@GLIB_GENMARSHAL@ '
-	        --prefix=ytv_cclosure_marshal $(srcdir)/ytv-marshal.list --header > xgen-gmc '
-	&& cp xgen-gmc $(@F) '
+	@GLIB_GENMARSHAL@ \
+	        --prefix=ytv_cclosure_marshal $(srcdir)/ytv-marshal.list --header > xgen-gmc \
+	&& cp xgen-gmc $(@F) \
 	&& rm -f xgen-gmc
 
 ytv-marshal.c: ytv-marshal.h ytv-marshal.list
-	echo "#include '"ytv-marshal.h'"" > xgen-gmc '
-	&& @GLIB_GENMARSHAL@ '
-	        --prefix=ytv_cclosure_marshal $(srcdir)/ytv-marshal.list --body >> xgen-gmc '
-	&& cp xgen-gmc $(@F) '
+	echo "#include \"ytv-marshal.h\"" > xgen-gmc \
+	&& @GLIB_GENMARSHAL@ \
+	        --prefix=ytv_cclosure_marshal $(srcdir)/ytv-marshal.list --body >> xgen-gmc \
+	&& cp xgen-gmc $(@F) \
 	&& rm -f xgen-gmc
 

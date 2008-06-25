@@ -26,12 +26,21 @@
 #include <gtk/gtk.h>
 
 #include <ytv-star.h>
+#include <ytv-marshal.h>
 
 enum _YtvEntryTextViewProp
 {
         PROP_0,
         PROP_ENTRY
 };
+
+enum _YtvEntryTextViewSignals
+{
+        LINK_CLICKED,
+        LAST_SIGNAL
+};
+
+static guint ytv_entry_text_view_signals[LAST_SIGNAL] = { 0 };
 
 typedef struct _YtvEntryTextViewPriv YtvEntryTextViewPriv;
 struct _YtvEntryTextViewPriv
@@ -542,6 +551,17 @@ ytv_entry_text_view_class_init (YtvEntryTextViewClass* klass)
                  ("entry", "Entry", "The feed's entry to show",
                   YTV_TYPE_ENTRY, G_PARAM_READWRITE));
 
+        ytv_entry_text_view_signals[LINK_CLICKED] =
+                g_signal_new ("link-clicked",
+                              YTV_TYPE_ENTRY_TEXT_VIEW,
+                              G_SIGNAL_RUN_LAST,
+                              G_STRUCT_OFFSET (YtvEntryTextViewClass,
+                                               link_clicked),
+                              NULL, NULL,
+                              ytv_cclosure_marshal_VOID__STRING_STRING,
+                              G_TYPE_NONE, 2,
+                              G_TYPE_STRING, G_TYPE_STRING);
+        
         return;
 }
 

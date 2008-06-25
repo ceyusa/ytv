@@ -81,12 +81,11 @@ create_entry_view (YtvFeed* feed, YtvOrientation orientation)
         }
                         
         fetchst = ytv_feed_get_fetch_strategy (feed);
-        ytv_gtk_entry_view_set_fetch_strategy (YTV_GTK_ENTRY_VIEW (view),
-                                               fetchst);
+        ytv_entry_view_set_fetch_strategy (view, fetchst);
         g_object_unref (fetchst);
 
         ub = ytv_feed_get_uri_builder (feed);
-        ytv_gtk_entry_view_set_uri_builder (YTV_GTK_ENTRY_VIEW (view), ub);
+        ytv_entry_view_set_uri_builder (view, ub);
         g_object_unref (ub);
 
         gtk_widget_show_all (GTK_WIDGET (view));
