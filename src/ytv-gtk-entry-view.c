@@ -47,6 +47,26 @@ struct _YtvGtkEntryViewPriv
         (G_TYPE_INSTANCE_GET_PRIVATE ((obj), YTV_TYPE_GTK_ENTRY_VIEW, YtvGtkEntryViewPriv))
 
 static void
+link_clicked_cb (YtvEntryTextView* text_view,
+                 const gchar* class, const gchar* param, gpointer user_data)
+{
+        YtvGtkEntryView* self = (YtvGtkEntryView*) user_data;
+
+        g_debug ("link://%s/%s", class, param);
+
+        if (g_strrstr (class, "info") != NULL)
+        {
+                g_signal_emit_by_name (self, "show-details");
+        }
+        else
+        {
+                g_signal_emit_by_name (self, "link-clicked", class, param);
+        }
+
+        return;
+}
+
+static void
 ytv_entry_view_init (YtvEntryViewIface* iface)
 {
         iface->set_entry = ytv_gtk_entry_view_set_entry;
@@ -340,6 +360,9 @@ ytv_gtk_entry_view_init (YtvGtkEntryView* self)
         priv->orientation = YTV_ORIENTATION_UNDEF;
         priv->thumb       = ytv_thumbnail_new ();
         priv->text        = ytv_entry_text_view_new ();
+
+        g_signal_connect (priv->text, "link-clicked",
+                          G_CALLBACK (link_clicked_cb), self);
 
         self->entry = NULL;
 

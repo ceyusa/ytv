@@ -64,6 +64,37 @@ struct _App
         YtvOrientation orientation;
 };
 
+static void clean_entry_view (App* app);
+static void feed_entry_cb (YtvFeed* feed, gboolean cancelled, YtvList* list,
+                           GError **err, gpointer user_data);
+
+static void
+link_clicked_cb (GtkWidget* widget,
+                 const gchar* class, const gchar* param, gpointer user_data)
+{
+        App* app;
+
+        g_return_if_fail (class != NULL && param != NULL && user_data != NULL);
+
+        app = (App*) user_data;
+
+        clean_entry_view (app);
+        app->start_idx = 0;
+
+        if (g_strrstr (class, "author") != NULL)
+        {
+                g_debug ("calling feed user %s", param);
+                ytv_feed_user (app->feed, param);
+        }
+
+        ytv_feed_get_entries_async (app->feed, feed_entry_cb, app);
+        
+        gtk_widget_set_sensitive (app->prev, app->start_idx > 0);
+        gtk_widget_set_sensitive (app->next, TRUE);
+
+        return;
+}
+
 static GtkWidget*
 create_entry_view (YtvFeed* feed, YtvOrientation orientation)
 {
@@ -94,22 +125,6 @@ create_entry_view (YtvFeed* feed, YtvOrientation orientation)
 }
 
 static void
-clean_entry_view (App* app)
-{
-        gint i;
-
-        for (i = 0; i < ENTRYNUM; i++)
-        {
-                if (app->entryview[i] != NULL)
-                {
-                        ytv_entry_view_clean (YTV_ENTRY_VIEW (app->entryview[i]));
-                }
-        }
-
-        return;
-}
-
-static void
 show_entry_view (App* app, YtvEntry* entry)
 {
         static gint idx = 0;
@@ -122,11 +137,29 @@ show_entry_view (App* app, YtvEntry* entry)
                                                          app->orientation);
                 gtk_box_pack_start (GTK_BOX (app->box), app->entryview[idx],
                                     TRUE, TRUE, 0);
+                g_signal_connect (app->entryview[idx], "link-clicked",
+                                  G_CALLBACK (link_clicked_cb), app);
         }
 
         ytv_entry_view_set_entry (YTV_ENTRY_VIEW (app->entryview[idx]), entry);
 
         idx++;
+
+        return;
+}
+
+static void
+clean_entry_view (App* app)
+{
+        gint i;
+
+        for (i = 0; i < ENTRYNUM; i++)
+        {
+                if (app->entryview[i] != NULL)
+                {
+                        ytv_entry_view_clean (YTV_ENTRY_VIEW (app->entryview[i]));
+                }
+        }
 
         return;
 }
@@ -197,8 +230,8 @@ app_fetch_feed (App* app)
 
         clean_entry_view (app);
 
-        ytv_feed_standard (app->feed, YTV_YOUTUBE_STD_FEED_MOST_RECENT);
-        /* ytv_feed_standard (app->feed, YTV_YOUTUBE_STD_FEED_MOST_VIEWED); */
+        /* ytv_feed_standard (app->feed, YTV_YOUTUBE_STD_FEED_MOST_RECENT); */
+        ytv_feed_standard (app->feed, YTV_YOUTUBE_STD_FEED_MOST_VIEWED);
         /* ytv_feed_user (app->feed, "pinkipons"); */
         /* ytv_feed_related (app->feed, "FOwQETKKyF0"); */
         /* ytv_feed_search (app->feed, "café tacvba"); */

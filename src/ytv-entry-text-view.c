@@ -40,7 +40,7 @@ enum _YtvEntryTextViewSignals
         LAST_SIGNAL
 };
 
-static guint ytv_entry_text_view_signals[LAST_SIGNAL] = { 0 };
+static guint signals[LAST_SIGNAL] = { 0 };
 
 typedef struct _YtvEntryTextViewPriv YtvEntryTextViewPriv;
 struct _YtvEntryTextViewPriv
@@ -226,6 +226,40 @@ set_cursor_if_appropriate (YtvEntryTextView* self, gint x, gint y)
         return;
 }
 
+/* Looks at all tags covering the position of iter in the text view,
+ * and if one of them is a link, follow it by showing the page identified
+ * by the data attached to it.
+ */
+static void
+follow_if_link (YtvEntryTextView* self, GtkTextIter* iter)
+{
+        YtvEntryTextViewPriv* priv;
+        GSList *tags = NULL, *tagp = NULL;
+
+        priv = YTV_ENTRY_TEXT_VIEW_GET_PRIVATE (self);
+        tags = gtk_text_iter_get_tags (iter);
+        for (tagp = tags;  tagp != NULL;  tagp = tagp->next)
+        {
+                gchar* class = g_object_get_data (G_OBJECT (tagp->data),
+                                                  "class");
+
+                if (class != NULL)
+                {
+                        gchar* param = g_object_get_data (G_OBJECT (tagp->data),
+                                                          "param");
+                        g_signal_emit (self, signals[LINK_CLICKED],
+                                       0, class, param);
+                        break;
+                }
+        }
+
+        if (tags)
+        {
+                g_slist_free (tags);
+        }
+
+        return;
+}
 
 static gboolean 
 motion_notify_event (GtkWidget* view, GdkEventMotion* event)
@@ -240,6 +274,48 @@ motion_notify_event (GtkWidget* view, GdkEventMotion* event)
 
         gdk_window_get_pointer (view->window, NULL, NULL, NULL);
         
+        return FALSE;
+}
+
+static gboolean
+event_after (GtkWidget* view, GdkEvent* ev)
+{
+        GtkTextIter start, end, iter;
+        GtkTextBuffer *buffer;
+        GdkEventButton *event;
+        gint x, y;
+
+        if (ev->type != GDK_BUTTON_RELEASE)
+        {
+                return FALSE;
+        }
+
+        event = (GdkEventButton*) ev;
+
+        if (event->button != 1)
+        {
+                return FALSE;
+        }
+
+        buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+
+        /* we shouldn't follow a link if the user has selected something */
+        gtk_text_buffer_get_selection_bounds (buffer, &start, &end);
+        
+        if (gtk_text_iter_get_offset (&start) !=
+            gtk_text_iter_get_offset (&end))
+        {
+                return FALSE;
+        }
+
+        gtk_text_view_window_to_buffer_coords (GTK_TEXT_VIEW (view),
+                                               GTK_TEXT_WINDOW_WIDGET,
+                                               event->x, event->y, &x, &y);
+
+        gtk_text_view_get_iter_at_location (GTK_TEXT_VIEW (view), &iter, x, y);
+
+        follow_if_link (YTV_ENTRY_TEXT_VIEW (view), &iter);
+
         return FALSE;
 }
 
@@ -551,7 +627,7 @@ ytv_entry_text_view_class_init (YtvEntryTextViewClass* klass)
                  ("entry", "Entry", "The feed's entry to show",
                   YTV_TYPE_ENTRY, G_PARAM_READWRITE));
 
-        ytv_entry_text_view_signals[LINK_CLICKED] =
+        signals[LINK_CLICKED] =
                 g_signal_new ("link-clicked",
                               YTV_TYPE_ENTRY_TEXT_VIEW,
                               G_SIGNAL_RUN_LAST,
@@ -586,6 +662,9 @@ ytv_entry_text_view_init (YtvEntryTextView* self)
 
         g_signal_connect (G_OBJECT (self), "motion-notify-event",
                           G_CALLBACK (motion_notify_event), NULL);
+
+        g_signal_connect (G_OBJECT (self), "event-after",
+                          G_CALLBACK (event_after), NULL);
         
         return;
 }
