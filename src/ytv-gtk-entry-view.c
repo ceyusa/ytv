@@ -51,7 +51,14 @@ ytv_entry_view_init (YtvEntryViewIface* iface)
 {
         iface->set_entry = ytv_gtk_entry_view_set_entry;
         iface->get_entry = ytv_gtk_entry_view_get_entry;
-        iface->clean     = ytv_gtk_entry_view_clean;
+
+        iface->set_fetch_strategy = ytv_gtk_entry_view_set_fetch_strategy;
+        iface->get_fetch_strategy = ytv_gtk_entry_view_get_fetch_strategy;
+
+        iface->set_uri_builder = ytv_gtk_entry_view_set_uri_builder;
+        iface->get_uri_builder = ytv_gtk_entry_view_get_uri_builder;
+        
+        iface->clean = ytv_gtk_entry_view_clean;
 
         return;
 }
@@ -149,6 +156,73 @@ ytv_gtk_entry_view_get_entry_default (YtvEntryView* self)
         return me->entry;
 }
 
+void
+ytv_gtk_entry_view_set_fetch_strategy_default (YtvEntryView* self,
+                                               YtvFeedFetchStrategy* st)
+{
+        YtvGtkEntryViewPriv* priv;
+
+        g_return_if_fail (YTV_IS_GTK_ENTRY_VIEW (self));
+        g_return_if_fail (YTV_IS_FEED_FETCH_STRATEGY (st));
+
+        priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (self);
+
+        if (priv->thumb != NULL)
+        {
+                ytv_thumbnail_set_fetch_strategy (YTV_THUMBNAIL (priv->thumb),
+                                                  st);
+        }
+
+        return;
+}
+
+YtvFeedFetchStrategy*
+ytv_gtk_entry_view_get_fetch_strategy_default (YtvEntryView* self)
+{
+        YtvGtkEntryViewPriv* priv;
+
+        priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (self);
+
+        if (priv->thumb != NULL)
+        {
+                return ytv_thumbnail_get_fetch_strategy (YTV_THUMBNAIL (priv->thumb));
+        }
+
+        return NULL;
+}
+
+void
+ytv_gtk_entry_view_set_uri_builder_default (YtvEntryView* self,
+                                            YtvUriBuilder* ub)
+{
+        YtvGtkEntryViewPriv* priv;
+
+        priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (self);
+
+        if (priv->thumb != NULL)
+        {
+                ytv_thumbnail_set_uri_builder (YTV_THUMBNAIL (priv->thumb), ub);
+        }
+
+        return;
+}
+
+YtvUriBuilder*
+ytv_gtk_entry_view_get_uri_builder_default (YtvEntryView* self)
+{
+        YtvGtkEntryViewPriv* priv;
+
+        priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (self);
+
+        if (priv->thumb != NULL)
+        {
+                return ytv_thumbnail_get_uri_builder (YTV_THUMBNAIL (priv->thumb));
+        }
+
+        return NULL;
+}
+
+
 static void
 ytv_gtk_entry_view_clean_default (YtvEntryView* self)
 {
@@ -237,7 +311,14 @@ ytv_gtk_entry_view_class_init (YtvGtkEntryViewClass* klass)
 
         klass->set_entry = ytv_gtk_entry_view_set_entry_default;
         klass->get_entry = ytv_gtk_entry_view_get_entry_default;
-        klass->clean     = ytv_gtk_entry_view_clean_default;
+        
+        klass->set_fetch_strategy = ytv_gtk_entry_view_set_fetch_strategy_default;
+        klass->get_fetch_strategy = ytv_gtk_entry_view_get_fetch_strategy_default;
+
+        klass->set_uri_builder = ytv_gtk_entry_view_set_uri_builder_default;
+        klass->get_uri_builder = ytv_gtk_entry_view_get_uri_builder_default;
+        
+        klass->clean = ytv_gtk_entry_view_clean_default;
 
         g_object_class_install_property
                 (object_class, PROP_ORIENTATION,
@@ -384,55 +465,67 @@ ytv_gtk_entry_view_get_orientation (YtvGtkEntryView* self)
 
 /**
  * ytv_gtk_entry_view_set_fetch_strategy:
- * @self: a #YtvGtkEntryView
+ * @self: a #YtvEntryView
  * @st: a #YtvFeedFetchStrategy instance
  *
- * Helper. Sets the HTTP Fetch strategy for thumbnail fetching.
+ * Sets the HTTP Fetch strategy for thumbnail fetching.
  */
 void
-ytv_gtk_entry_view_set_fetch_strategy (YtvGtkEntryView* self,
+ytv_gtk_entry_view_set_fetch_strategy (YtvEntryView* self,
                                        YtvFeedFetchStrategy* st)
 {
-        YtvGtkEntryViewPriv* priv;
-
         g_return_if_fail (YTV_IS_GTK_ENTRY_VIEW (self));
         g_return_if_fail (YTV_IS_FEED_FETCH_STRATEGY (st));
 
-        priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (self);
-
-        if (priv->thumb != NULL)
-        {
-                ytv_thumbnail_set_fetch_strategy (YTV_THUMBNAIL (priv->thumb),
-                                                  st);
-        }
+        YTV_GTK_ENTRY_VIEW_GET_CLASS (self)->set_fetch_strategy (self, st);
 
         return;
 }
 
 /**
+ * ytv_gtk_entry_view_get_fetch_strategy:
+ * @self: a #YtvEntryView
+ *
+ * Gets the HTTP Fetch strategy for thumbnail fetching.
+ */
+YtvFeedFetchStrategy* 
+ytv_gtk_entry_view_get_fetch_strategy (YtvEntryView* self)
+{
+        g_return_val_if_fail (YTV_IS_GTK_ENTRY_VIEW (self), NULL);
+
+        return YTV_GTK_ENTRY_VIEW_GET_CLASS (self)->get_fetch_strategy (self);
+}
+
+/**
  * ytv_gtk_entry_view_set_uri_builder:
- * @self: a #YtvGtkEntryView
+ * @self: a #YtvEntryView
  * @ub: a #YtvUriBuilder instance
  *
- * Helper. Sets the URI builder for fetching the thumbnail.
+ * Gets the URI builder for fetching the thumbnail.
  */
 void
-ytv_gtk_entry_view_set_uri_builder (YtvGtkEntryView* self,
-                                    YtvUriBuilder* ub)
+ytv_gtk_entry_view_set_uri_builder (YtvEntryView* self, YtvUriBuilder* ub)
 {
-        YtvGtkEntryViewPriv* priv;
-
         g_return_if_fail (YTV_IS_GTK_ENTRY_VIEW (self));
         g_return_if_fail (YTV_IS_URI_BUILDER (ub));
 
-        priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (self);
-
-        if (priv->thumb != NULL)
-        {
-                ytv_thumbnail_set_uri_builder (YTV_THUMBNAIL (priv->thumb), ub);
-        }
+        YTV_GTK_ENTRY_VIEW_GET_CLASS (self)->set_uri_builder (self, ub);
 
         return;
+}
+
+/**
+ * ytv_gtk_entry_view_get_uri_builder:
+ * @self: a #YtvEntryView
+ *
+ * Gets the URI builder for fetching the thumbnail.
+ */
+YtvUriBuilder*
+ytv_gtk_entry_view_get_uri_builder (YtvEntryView* self)
+{
+        g_return_val_if_fail (YTV_IS_GTK_ENTRY_VIEW (self), NULL);
+
+        return YTV_GTK_ENTRY_VIEW_GET_CLASS (self)->get_uri_builder (self);
 }
 
 YtvEntryView*

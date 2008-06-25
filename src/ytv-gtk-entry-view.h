@@ -71,6 +71,14 @@ struct _YtvGtkEntryViewClass
 
         void (*set_entry) (YtvEntryView* self, YtvEntry* entry);
         YtvEntry* (*get_entry) (YtvEntryView* self);
+
+        void (*set_fetch_strategy) (YtvEntryView* self,
+                                    YtvFeedFetchStrategy* st);
+        YtvFeedFetchStrategy* (*get_fetch_strategy) (YtvEntryView* self);
+
+        void (*set_uri_builder) (YtvEntryView* self, YtvUriBuilder* ub);
+        YtvUriBuilder* (*get_uri_builder) (YtvEntryView* self);
+        
         void (*clean) (YtvEntryView* self);
 };
 
@@ -82,16 +90,20 @@ YtvEntryView* ytv_gtk_entry_view_new (YtvOrientation orientation);
 
 void ytv_gtk_entry_view_set_entry (YtvEntryView* self, YtvEntry* entry);
 YtvEntry* ytv_gtk_entry_view_get_entry (YtvEntryView* self);
-void ytv_gtk_entry_view_clean (YtvEntryView* self);
 
 void ytv_gtk_entry_view_set_orientation (YtvGtkEntryView* self,
                                          YtvOrientation orientation);
 YtvOrientation ytv_gtk_entry_view_get_orientation (YtvGtkEntryView* self);
 
-void ytv_gtk_entry_view_set_fetch_strategy (YtvGtkEntryView* self,
+void ytv_gtk_entry_view_set_fetch_strategy (YtvEntryView* self,
                                             YtvFeedFetchStrategy* st);
-void ytv_gtk_entry_view_set_uri_builder (YtvGtkEntryView* self,
-                                         YtvUriBuilder* ub);
+YtvFeedFetchStrategy* ytv_gtk_entry_view_get_fetch_strategy (YtvEntryView* self);
+
+void ytv_gtk_entry_view_set_uri_builder (YtvEntryView* self, YtvUriBuilder* ub);
+YtvUriBuilder* ytv_gtk_entry_view_get_uri_builder (YtvEntryView* self);
+
+void ytv_gtk_entry_view_clean (YtvEntryView* self);
+
 
 G_END_DECLS
 

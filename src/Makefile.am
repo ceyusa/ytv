@@ -53,4 +53,22 @@ ytv_SOURCES = 				\
 	ytv-thumbnail.c			\
 	ytv-entry-text-view.h		\
 	ytv-entry-text-view.c		\
+	ytv-marshal.h			\
+	ytv-marshal.c			\
 	main.c
+
+BUILT_SOURCES=ytv-marshal.c ytv-marshal.h
+
+ytv-marshal.h: ytv-marshal.list
+	@GLIB_GENMARSHAL@ '
+	        --prefix=ytv_cclosure_marshal $(srcdir)/ytv-marshal.list --header > xgen-gmc '
+	&& cp xgen-gmc $(@F) '
+	&& rm -f xgen-gmc
+
+ytv-marshal.c: ytv-marshal.h ytv-marshal.list
+	echo "#include '"ytv-marshal.h'"" > xgen-gmc '
+	&& @GLIB_GENMARSHAL@ '
+	        --prefix=ytv_cclosure_marshal $(srcdir)/ytv-marshal.list --body >> xgen-gmc '
+	&& cp xgen-gmc $(@F) '
+	&& rm -f xgen-gmc
+

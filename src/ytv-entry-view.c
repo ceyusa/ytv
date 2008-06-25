@@ -43,6 +43,8 @@
 
 #include <ytv-entry-view.h>
 #include <ytv-entry.h>
+#include <ytv-feed-fetch-strategy.h>
+#include <ytv-uri-builder.h>
 
 /**
  * ytv_entry_view_set_entry:
@@ -90,7 +92,7 @@ ytv_entry_view_get_entry (YtvEntryView* self)
 
         if (YTV_ENTRY_VIEW_GET_IFACE (self)->get_entry == NULL)
         {
-                g_critical ("You must implement ytv_entry_view_set_view\n");
+                g_critical ("You must implement ytv_entry_view_get_view\n");
         }
 
         retval = YTV_ENTRY_VIEW_GET_IFACE (self)->get_entry (self);
@@ -101,8 +103,120 @@ ytv_entry_view_get_entry (YtvEntryView* self)
 }
 
 /**
+ * ytv_entry_view_set_fetch_strategy:
+ * @self: a #YtvEntryView
+ * @st: a #YtvFeedFetchStrategy
+ *
+ * Sets the fetch strategy. It is used commonly by the thumbnailer.
+ */
+void
+ytv_entry_view_set_fetch_strategy (YtvEntryView* self, YtvFeedFetchStrategy* st)
+{ 
+        YtvFeedFetchStrategy* validate;
+
+        g_assert (YTV_IS_ENTRY_VIEW (self));
+        g_assert (YTV_IS_FEED_FETCH_STRATEGY (st));
+        
+        if (YTV_ENTRY_VIEW_GET_IFACE (self)->set_fetch_strategy == NULL)
+        {
+                g_critical ("You must implement ytv_entry_view_set_fetch_strategy\n");
+        }
+
+        YTV_ENTRY_VIEW_GET_IFACE (self)->set_fetch_strategy (self, st);
+
+        validate = ytv_entry_view_get_fetch_strategy (self);
+        g_assert (validate == st);
+        g_object_unref (validate);
+
+        return;
+}
+
+/**
+ * ytv_entry_view_get_fetch_strategy:
+ * @self: a #YtvEntryView
+ *
+ * Gets the fetch strategy used by @self.
+ *
+ * returns: (not-null) (caller-owns): The used #YtvFeedFetchStrategy
+ */
+YtvFeedFetchStrategy* 
+ytv_entry_view_get_fetch_strategy (YtvEntryView* self)
+{
+        YtvFeedFetchStrategy* retval;
+
+        g_assert (YTV_IS_ENTRY_VIEW (self));
+
+        if (YTV_ENTRY_VIEW_GET_IFACE (self)->get_fetch_strategy == NULL)
+        {
+                g_critical ("You must implement ytv_entry_view_get_fetch_strategy\n");
+        }
+
+        retval = YTV_ENTRY_VIEW_GET_IFACE (self)->get_fetch_strategy (self);
+
+        g_assert (retval != NULL);
+
+        return retval;
+}
+
+/**
+ * ytv_entry_view_set_uri_builder:
+ * @self: a #YtvEntryView
+ * @ub: a #YtvUriBuilder
+ *
+ * Sets the URI builder. It is used commonly by the thumbnailer.
+ */
+void
+ytv_entry_view_set_uri_builder (YtvEntryView* self, YtvUriBuilder* ub)
+{ 
+        YtvUriBuilder* validate;
+
+        g_assert (YTV_IS_ENTRY_VIEW (self));
+        g_assert (YTV_IS_URI_BUILDER (ub));
+        
+        if (YTV_ENTRY_VIEW_GET_IFACE (self)->set_uri_builder == NULL)
+        {
+                g_critical ("You must implement ytv_entry_view_set_uri_builder\n");
+        }
+
+        YTV_ENTRY_VIEW_GET_IFACE (self)->set_uri_builder (self, ub);
+
+        validate = ytv_entry_view_get_uri_builder (self);
+        g_assert (validate == ub);
+        g_object_unref (validate);
+
+        return;
+}
+
+/**
+ * ytv_entry_view_get_uri_builder:
+ * @self: a #YtvEntryView
+ *
+ * Gets the URI builder used by @self.
+ *
+ * returns: (not-null) (caller-owns): The used #YtvUriBuilder
+ */
+YtvUriBuilder* 
+ytv_entry_view_get_uri_builder (YtvEntryView* self)
+{
+        YtvUriBuilder* retval;
+
+        g_assert (YTV_IS_ENTRY_VIEW (self));
+
+        if (YTV_ENTRY_VIEW_GET_IFACE (self)->get_uri_builder == NULL)
+        {
+                g_critical ("You must implement ytv_entry_view_get_uri_builder\n");
+        }
+
+        retval = YTV_ENTRY_VIEW_GET_IFACE (self)->get_uri_builder (self);
+
+        g_assert (retval != NULL);
+
+        return retval;
+}
+
+/**
  * ytv_entry_view_clean:
- * @self: a #YtvEntry
+ * @self: a #YtvEntryView
  *
  * Removes the entry data from the view.
  */
@@ -128,6 +242,34 @@ ytv_entry_view_base_init (gpointer g_class)
 
         if (!initializated)
         {
+                g_signal_new ("show-details",
+                              YTV_TYPE_ENTRY_VIEW,
+                              G_SIGNAL_RUN_LAST,
+                              G_STRUCT_OFFSET (YtvEntryViewIface,
+                                               show_details),
+                              NULL, NULL,
+                              g_cclosure_marshal_VOID__VOID,
+                              G_TYPE_NONE, 0);
+                
+                g_signal_new ("play-stream",
+                              YTV_TYPE_ENTRY_VIEW,
+                              G_SIGNAL_RUN_LAST,
+                              G_STRUCT_OFFSET (YtvEntryViewIface,
+                                               play_stream),
+                              NULL, NULL,
+                              g_cclosure_marshal_VOID__VOID,
+                              G_TYPE_NONE, 0);
+
+                g_signal_new ("link-clicked",
+                              YTV_TYPE_ENTRY_VIEW,
+                              G_SIGNAL_RUN_LAST,
+                              G_STRUCT_OFFSET (YtvEntryViewIface,
+                                               link_clicked),
+                              NULL, NULL,
+                              ytv_cclosure_marshal_VOID__STRING_STRING,
+                              G_TYPE_NONE, 2,
+                              G_TYPE_STRING, G_TYPE_STRING);
+                
                 initializated = TRUE;
         }
 

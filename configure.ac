@@ -25,6 +25,12 @@ gobject_modules="   gobject-2.0 >= 2.6.0
 PKG_CHECK_MODULES([GOBJECT], [$gobject_modules])
 
 dnl #####################################
+dnl ### glib marshalls generator      ###
+dnl #####################################
+GLIB_GENMARSHAL=`pkg-config --variable=glib_genmarshal glib-2.0`
+AC_SUBST(GLIB_GENMARSHAL)
+
+dnl #####################################
 dnl ### Optional dependencies         ###
 dnl #####################################
 libsoup_modules="    libsoup-2.4 >= 2.23.0
