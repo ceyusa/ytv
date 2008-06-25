@@ -347,7 +347,14 @@ ytv_base_feed_get_entries_async_default (YtvFeed* self,
 
         g_return_if_fail (me->parsest != NULL);
         g_return_if_fail (me->fetchst != NULL);
-        g_return_if_fail (priv->uri != NULL);
+
+        
+        if (priv->uri == NULL)
+        {
+                g_return_if_fail (me->uribuild != NULL);
+                priv->uri = ytv_uri_builder_get_current_feed (me->uribuild);
+                g_object_notify (G_OBJECT (self), "uri");
+        }
 
         priv->cb = callback;
         priv->user_data = user_data;
@@ -356,8 +363,8 @@ ytv_base_feed_get_entries_async_default (YtvFeed* self,
                                          fetch_feed_cb, me);
 
         /* @todo put this uri in a history ?? */
-        g_free (priv->uri);
-        priv->uri = NULL;
+        clean_uri (&priv->uri);
+        g_object_notify (G_OBJECT (self), "uri");
        
         return;
 }
@@ -401,8 +408,8 @@ ytv_base_feed_get_property (GObject* object, guint prop_id,
                 g_value_set_string (value, priv->uri);
                 break;
         default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
-		break;
+                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
+                break;
         }
 
         return;

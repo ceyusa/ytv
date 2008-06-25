@@ -67,6 +67,20 @@ struct _App
 static gboolean app_fetch_feed (App* app);
 
 static void
+set_start_index (App* app, guint idx)
+{
+        YtvUriBuilder* ub;
+
+        app->start_idx = idx;
+        
+        ub = ytv_feed_get_uri_builder (app->feed);
+        g_object_set (G_OBJECT (ub), "start-index", app->start_idx, NULL);
+        g_object_unref (ub);
+
+        return;
+}
+
+static void
 link_clicked_cb (GtkWidget* widget,
                  const gchar* class, const gchar* param, gpointer user_data)
 {
@@ -75,13 +89,19 @@ link_clicked_cb (GtkWidget* widget,
         g_return_if_fail (class != NULL && param != NULL && user_data != NULL);
 
         app = (App*) user_data;
-
-        app->start_idx = 0;
+        set_start_index (app, 0);
 
         if (g_strrstr (class, "author") != NULL)
         {
-                g_debug ("calling feed user %s", param);
                 ytv_feed_user (app->feed, param);
+        }
+        else if (g_strrstr (class, "category") != NULL)
+        {
+                ytv_feed_keywords (app->feed, param, ""); /* @fixme */
+        }
+        else
+        {
+                return;
         }
 
         g_idle_add ((GSourceFunc) app_fetch_feed, (gpointer) app);
@@ -243,12 +263,21 @@ change_page_cb (GtkWidget *widget, gpointer user_data)
         app = (App*) user_data;
 
         app->start_idx += (widget == app->prev) ? -ENTRYNUM : ENTRYNUM;
-
-        ub = ytv_feed_get_uri_builder (app->feed);
-        g_object_set (G_OBJECT (ub), "start-index", app->start_idx, NULL);
-        g_object_unref (ub);
+        set_start_index (app, app->start_idx);
 
         g_idle_add ((GSourceFunc) app_fetch_feed, (gpointer) app);
+
+        return;
+}
+
+static void
+change_uri_cb (YtvFeed* feed, GParamSpec *pspec __attribute__((unused)))
+{
+        gchar* uri;
+
+        g_object_get (G_OBJECT (feed), "uri", &uri, NULL);
+        g_debug ("new URI = %s", uri ? uri : "NULL");
+        g_free (uri);
 
         return;
 }
@@ -266,9 +295,13 @@ app_new (void)
 
         app->win = NULL;
         app->start_idx = 0;
-        app->feed = ytv_base_feed_new ();
         app->done = FALSE;
         app->orientation = YTV_ORIENTATION_HORIZONTAL;
+
+        app->feed = ytv_base_feed_new ();
+
+        g_signal_connect (app->feed, "notify::uri",
+                          G_CALLBACK (change_uri_cb), NULL);
 
         for (i = 0; i < ENTRYNUM; i++)
         {
@@ -299,7 +332,6 @@ app_new (void)
         /* ytv_feed_user (app->feed, "pinkipons"); */
         /* ytv_feed_related (app->feed, "FOwQETKKyF0"); */
         /* ytv_feed_search (app->feed, "café tacvba"); */
-
         
         return app;
 }

@@ -42,6 +42,16 @@ typedef struct _YtvUriBuilder YtvUriBuilder;
 typedef struct _YtvUriBuilderIface YtvUriBuilderIface;
 #endif
 
+enum _YtvUriBuilderReqFeedType
+{
+        YTV_URI_BUILDER_REQ_FEED_TYPE_STANDARD = 1,
+        YTV_URI_BUILDER_REQ_FEED_TYPE_SEARCH,
+        YTV_URI_BUILDER_REQ_FEED_TYPE_USER,
+        YTV_URI_BUILDER_REQ_FEED_TYPE_KEYWORDS,
+        YTV_URI_BUILDER_REQ_FEED_TYPE_RELATED
+};
+typedef enum _YtvUriBuilderReqFeedType YtvUriBuilderReqFeedType;
+
 struct _YtvUriBuilderIface
 {
         GTypeInterface parent;
@@ -55,6 +65,7 @@ struct _YtvUriBuilderIface
                                      const gchar* keywords);
         gchar* (*get_related_feed) (YtvUriBuilder* self, const gchar* vid);
         gchar* (*get_thumbnail) (YtvUriBuilder* self, const gchar* vid);
+        gchar* (*get_current_feed) (YtvUriBuilder* self);
 };
 
 GType ytv_uri_builder_get_type (void);
@@ -67,6 +78,7 @@ gchar* ytv_uri_builder_get_keywords_feed (YtvUriBuilder* self,
                                           const gchar* keywords);
 gchar* ytv_uri_builder_get_related_feed (YtvUriBuilder* self, const gchar* vid);
 gchar* ytv_uri_builder_get_thumbnail (YtvUriBuilder* self, const gchar* vid);
+gchar* ytv_uri_builder_get_current_feed (YtvUriBuilder* self);
 
 G_END_DECLS
 

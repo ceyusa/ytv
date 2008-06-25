@@ -190,6 +190,30 @@ ytv_uri_builder_get_thumbnail (YtvUriBuilder* self, const gchar* vid)
         return retval;        
 }
  
+/**
+ * ytv_uri_builder_get_current_feed:
+ * @self: a #YtvUriBuilder
+ *
+ * Reconstructs the URI for the previous requested feed
+ *
+ * returns: (null-ok): (caller-owns): the URI string representing the resource.
+ * The string must be freed after use.
+ */
+gchar*
+ytv_uri_builder_get_current_feed (YtvUriBuilder* self)
+{
+        gchar* retval;
+
+        g_assert (YTV_IS_URI_BUILDER (self));
+        if (YTV_URI_BUILDER_GET_IFACE (self)->get_current_feed == NULL)
+        {
+                g_critical ("You must implement ytv_uri_builder_get_current_feed\n");
+        }
+
+        retval = YTV_URI_BUILDER_GET_IFACE (self)->get_current_feed (self);
+
+        return retval;
+}
 
 static void
 ytv_uri_builder_base_init (gpointer g_class)

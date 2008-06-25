@@ -78,7 +78,7 @@ typedef enum _YtvYoutubeTime YtvYoutubeTime;
 	
 enum _YtvYoutubeStdFeed
 {
-	YTV_YOUTUBE_STD_FEED_TOP_RATED,
+	YTV_YOUTUBE_STD_FEED_TOP_RATED = 1,
 	YTV_YOUTUBE_STD_FEED_TOP_FAVORITES,
 	YTV_YOUTUBE_STD_FEED_MOST_VIEWED,
 	YTV_YOUTUBE_STD_FEED_MOST_RECENT,
@@ -112,6 +112,7 @@ struct _YtvYoutubeUriBuilderClass
                                      const gchar* keywords);
         gchar* (*get_related_feed) (YtvUriBuilder* self, const gchar* vid);
         gchar* (*get_thumbnail) (YtvUriBuilder* self, const gchar* vid);
+        gchar* (*get_current_feed) (YtvUriBuilder* self);
 };
 
 GType ytv_youtube_order_get_type (void);
@@ -127,12 +128,13 @@ gchar* ytv_youtube_uri_builder_search_feed (YtvUriBuilder* self,
 gchar* ytv_youtube_uri_builder_get_user_feed (YtvUriBuilder* self,
                                               const gchar* user);
 gchar* ytv_youtube_uri_builder_get_keywords_feed (YtvUriBuilder* self,
-						  const gchar* category,
-						  const gchar* keywords);
+                                                  const gchar* category,
+                                                  const gchar* keywords);
 gchar* ytv_youtube_uri_builder_get_related_feed (YtvUriBuilder* self,
                                                  const gchar* vid);
 gchar* ytv_youtube_uri_builder_get_thumbnail (YtvUriBuilder* self,
                                               const gchar* vid);
+gchar* ytv_youtube_uri_builder_get_current_feed (YtvUriBuilder* self);
 
 G_END_DECLS
 
