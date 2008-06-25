@@ -64,9 +64,7 @@ struct _App
         YtvOrientation orientation;
 };
 
-static void clean_entry_view (App* app);
-static void feed_entry_cb (YtvFeed* feed, gboolean cancelled, YtvList* list,
-                           GError **err, gpointer user_data);
+static gboolean app_fetch_feed (App* app);
 
 static void
 link_clicked_cb (GtkWidget* widget,
@@ -78,7 +76,6 @@ link_clicked_cb (GtkWidget* widget,
 
         app = (App*) user_data;
 
-        clean_entry_view (app);
         app->start_idx = 0;
 
         if (g_strrstr (class, "author") != NULL)
@@ -87,11 +84,8 @@ link_clicked_cb (GtkWidget* widget,
                 ytv_feed_user (app->feed, param);
         }
 
-        ytv_feed_get_entries_async (app->feed, feed_entry_cb, app);
+        g_idle_add ((GSourceFunc) app_fetch_feed, (gpointer) app);
         
-        gtk_widget_set_sensitive (app->prev, app->start_idx > 0);
-        gtk_widget_set_sensitive (app->next, TRUE);
-
         return;
 }
 
@@ -230,12 +224,6 @@ app_fetch_feed (App* app)
 
         clean_entry_view (app);
 
-        /* ytv_feed_standard (app->feed, YTV_YOUTUBE_STD_FEED_MOST_RECENT); */
-        ytv_feed_standard (app->feed, YTV_YOUTUBE_STD_FEED_MOST_VIEWED);
-        /* ytv_feed_user (app->feed, "pinkipons"); */
-        /* ytv_feed_related (app->feed, "FOwQETKKyF0"); */
-        /* ytv_feed_search (app->feed, "café tacvba"); */
-
         ytv_feed_get_entries_async (app->feed, feed_entry_cb, app);
 
         gtk_widget_set_sensitive (app->prev, app->start_idx > 0);
@@ -305,6 +293,14 @@ app_new (void)
         g_object_unref (parsest);
         g_object_unref (ub);
 
+        /* initial feed to show */
+        /* ytv_feed_standard (app->feed, YTV_YOUTUBE_STD_FEED_MOST_RECENT); */
+        ytv_feed_standard (app->feed, YTV_YOUTUBE_STD_FEED_MOST_VIEWED);
+        /* ytv_feed_user (app->feed, "pinkipons"); */
+        /* ytv_feed_related (app->feed, "FOwQETKKyF0"); */
+        /* ytv_feed_search (app->feed, "café tacvba"); */
+
+        
         return app;
 }
 
