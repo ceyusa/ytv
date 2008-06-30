@@ -70,7 +70,7 @@ gboolean ytv_browser_next_page (YtvBrowser* self);
 gboolean ytv_browser_prev_page (YtvBrowser* self);
 void ytv_browser_set_feed (YtvBrowser* self, YtvFeed* feed);
 YtvFeed* ytv_browser_get_feed (YtvBrowser* self);
-YtvEntreView* ytv_browser_get_focused_entry_view (YtvBrowser* self);
+YtvEntryView* ytv_browser_get_focused_entry_view (YtvBrowser* self);
 void ytv_browser_clean (YtvBrowser* self);
 
 G_END_DECLS
