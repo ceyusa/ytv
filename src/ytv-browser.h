@@ -31,7 +31,7 @@
 G_BEGIN_DECLS
 
 #define YTV_TYPE_BROWSER              \
-        (yt_browser_get_type ())
+        (ytv_browser_get_type ())
 #define YTV_BROWSER(obj)              \
         (G_TYPE_CHECK_INSTANCE_CAST ((obj), YTV_TYPE_BROWSER, YtvBrowser))
 #define YTV_IS_BROWSER(obj)           \
@@ -40,7 +40,7 @@ G_BEGIN_DECLS
         (G_TYPE_INSTANCE_GET_INTERFACE ((inst), YTV_TYPE_BROWSER, YtvBrowserIface))
 
 typedef struct _YtvBrowser YtvBrowser;
-typedef struct _YtvBrowserIface YtvBrowser;
+typedef struct _YtvBrowserIface YtvBrowserIface;
 
 struct _YtvBrowserIface
 {

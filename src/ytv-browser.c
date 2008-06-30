@@ -42,6 +42,8 @@
 #include <config.h>
 #endif
 
+#include <glib.h>
+
 #include <ytv-browser.h>
 
 #include <ytv-marshal.h>
@@ -132,7 +134,7 @@ ytv_browser_set_feed (YtvBrowser* self, YtvFeed* feed)
         YtvFeed* validate;
 
         g_assert (YTV_IS_BROWSER (self));
-        g_assert (YTV_IS_FEED (feed))
+        g_assert (YTV_IS_FEED (feed));
 
         if (YTV_BROWSER_GET_IFACE (self)->set_feed == NULL)
         {
@@ -168,7 +170,7 @@ ytv_browser_get_feed (YtvBrowser* self)
 
         retval = YTV_BROWSER_GET_IFACE (self)->get_feed (self);
 
-        g_asssert (retval != NULL);
+        g_assert (retval != NULL);
 
         return retval;
 }
