@@ -61,9 +61,12 @@ struct _YtvThumbnail
 struct _YtvThumbnailClass
 {
         GtkAlignmentClass parent_class;
+
+        /* signals */
+        void (*clicked) (YtvThumbnail* self);
 };
 
-GType      ytv_thumbnail_get_type (void);
+GType ytv_thumbnail_get_type (void);
 GtkWidget* ytv_thumbnail_new (void);
 
 void ytv_thumbnail_set_fetch_strategy (YtvThumbnail* self,

@@ -44,6 +44,14 @@ enum _YtvThumbnailProp
         PROP_ID
 };
 
+enum _YtvThumbnailSignals
+{
+        CLICKED,
+        LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL] = { 0 };
+
 typedef struct _YtvThumbnailPriv YtvThumbnailPriv;
 
 struct _YtvThumbnailPriv
@@ -130,6 +138,14 @@ on_focus_out (GtkWidget* widget, GdkEventFocus* event, gpointer user_data)
         }
 
         return FALSE;
+}
+
+static void
+on_clicked (GtkWidget* widget, gpointer user_data)
+{
+        g_signal_emit (user_data, signals[CLICKED], 0);
+
+        return;
 }
 
 static void
@@ -375,6 +391,16 @@ ytv_thumbnail_class_init (YtvThumbnailClass* klass)
                  ("id", "vid", "Video identificator string", NULL,
                   G_PARAM_READWRITE));
 
+        signals[CLICKED] =
+                g_signal_new ("clicked",
+                              YTV_TYPE_THUMBNAIL,
+                              G_SIGNAL_RUN_LAST,
+                              G_STRUCT_OFFSET (YtvThumbnailClass,
+                                               clicked),
+                              NULL, NULL,
+                              g_cclosure_marshal_VOID__VOID,
+                              G_TYPE_NONE, 0);
+                                               
         return;
 }
 
@@ -392,6 +418,8 @@ ytv_thumbnail_init (YtvThumbnail* self)
                                   G_CALLBACK (on_focus_in), self);
         g_signal_connect_swapped (G_OBJECT (self->button), "focus-out-event",
                                   G_CALLBACK (on_focus_out), self);
+        g_signal_connect (G_OBJECT (self->button), "clicked",
+                          G_CALLBACK (on_clicked), self);
         gtk_container_add (GTK_CONTAINER (self), self->button);
 
         self->evbox = gtk_event_box_new ();

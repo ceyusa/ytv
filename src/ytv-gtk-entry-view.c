@@ -47,6 +47,23 @@ struct _YtvGtkEntryViewPriv
         (G_TYPE_INSTANCE_GET_PRIVATE ((obj), YTV_TYPE_GTK_ENTRY_VIEW, YtvGtkEntryViewPriv))
 
 static void
+thumb_clicked_cb (YtvThumbnail* thumb, gpointer user_data)
+{
+        YtvGtkEntryView* self = (YtvGtkEntryView*) user_data;
+        gchar* id;
+        
+        g_object_get (G_OBJECT (self->entry), "id", &id, NULL);
+
+        g_debug ("view video: %s", id);
+
+        g_free (id);
+
+        g_signal_emit_by_name (self, "play-stream");
+
+        return;
+}
+
+static void
 link_clicked_cb (YtvEntryTextView* text_view,
                  const gchar* class, const gchar* param, gpointer user_data)
 {
@@ -358,7 +375,12 @@ ytv_gtk_entry_view_init (YtvGtkEntryView* self)
         priv = YTV_GTK_ENTRY_VIEW_GET_PRIVATE (self);
 
         priv->orientation = YTV_ORIENTATION_UNDEF;
+        
         priv->thumb       = ytv_thumbnail_new ();
+
+        g_signal_connect (priv->thumb, "clicked",
+                          G_CALLBACK (thumb_clicked_cb), self);
+        
         priv->text        = ytv_entry_text_view_new ();
 
         g_signal_connect (priv->text, "link-clicked",
