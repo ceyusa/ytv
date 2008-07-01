@@ -362,8 +362,10 @@ static void
 ytv_gtk_browser_set_property (GObject* object, guint prop_id,
                               const GValue* value, GParamSpec* spec)
 {
+        YtvGtkBrowser* self;
         YtvGtkBrowserPriv* priv;
 
+        self = YTV_GTK_BROWSER (object);
         priv = YTV_GTK_BROWSER_GET_PRIVATE (object);
 
         switch (prop_id)
@@ -374,7 +376,7 @@ ytv_gtk_browser_set_property (GObject* object, guint prop_id,
                 break;
         case PROP_NUMENTRIES:
                 priv->num_entries = g_value_get_int (value);
-                g_object_notify (object, "numentries");
+                g_object_notify (object, "num-entries");
                 break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, spec);
@@ -432,7 +434,7 @@ ytv_gtk_browser_class_init (YtvGtkBrowserClass* klass)
 
         g_object_class_install_property
                 (object_class, PROP_NUMENTRIES,
-                 g_param_spec_int ("numentries",
+                 g_param_spec_int ("num-entries",
                                    "num_entries_per_page",
                                    "Number of entries per page",
                                    0, 25, 5, G_PARAM_READWRITE));

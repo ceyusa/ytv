@@ -262,16 +262,16 @@ ytv_browser_base_init (gpointer g_class)
                               G_TYPE_NONE, 0);
 
                 /**
-                 * YtvBrowser::next-page:
+                 * YtvBrowser::first-page:
                  * @self: the #YtvBrowser instance that emitted the signal
                  *
-                 * The ::next-page signal is emmited when the first entry in
+                 * The ::first-page signal is emmited when the first entry in
                  * the feed is show
                  */
-                g_signal_new ("prev-page",
+                g_signal_new ("first-page",
                               YTV_TYPE_BROWSER,
                               G_SIGNAL_RUN_LAST,
-                              G_STRUCT_OFFSET (YtvBrowserIface, prev_page),
+                              G_STRUCT_OFFSET (YtvBrowserIface, first_page),
                               NULL, NULL,
                               g_cclosure_marshal_VOID__VOID,
                               G_TYPE_NONE, 0);

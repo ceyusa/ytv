@@ -126,10 +126,10 @@ get_tag_table (void)
         {
                 table = create_tag_table ();
         }
-        else
-        {
-                g_object_ref (G_OBJECT (table));
-        }
+/*         else */
+/*         { */
+        g_object_ref (G_OBJECT (table)); /* @todo MEMLEAK!!! */
+/*         } */
 
         return table;
 }
