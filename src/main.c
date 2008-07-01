@@ -177,16 +177,6 @@ app_new (void)
         /* ytv_feed_user (app->feed, "pinkipons"); */
         /* ytv_feed_related (app->feed, "FOwQETKKyF0"); */
         /* ytv_feed_search (app->feed, "café tacvba"); */
-
-        app->browser = ytv_gtk_browser_new (app->orientation);
-        g_signal_connect (app->browser, "error-raised",
-                          G_CALLBACK (error_raised_cb), app);
-        g_signal_connect (app->browser, "last-page",
-                          G_CALLBACK (last_page_cb), app);
-        g_signal_connect (app->browser, "first-page",
-                          G_CALLBACK (first_page_cb), app);
-        ytv_browser_set_feed (app->browser, app->feed);
-        g_object_set (G_OBJECT (app->browser), "num-entries", ENTRYNUM, NULL);
         
         return app;
 }
@@ -245,6 +235,16 @@ app_create_ui (App* app)
         gtk_container_add (GTK_CONTAINER (app->next), imgnext);
         g_signal_connect (app->next, "clicked",
                           G_CALLBACK (next_page_cb), app);
+
+        app->browser = ytv_gtk_browser_new (app->orientation);
+        g_signal_connect (app->browser, "error-raised",
+                          G_CALLBACK (error_raised_cb), app);
+        g_signal_connect (app->browser, "last-page",
+                          G_CALLBACK (last_page_cb), app);
+        g_signal_connect (app->browser, "first-page",
+                          G_CALLBACK (first_page_cb), app);
+        ytv_browser_set_feed (app->browser, app->feed);
+        g_object_set (G_OBJECT (app->browser), "num-entries", ENTRYNUM, NULL);
 
         gtk_box_pack_start (GTK_BOX (box), app->prev, FALSE, TRUE, 2);
         gtk_box_pack_start (GTK_BOX (box),

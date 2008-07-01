@@ -460,7 +460,7 @@ ytv_gtk_browser_init (YtvGtkBrowser* self)
         g_object_set (G_OBJECT (self),
                       "column-spacing", 0,
                       "row-spacing", 0,
-                      "homogeneous", FALSE,
+                      "homogeneous", TRUE,
                       "n-columns", 1,
                       "n-rows", 1, NULL);
 

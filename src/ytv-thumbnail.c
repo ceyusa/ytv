@@ -170,7 +170,10 @@ fetch_img_cb (YtvFeedFetchStrategy* st, const gchar* mime,
                 return;
         }
 
-        g_return_if_fail (YTV_IS_THUMBNAIL (user_data));
+        if (!YTV_IS_THUMBNAIL (user_data))
+        {
+                return;
+        }
 
         self = YTV_THUMBNAIL (user_data);
         priv = YTV_THUMBNAIL_GET_PRIVATE (self);
