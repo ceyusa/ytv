@@ -57,6 +57,8 @@ ytv_SOURCES = 				\
 	ytv-marshal.c			\
 	ytv-browser.h			\
 	ytv-browser.c			\
+	ytv-gtk-browser.h		\
+	ytv-gtk-browser.c		\
 	main.c
 
 BUILT_SOURCES=ytv-marshal.c ytv-marshal.h
