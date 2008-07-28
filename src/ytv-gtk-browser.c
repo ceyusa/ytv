@@ -65,6 +65,25 @@ G_DEFINE_TYPE_EXTENDED (YtvGtkBrowser, ytv_gtk_browser, GTK_TYPE_TABLE, 0,
                                                ytv_browser_init))
 
 static void
+change_uri_cb (YtvFeed* feed, GParamSpec *pspec __attribute__((unused)),
+               gpointer user_data)
+{
+        gchar* uri;
+
+        g_object_get (G_OBJECT (feed), "uri", &uri, NULL);
+        g_debug ("new URI = %s", uri ? uri : "NULL");
+
+        /* @todo add to a history list */
+        
+        if (uri)
+        {
+                g_free (uri);
+        }
+
+        return; 
+}
+
+static void
 set_start_index (YtvGtkBrowser* self, gint idx)
 {
         YtvUriBuilder* ub;
@@ -300,8 +319,15 @@ static void
 ytv_gtk_browser_set_feed_default (YtvBrowser* me, YtvFeed* feed)
 {
         YtvGtkBrowser* self = YTV_GTK_BROWSER (me);
+
+        if (self->feed != NULL)
+        {
+                g_object_unref (self->feed);
+        }
         
         self->feed = g_object_ref (feed);
+        g_signal_connect (self->feed, "notify::uri",
+                          G_CALLBACK (change_uri_cb), self);
 
         return;
 }
@@ -460,7 +486,7 @@ ytv_gtk_browser_init (YtvGtkBrowser* self)
         g_object_set (G_OBJECT (self),
                       "column-spacing", 0,
                       "row-spacing", 0,
-                      "homogeneous", TRUE,
+                      "homogeneous", FALSE,
                       "n-columns", 1,
                       "n-rows", 1, NULL);
 
