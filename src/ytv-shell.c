@@ -19,7 +19,11 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <ytv-shell.h>
+
 #include <ytv-gtk-browser.h>
+
+#include <gtk/gtk.h>
 
 enum _YtvShellSignals
 {
@@ -34,7 +38,8 @@ struct _YtvShellPriv
 {
         YtvBrowser* browser;
         GtkWidget* last_focused;
-        GtkWidget* next, prev;
+        GtkWidget* next;
+        GtkWidget* prev;
         GtkWidget* search_entry;
 };
 
@@ -44,12 +49,12 @@ struct _YtvShellPriv
 G_DEFINE_TYPE (YtvShell, ytv_shell, GTK_TYPE_NOTEBOOK)
 
 static void
-error_raised_cb (YtvBrowser* browser, GError *err, gpointer user_data)
+error_raised_cb (YtvBrowser *browser, GError *err, gpointer user_data)
 {
         YtvShell* self = YTV_SHELL (user_data);
 
         /* @todo update the status bar */
-        g_signal_emit (self, signals[ERROR_RAISED], err);
+        g_signal_emit (self, signals[ERROR_RAISED], 0, err);
 
         return;
 }
@@ -57,10 +62,13 @@ error_raised_cb (YtvBrowser* browser, GError *err, gpointer user_data)
 static void
 first_page_cb (YtvBrowser* browser, gpointer user_data)
 {
+        YtvShellPriv* priv;
         YtvShell* self = YTV_SHELL (user_data);
+        
+        priv = YTV_SHELL_GET_PRIVATE (self);
 
-        gtk_widget_set_sensitive (self->prev, FALSE);
-        gtk_widget_set_sensitive (self->next, TRUE);
+        gtk_widget_set_sensitive (priv->prev, FALSE);
+        gtk_widget_set_sensitive (priv->next, TRUE);
 
         return;
 }
@@ -68,10 +76,13 @@ first_page_cb (YtvBrowser* browser, gpointer user_data)
 static void
 last_page_cb (YtvBrowser* browser, gpointer user_data)
 {
+        YtvShellPriv* priv;
         YtvShell* self = YTV_SHELL (user_data);
+        
+        priv = YTV_SHELL_GET_PRIVATE (self);
 
-        gtk_widget_set_sensitive (self->prev, TRUE);
-        gtk_widget_set_sensitive (self->next, FALSE);
+        gtk_widget_set_sensitive (priv->prev, TRUE);
+        gtk_widget_set_sensitive (priv->next, FALSE);
 
         return;
 }
@@ -79,12 +90,15 @@ last_page_cb (YtvBrowser* browser, gpointer user_data)
 static void
 next_page_cb (GtkWidget* wid, gpointer user_data)
 {
+        YtvShellPriv* priv;
         YtvShell* self = YTV_SHELL (user_data);
+        
+        priv = YTV_SHELL_GET_PRIVATE (self);
 
-        ytv_browser_next_page (self->browser);
+        ytv_browser_next_page (priv->browser);
 
-        gtk_widget_set_sensitive (self->prev, TRUE);
-        gtk_widget_set_sensitive (self->next, TRUE);
+        gtk_widget_set_sensitive (priv->prev, TRUE);
+        gtk_widget_set_sensitive (priv->next, TRUE);
 
         return;
 }
@@ -92,33 +106,36 @@ next_page_cb (GtkWidget* wid, gpointer user_data)
 static void
 prev_page_cb (GtkWidget* wid, gpointer user_data)
 {
+        YtvShellPriv* priv;
         YtvShell* self = YTV_SHELL (user_data);
+        
+        priv = YTV_SHELL_GET_PRIVATE (self);
 
-        ytv_browser_prev_page (self->browser);
+        ytv_browser_prev_page (priv->browser);
 
-        gtk_widget_set_sensitive (self->prev, TRUE);
-        gtk_widget_set_sensitive (self->next, TRUE);
+        gtk_widget_set_sensitive (priv->prev, TRUE);
+        gtk_widget_set_sensitive (priv->next, TRUE);
 
         return;
 }
 
 static void
-search_focus_cb (GtkContainer *container, GtkWidget* wid, gpointer user_data)
+search_focus_cb (GtkContainer *container, GtkWidget* w, gpointer user_data)
 {
         YtvShell* self = YTV_SHELL (user_data);
         
-        if (wid != NULL)
+        if (w != NULL)
         {
                 YtvShellPriv* priv = YTV_SHELL_GET_PRIVATE (self);
 
-                priv->last_focused = wid;
+                priv->last_focused = w;
         }
 
         return;
 }
 
 static void
-search_clicked_cb (GtkButton* button, gpointer user_data)
+search_clicked_cb (GtkWidget* button, gpointer user_data)
 {
         YtvShellPriv* priv;
         YtvShell* self = YTV_SHELL (user_data);
@@ -130,11 +147,11 @@ search_clicked_cb (GtkButton* button, gpointer user_data)
 }
 
 static void
-search_activated_cb (GtkEntry* entry, gpointer user_data)
+search_activated_cb (GtkWidget* entry, gpointer user_data)
 {
         const gchar* q;
 
-        q = gtk_entry_get_text (entry);
+        q = gtk_entry_get_text (GTK_ENTRY (entry));
 
         if (q != NULL)
         {
@@ -167,11 +184,13 @@ create_browser_tab (YtvShell* self)
 {
         YtvShellPriv* priv;
         GtkWidget* box;
-        GtkWidget* searchbox, searchentry;
+        GtkWidget* searchbox;
+        GtkWidget* searchentry;
+        GtkWidget* searchbutton;
 
         priv = YTV_SHELL_GET_PRIVATE (self);
         
-        box = gtk_vbox_new ();
+        box = gtk_vbox_new (FALSE, 0);
         
         priv->browser = ytv_gtk_browser_new (YTV_ORIENTATION_HORIZONTAL);
         g_signal_connect (priv->browser, "error-raised",
@@ -180,14 +199,17 @@ create_browser_tab (YtvShell* self)
                           G_CALLBACK (last_page_cb), self);
         g_signal_connect (priv->browser, "first-page",
                           G_CALLBACK (first_page_cb), self);
-        gtk_box_pack_start (GTK_BOX (box), priv->browser, TRUE, TRUE, 0);
+        gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (priv->browser),
+                            TRUE, TRUE, 0);
 
         searchbox = gtk_hbox_new (FALSE, 0);
         g_signal_connect (searchbox, "set-focus-child",
                           G_CALLBACK (search_focus_cb), self);
         gtk_box_pack_start (GTK_BOX (box), searchbox, FALSE, FALSE, 0);
 
-        searchbutton = gtk_tool_button_new_from_stock (GTK_STOCK_FIND);
+        searchbutton = GTK_WIDGET (
+                gtk_tool_button_new_from_stock (GTK_STOCK_FIND)
+                );
         g_signal_connect (searchbutton, "clicked",
                           G_CALLBACK (search_clicked_cb), self);
         gtk_box_pack_start (GTK_BOX (searchbox), searchbutton, FALSE, FALSE, 0);
@@ -199,12 +221,16 @@ create_browser_tab (YtvShell* self)
         g_signal_connect (priv->search_entry, "activate",
                           G_CALLBACK (search_activated_cb), self);
 
-        priv->next = gtk_tool_button_new_from_stock (GTK_STOCK_GO_FORWARD);
+        priv->next = GTK_WIDGET (
+                gtk_tool_button_new_from_stock (GTK_STOCK_GO_FORWARD)
+                );
         g_signal_connect (priv->next, "clicked",
                           G_CALLBACK (next_page_cb), self);
         gtk_box_pack_start (GTK_BOX (box), priv->next, FALSE, FALSE, 0);
 
-        priv->prev = gtk_tool_button_new_from_stock (GTK_STOCK_GO_BACK);
+        priv->prev = GTK_WIDGET (
+                gtk_tool_button_new_from_stock (GTK_STOCK_GO_BACK)
+                );
         g_signal_connect (priv->next, "clicked",
                           G_CALLBACK (prev_page_cb), self);
         gtk_box_pack_start (GTK_BOX (box), priv->prev, FALSE, FALSE, 0);
@@ -230,7 +256,7 @@ static void
 create_ui (YtvShell* self)
 {
         gtk_notebook_append_page (GTK_NOTEBOOK (self),
-                                  create_browse_tab (self),
+                                  create_browser_tab (self),
                                   gtk_label_new ("Browser"));
         gtk_notebook_append_page (GTK_NOTEBOOK (self),
                                   create_player_tab (self),
@@ -239,8 +265,8 @@ create_ui (YtvShell* self)
                                   create_info_tab (self),
                                   gtk_label_new ("Info"));
 
-        g_signal_connect (self, "switch-page",
-                          G_CALLBACK (switch_page_cb), NULL);
+/*         g_signal_connect (self, "switch-page", */
+/*                           G_CALLBACK (switch_page_cb), NULL); */
 
         /* @todo update the status bar */
 }
@@ -252,7 +278,7 @@ ytv_shell_class_init (YtvShellClass* klass)
 
         object_class = G_OBJECT_CLASS (klass);
         
-        g_type_class_add_private (object_class, sizeof (YtvShellriv));
+        g_type_class_add_private (object_class, sizeof (YtvShellPriv));
 
         /**
          * YtvShell::error-raised:
@@ -295,8 +321,6 @@ YtvBrowser*
 ytv_shell_get_browser (YtvShell* self)
 {
         YtvShellPriv* priv;
-        YtvShell* self = YTV_SHELL (user_data);
-        
         priv = YTV_SHELL_GET_PRIVATE (self);
 
         return g_object_ref (priv->browser);

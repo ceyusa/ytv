@@ -57,7 +57,7 @@ struct _YtvShellClass
         GtkNotebookClass parent_class;
 
         /* signals */
-        void (*error_raised) (YtvBrowser* self, GError* error);
+        void (*error_raised) (YtvShell* self, GError* error);
 };
 
 GType ytv_shell_get_type (void);
