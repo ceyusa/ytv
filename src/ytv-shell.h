@@ -24,6 +24,9 @@
 
 #include <gtk/gtknotebook.h>
 
+#include <ytv-browser.h>
+#include <ytv-feed.h>
+
 G_BEGIN_DECLS
 
 #define YTV_TYPE_SHELL                          \
@@ -63,6 +66,8 @@ struct _YtvShellClass
 GType ytv_shell_get_type (void);
 
 GtkWidget* ytv_shell_new (void);
+YtvBrowser* ytv_shell_get_browser (YtvShell* self);
+void ytv_shell_set_feed (YtvShell* self, YtvFeed* feed);
 
 G_END_DECLS
 

@@ -26,6 +26,7 @@
 #include <ytv-youtube-uri-builder.h>
 #include <ytv-base-feed.h>
 #include <ytv-error.h>
+#include <ytv-shell.h>
 #include <ytv-gtk-browser.h>
 
 #include <gtk/gtk.h>
@@ -48,43 +49,13 @@ typedef struct _App App;
 struct _App
 {
         GtkWidget* win;
-        GtkWidget* box;
-        GtkWidget* next;
-        GtkWidget* prev;
-        YtvBrowser* browser;
+        GtkWidget* shell;
         YtvFeed* feed;
         YtvOrientation orientation;
 };
 
-static gboolean
-app_fetch_feed (App* app)
-{
-        ytv_browser_fetch_entries (app->browser);
-
-        gtk_widget_set_sensitive (app->prev, TRUE);
-        gtk_widget_set_sensitive (app->next, TRUE);
-        
-        return FALSE;
-}
-
 static void
-next_page_cb (GtkWidget* wid, gpointer user_data)
-{
-        App* app = (App*) user_data;
-
-        ytv_browser_next_page (app->browser);
-}
-
-static void
-prev_page_cb (GtkWidget* wid, gpointer user_data)
-{
-        App* app = (App*) user_data;
-
-        ytv_browser_prev_page (app->browser);
-}
-
-static void
-error_raised_cb (YtvBrowser* browser, GError *err, gpointer user_data)
+error_raised_cb (YtvShell* shell, GError *err, gpointer user_data)
 {
         GtkWidget* dialog;
         
@@ -101,39 +72,19 @@ error_raised_cb (YtvBrowser* browser, GError *err, gpointer user_data)
         return;
 }
 
-static void
-first_page_cb (YtvBrowser* browser, gpointer user_data)
+static gboolean
+app_fetch_feed (App* app)
 {
-        App* app = (App*) user_data;
+        YtvBrowser* browser;
 
-        gtk_widget_set_sensitive (app->prev, FALSE);
-        gtk_widget_set_sensitive (app->next, TRUE);
+        browser = ytv_shell_get_browser (YTV_SHELL (app->shell));
+        ytv_browser_set_feed (browser, app->feed);
+        ytv_browser_fetch_entries (browser);
+        g_object_unref (browser);
 
-        return;
+        return FALSE;
 }
 
-static void
-last_page_cb (YtvBrowser* browser, gpointer user_data)
-{
-        App* app = (App*) user_data;
-
-        gtk_widget_set_sensitive (app->prev, TRUE);
-        gtk_widget_set_sensitive (app->next, FALSE);
-
-        return;
-}
-
-static void
-change_uri_cb (YtvFeed* feed, GParamSpec *pspec __attribute__((unused)))
-{
-        gchar* uri;
-
-        g_object_get (G_OBJECT (feed), "uri", &uri, NULL);
-        g_debug ("new URI = %s", uri ? uri : "NULL");
-        g_free (uri);
-
-        return;
-}
 
 static App*
 app_new (void)
@@ -141,7 +92,7 @@ app_new (void)
         App* app;
         YtvFeedFetchStrategy* fetchst;
         YtvFeedParseStrategy* parsest; 
-        YtvUriBuilder* ub; 
+        YtvUriBuilder* ub;
 
         app = g_slice_new (App);
 
@@ -149,9 +100,6 @@ app_new (void)
         app->orientation = YTV_ORIENTATION_HORIZONTAL;
 
         app->feed = ytv_base_feed_new ();
-
-        g_signal_connect (app->feed, "notify::uri",
-                          G_CALLBACK (change_uri_cb), NULL);
 
         fetchst = ytv_soup_feed_fetch_strategy_new ();
         parsest = ytv_json_feed_parse_strategy_new ();
@@ -198,8 +146,6 @@ static void
 app_create_ui (App* app)
 {
         GtkWidget* box;
-        GtkWidget* imgprev;
-        GtkWidget* imgnext;
 
         app->win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
         /* gtk_widget_set_size_request (win, 400, 600); */
@@ -208,48 +154,12 @@ app_create_ui (App* app)
         g_signal_connect (G_OBJECT (app->win), "delete_event",
                           G_CALLBACK (gtk_main_quit), NULL);
 
-        if (app->orientation == YTV_ORIENTATION_HORIZONTAL)
-        {
-                box = gtk_hbox_new (FALSE, 0);
+        box = gtk_hbox_new (FALSE, 0);
 
-                imgprev = gtk_image_new_from_stock (GTK_STOCK_GO_BACK,
-                                                    GTK_ICON_SIZE_MENU);
-                imgnext = gtk_image_new_from_stock (GTK_STOCK_GO_FORWARD,
-                                                    GTK_ICON_SIZE_MENU);
-        }
-        else
-        {
-                box = gtk_vbox_new (FALSE, 0);
-                imgprev = gtk_image_new_from_stock (GTK_STOCK_GO_UP,
-                                                    GTK_ICON_SIZE_MENU);
-                imgnext = gtk_image_new_from_stock (GTK_STOCK_GO_DOWN,
-                                                    GTK_ICON_SIZE_MENU);
-        }
-
-        app->prev = gtk_button_new ();
-        gtk_container_add (GTK_CONTAINER (app->prev), imgprev);
-        g_signal_connect (app->prev, "clicked",
-                          G_CALLBACK (prev_page_cb), app);
-        
-        app->next = gtk_button_new ();
-        gtk_container_add (GTK_CONTAINER (app->next), imgnext);
-        g_signal_connect (app->next, "clicked",
-                          G_CALLBACK (next_page_cb), app);
-
-        app->browser = ytv_gtk_browser_new (app->orientation);
-        g_signal_connect (app->browser, "error-raised",
+        app->shell = ytv_shell_new ();
+        g_signal_connect (app->shell, "error-raised",
                           G_CALLBACK (error_raised_cb), app);
-        g_signal_connect (app->browser, "last-page",
-                          G_CALLBACK (last_page_cb), app);
-        g_signal_connect (app->browser, "first-page",
-                          G_CALLBACK (first_page_cb), app);
-        ytv_browser_set_feed (app->browser, app->feed);
-        g_object_set (G_OBJECT (app->browser), "num-entries", ENTRYNUM, NULL);
-
-        gtk_box_pack_start (GTK_BOX (box), app->prev, FALSE, TRUE, 2);
-        gtk_box_pack_start (GTK_BOX (box),
-                            GTK_WIDGET (app->browser), TRUE, TRUE, 0);
-        gtk_box_pack_end (GTK_BOX (box), app->next, FALSE, TRUE, 2);
+        gtk_box_pack_start (GTK_BOX (box), app->shell, TRUE, TRUE, 0);
         
         gtk_container_add (GTK_CONTAINER (app->win), box);
 

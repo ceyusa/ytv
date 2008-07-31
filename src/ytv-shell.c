@@ -22,6 +22,7 @@
 #include <ytv-shell.h>
 
 #include <ytv-gtk-browser.h>
+#include <ytv-youtube-uri-builder.h>
 
 #include <gtk/gtk.h>
 
@@ -68,7 +69,6 @@ first_page_cb (YtvBrowser* browser, gpointer user_data)
         priv = YTV_SHELL_GET_PRIVATE (self);
 
         gtk_widget_set_sensitive (priv->prev, FALSE);
-        gtk_widget_set_sensitive (priv->next, TRUE);
 
         return;
 }
@@ -81,7 +81,6 @@ last_page_cb (YtvBrowser* browser, gpointer user_data)
         
         priv = YTV_SHELL_GET_PRIVATE (self);
 
-        gtk_widget_set_sensitive (priv->prev, TRUE);
         gtk_widget_set_sensitive (priv->next, FALSE);
 
         return;
@@ -167,8 +166,19 @@ search_activated_cb (GtkWidget* entry, gpointer user_data)
 
                 if (feed != NULL)
                 {
+                        YtvUriBuilder* ub = ytv_feed_get_uri_builder (feed);
+                        g_object_set (G_OBJECT (ub),
+                                      "time", YTV_YOUTUBE_TIME_ALL_TIME,
+                                      "start-index", 0, NULL);
+                        g_object_unref (ub);
+                        
                         ytv_feed_search (feed, q);
                         g_object_unref (feed);
+
+                        ytv_browser_fetch_entries (priv->browser);
+                        
+                        gtk_widget_set_sensitive (priv->prev, TRUE);
+                        gtk_widget_set_sensitive (priv->next, TRUE);
                 }
                 else
                 {
@@ -187,6 +197,7 @@ create_browser_tab (YtvShell* self)
         GtkWidget* searchbox;
         GtkWidget* searchentry;
         GtkWidget* searchbutton;
+        GtkWidget* scrolledwin;
 
         priv = YTV_SHELL_GET_PRIVATE (self);
         
@@ -199,8 +210,21 @@ create_browser_tab (YtvShell* self)
                           G_CALLBACK (last_page_cb), self);
         g_signal_connect (priv->browser, "first-page",
                           G_CALLBACK (first_page_cb), self);
-        gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (priv->browser),
-                            TRUE, TRUE, 0);
+
+
+        scrolledwin = gtk_scrolled_window_new (NULL, NULL);
+        g_object_set (scrolledwin, "scrollbar-spacing", 0, NULL);
+        gtk_scrolled_window_set_policy (
+                GTK_SCROLLED_WINDOW (scrolledwin),
+                GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+        gtk_scrolled_window_set_shadow_type (
+                GTK_SCROLLED_WINDOW (scrolledwin), GTK_SHADOW_NONE);
+        gtk_scrolled_window_add_with_viewport (
+                GTK_SCROLLED_WINDOW (scrolledwin),
+                GTK_WIDGET (priv->browser)
+                );
+        
+        gtk_box_pack_start (GTK_BOX (box), scrolledwin, TRUE, TRUE, 0);
 
         searchbox = gtk_hbox_new (FALSE, 0);
         g_signal_connect (searchbox, "set-focus-child",
@@ -220,20 +244,21 @@ create_browser_tab (YtvShell* self)
                           G_CALLBACK (gtk_widget_grab_focus), NULL);
         g_signal_connect (priv->search_entry, "activate",
                           G_CALLBACK (search_activated_cb), self);
+        gtk_box_pack_start (GTK_BOX (searchbox), searchentry, FALSE, FALSE, 0);
+
+        priv->prev = GTK_WIDGET (
+                gtk_tool_button_new_from_stock (GTK_STOCK_GO_BACK)
+                );
+        g_signal_connect (priv->prev, "clicked",
+                          G_CALLBACK (prev_page_cb), self);
+        gtk_box_pack_start (GTK_BOX (searchbox), priv->prev, FALSE, FALSE, 0);
 
         priv->next = GTK_WIDGET (
                 gtk_tool_button_new_from_stock (GTK_STOCK_GO_FORWARD)
                 );
         g_signal_connect (priv->next, "clicked",
                           G_CALLBACK (next_page_cb), self);
-        gtk_box_pack_start (GTK_BOX (box), priv->next, FALSE, FALSE, 0);
-
-        priv->prev = GTK_WIDGET (
-                gtk_tool_button_new_from_stock (GTK_STOCK_GO_BACK)
-                );
-        g_signal_connect (priv->next, "clicked",
-                          G_CALLBACK (prev_page_cb), self);
-        gtk_box_pack_start (GTK_BOX (box), priv->prev, FALSE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (searchbox), priv->next, FALSE, FALSE, 0);
 
         priv->last_focused = searchbutton;
         
@@ -312,6 +337,17 @@ ytv_shell_init (YtvShell* self)
 }
 
 /**
+ * ytv_shell_new:
+ *
+ * returns: (not-null): a new shell widget
+ */
+GtkWidget*
+ytv_shell_new ()
+{
+        return GTK_WIDGET (g_object_new (YTV_TYPE_SHELL, NULL));
+}
+
+/**
  * ytv_shell_get_browser:
  * @self: a #YtvShell
  *
@@ -321,7 +357,33 @@ YtvBrowser*
 ytv_shell_get_browser (YtvShell* self)
 {
         YtvShellPriv* priv;
+
+        g_return_val_if_fail (YTV_IS_SHELL (self), NULL);
+        
         priv = YTV_SHELL_GET_PRIVATE (self);
 
         return g_object_ref (priv->browser);
+}
+
+
+/**
+ * ytv_shell_set_feed:
+ * @self: a #YtvShell
+ * @feed (not-null): a #YtvFeed
+ *
+ * Assign the @feed to the internal @YtvBrowser
+ */
+void
+ytv_shell_set_feed (YtvShell* self, YtvFeed* feed)
+{
+        YtvShellPriv* priv;
+
+        g_return_if_fail (YTV_IS_SHELL (self));
+        g_return_if_fail (YTV_IS_FEED (feed));
+
+        priv = YTV_SHELL_GET_PRIVATE (self);
+
+        ytv_browser_set_feed (priv->browser, feed);
+
+        return;
 }

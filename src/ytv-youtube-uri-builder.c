@@ -422,12 +422,17 @@ ytv_youtube_uri_builder_search_feed_default (YtvUriBuilder* self,
                 priv->reqtype = YTV_URI_BUILDER_REQ_FEED_TYPE_SEARCH;
                 priv->arg3    = 0;
 
-                if (priv->arg1 != NULL)
+                if (priv->arg1 != NULL && priv->arg1 != query)
                 {
                         g_free (priv->arg1);
                         priv->arg1 = NULL;
                 }
-                priv->arg1 = g_strstrip (g_strdup (query));
+
+                /* strdup when arg1 == NULL && arg1 != query */
+                if (priv->arg1 != query) 
+                {
+                        priv->arg1 = g_strstrip (g_strdup (query));
+                }
 
                 if (priv->arg2 != NULL)
                 {

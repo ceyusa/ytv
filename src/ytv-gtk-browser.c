@@ -297,7 +297,7 @@ ytv_gtk_browser_prev_page_default (YtvBrowser* me)
         YtvGtkBrowser* self = YTV_GTK_BROWSER (me);
         YtvGtkBrowserPriv* priv = YTV_GTK_BROWSER_GET_PRIVATE (self);
 
-        if (priv->start_idx - priv->num_entries > 0 && priv->page_num > 0)
+        if (priv->start_idx - priv->num_entries >= 0 && priv->page_num > 0)
         {
                 priv->start_idx -= priv->num_entries;
                 set_start_index (self, priv->start_idx);
